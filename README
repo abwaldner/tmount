@@ -1,0 +1,70 @@
+
+   tmount - block devices mounter/unmounter for system tray on Linux.
+
+  Alexander B. Waldner, 2016.  See COPYING file for terms of usage.
+
+      "tmount" is an application, that starts in system tray (aka
+  notification area), then lists and monitors via "udev" all filesystem-
+  contains block devices and offers mounting/unmounting.  In addition,
+  the application can operate as automounter for hotplug devices and
+  removable media.
+      Actions are selected (toggled) from menu, wich shown on left-
+  button click on the tray icon.  Context (right-click activated) menu
+  of that icon contains the "Settings" and "Quit" items.
+
+     By default "tmount" use "udevil"
+  (https://ignorantguru.github.com/udevil/) for mounting/unmountig.  You
+  can use any other appropriate program or your own script by editing
+  "Mount command" and "Unmount command" fields in "Settings" dialog
+  window.  The device node name (b.e. /dev/sdc1 or /dev/sr0) will be
+  appended to the end of given command line for mount and eject commands
+  and the mountpoint pathname will be appended for unmount command.  For
+  example, for use of the "pmount" program
+  (http://pmount.alioth.debian.org/) just type "pmount" and "pumount" in
+  appropriate fields.  To disable the media ejection from the ejection-
+  capable devices after unmounting, just set "Eject command" field to
+  empty.
+      By default "tmount" shows all block devices and partitions
+  containing the filesystem.  To hide some of them, for example the root
+  file system, type a space-separated list of these devices (b.e.
+  "/dev/sda3 /dev/sdb1" to the "Hidden devices" field and restart the
+  application.
+      The options "Mount New", "Mount media", and "Mount on start"
+  control attempts of program to mount the filesystems on the connected
+  devices, inserted removable media and during the start of
+  the application, respectively.  By default all set to "false".
+      All options can be also installed by editing of the configuration
+  file ~/.config/tmount/tmount.conf, which is created when you first
+  start "tmount".
+
+      The program sees all the mountpoints created by the outside
+  (by automounter, filemanager or manually), on the real or "loopback"
+  devices, as well as using the "mount --bind", and invites the separate
+  menu items for unmounting each of them individually.
+      Note:  the "pmount" program, unlike the "udevil", can in this case
+  work not properly, unmounting not the point that the specified.
+  However, this is not the work of the fool the application.
+      When starting this version of program wait the availability of
+  the system tray up to 30 seconds, then silently ends, if it is not
+  available.
+
+      "tmount" use only "udev" and "procfs" functionality and require
+  only libudev and Qt libraries.  This is Linux-specific program.
+  Tested on qt-4.8.6, qt-5.5.1 and eudev 3.1.5.
+
+      Installation:
+      -------------
+
+  1)  Make sure that the packages "qtcore", "qtgui" and "linguist" are
+      installed.  In some distributions you may need "developers
+      packages" - "-devel", "-tools" or similar.
+  2)  Extract project directory from archive and "cd" to it.
+  3)  Enter "lrelease tmount.pro" if you want to install
+      the translations.  Currently only Russian translation present.
+  4)  Type "qmake" to configure the program.  If you would like to
+      install the program somewhere other than /usr, pass a new value
+      for PREFIX variable during configuration, for example:
+      "qmake PREFIX=/usr/local".
+  5)  Enter "make" to build the application.
+  6)  Type "sudo make install" (or "su -c 'make install'").
+

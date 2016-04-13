@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=tmount
+Type=Application
+Comment=Removable devices and media  mounter/unmounter
+Comment[ru]=Монтировщик/размонтировщик сменных устройств и носителей
+Exec=tmount
+Icon=tmount
+Categories=Utility;Qt;
