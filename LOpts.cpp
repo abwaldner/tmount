@@ -11,89 +11,145 @@
 #include "Listener.h"
 
 static const char // ".conf" file items.
-  * MC = "Mount_command"  , * UC = "Unmount_command" , * EC = "Eject_command" ,
-  * HD = "Hidden_devices" , * MN = "Mount_new"       , * MM = "Mount_media"   ,
-  * MS = "Mount_on_start" ;
+  * MountCmdItm = "Mount_command"  , * UnmntCmdItm = "Unmount_command" ,
+  * EjectCmdItm = "Eject_command"  , * HideDevsItm = "Hidden_devices"  ,
+  * LockCmdItm  = "Lock_command"   , * UnlckCmdItm = "Unlock_command"  ,
+  * MntNewItm   = "Mount_new"      , * MntMediaItm = "Mount_media"     ,
+  * MntStartItm = "Mount_on_start" ;
 
 LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
 
   // Default values.
-  QString MCdef = "udevil mount"  , ECdef = "eject" ,
-          UCdef = "udevil umount" , HDdef = "" ;
-  bool MNdef = false , MMdef = false , MSdef = false ;
+  QString MountCmdDef = "udevil mount"  , UnlckCmdDef = "" ,
+          UnmntCmdDef = "udevil umount" , LockCmdDef  = "" ,
+          EjectCmdDef = "eject"         , HideDevsDef = "" ;
+  bool MntNewDef = false , MntMediaDef = false , MntStartDef = false ;
 
   QString // Labels.
-    MCl = tr ( "Mount &command" ) , UCl = tr ( "&Unmount command" ) ,
-    ECl = tr ( "&Eject command" ) , HDl = tr ( "&Hidden devices"  ) ,
-    MNl = tr ( "Mount &new"     ) , MMl = tr ( "Mount &media"     ) ,
-    MSl = tr ( "Mount on &start"  ) ;
+    MountCmdLbl = tr ( "Mount &command"   ) ,
+    UnmntCmdLbl = tr ( "&Unmount command" ) ,
+    EjectCmdLbl = tr ( "&Eject command"   ) ,
+    HideDevsLbl = tr ( "&Hidden devices"  ) ,
+    UnlckCmdLbl = tr ( "Unloc&k command"  ) ,
+    LockCmdLbl  = tr ( "&Lock  command"   ) ,
+    MntNewLbl   = tr ( "Mount &new"       ) ,
+    MntMediaLbl = tr ( "Mount &media"     ) ,
+    MntStartLbl = tr ( "Mount on &start"  ) ;
 
   QString // Tooltips.
-    MCt = tr ( "The device node name (/dev/...) will be<br/>"
-               "appended to the end of given command line." ) ,
-    UCt = tr ( "The mountpoint pathname (/media/...) will be<br/>"
-               "appended to the end of given command line." ) ,
-    ECt = MCt ,
-    HDt = tr ( "Type a space-separated list of devices, b.e.<br/>"
-               "'/dev/sda3 /dev/sdb1' (restart required)."  ) ;
+    MountCmdTtp = tr ( "The device node name (/dev/...) will be<br/>"
+                       "appended to the end of given command line."    ) ,
+    UnmntCmdTtp = tr ( "The mountpoint pathname (/media/...) will be<br/>"
+                       "appended to the end of given command line."    ) ,
+    HideDevsTtp = tr ( "Type a space-separated list of regexps, b.e.<br/>"
+                       "'/dev/sd[ab].* /dev/sdc1' (restart required)." ) ,
+    LockCmdTtp  = tr ( "The mapping name will be<br/>"
+                       "appended to the end of given command line."    ) ,
+    UnlckCmdTtp = MountCmdTtp , EjectCmdTtp = MountCmdTtp ;
 
   setWindowTitle ( qApp -> applicationName ( ) + tr ( " - Settings" ) ) ;
   setWindowIcon  ( QIcon ( ":/icons/config.png" ) ) ;
 
-  bool NS = false ;
+  NeedSave = false ;
 
-  if ( ! Conf . contains ( MC ) ) { NS = true ; MCData = MCdef ;
-  } else { MCData = Conf . value ( MC ) . toString ( ) ;
+  if ( Conf . contains ( MountCmdItm ) ) {
+    MountCmdVal = Conf . value ( MountCmdItm ) . toString ( ) ;
+  } else { NeedSave = true ; MountCmdVal = MountCmdDef ;
   }//fi
-  if ( ! Conf . contains ( UC ) ) { NS = true ; UCData = UCdef ;
-  } else { UCData = Conf . value ( UC ) . toString ( ) ;
+  if ( Conf . contains ( UnmntCmdItm ) ) {
+    UnmntCmdVal = Conf . value ( UnmntCmdItm ) . toString ( ) ;
+  } else { NeedSave = true ; UnmntCmdVal = UnmntCmdDef ;
   }//fi
-  if ( ! Conf . contains ( EC ) ) { NS = true ; ECData = ECdef ;
-  } else { ECData = Conf . value ( EC ) . toString ( ) ;
+  if ( Conf . contains ( EjectCmdItm ) ) {
+    EjectCmdVal = Conf . value ( EjectCmdItm ) . toString ( ) ;
+  } else { NeedSave = true ; EjectCmdVal = EjectCmdDef ;
   }//fi
-  if ( ! Conf . contains ( HD ) ) { NS = true ; HDData = HDdef ;
-  } else { HDData = Conf . value ( HD ) . toString ( ) ;
+  if ( Conf . contains ( UnlckCmdItm ) ) {
+    UnlckCmdVal = Conf . value ( UnlckCmdItm ) . toString ( ) ;
+  } else { NeedSave = true ; UnlckCmdVal = UnlckCmdDef ;
   }//fi
-  if ( ! Conf . contains ( MN ) ) { NS = true ; MNData = MNdef ;
-  } else { MNData = Conf . value ( MN ) . toBool ( ) ;
+  if ( Conf . contains ( LockCmdItm  ) ) {
+    LockCmdVal  = Conf . value ( LockCmdItm  ) . toString ( ) ;
+  } else { NeedSave = true ; LockCmdVal  = LockCmdDef  ;
   }//fi
-  if ( ! Conf . contains ( MM ) ) { NS = true ; MMData = MMdef ;
-  } else { MMData = Conf . value ( MM ) . toBool ( ) ;
+  if ( Conf . contains ( HideDevsItm ) ) {
+    HideDevsVal = Conf . value ( HideDevsItm ) . toString ( ) ;
+  } else { NeedSave = true ; HideDevsVal = HideDevsDef ;
   }//fi
-  if ( ! Conf . contains ( MS ) ) { NS = true ; MSData = MSdef ;
-  } else { MSData = Conf . value ( MS ) . toBool ( ) ;
+  if ( Conf . contains ( MntNewItm ) ) {
+    MntNewVal   = Conf . value ( MntNewItm   ) . toBool ( ) ;
+  } else { NeedSave = true ; MntNewVal   = MntNewDef ;
   }//fi
-
-  NeedSave = NS ;
+  if ( Conf . contains ( MntMediaItm ) ) {
+    MntMediaVal = Conf . value ( MntMediaItm ) . toBool ( ) ;
+  } else { NeedSave = true ; MntMediaVal = MntMediaDef ;
+  }//fi
+  if ( Conf . contains ( MntStartItm ) ) {
+    MntStartVal = Conf . value ( MntStartItm ) . toBool ( ) ;
+  } else { NeedSave = true ; MntStartVal = MntStartDef ;
+  }//fi
 
   QGridLayout * Lay = new QGridLayout ; QLabel * Lbl ; int R = 0 ;
 
-  MCLine = new QLineEdit ( MCData ) ; ECLine = new QLineEdit ( ECData ) ;
-  UCLine = new QLineEdit ( UCData ) ; HDLine = new QLineEdit ( HDData ) ;
-  MNBox  = new QCheckBox ( MNl  ) ; MNBox -> setChecked ( MNData ) ;
-  MMBox  = new QCheckBox ( MMl  ) ; MMBox -> setChecked ( MMData ) ;
-  MSBox  = new QCheckBox ( MSl  ) ; MSBox -> setChecked ( MSData ) ;
-  Lbl = new QLabel  ( MCl ) ; Lbl -> setBuddy ( MCLine ) ;
-  Lbl -> setToolTip ( MCt ) ; MCLine -> setToolTip ( MCt ) ;
-  Lay -> addWidget  ( Lbl , R , 0 ) ; Lay -> addWidget ( MCLine  , R ++ , 1 ) ;
-  Lbl = new QLabel  ( UCl ) ; Lbl -> setBuddy ( UCLine ) ;
-  Lbl -> setToolTip ( UCt ) ; UCLine -> setToolTip ( UCt ) ;
-  Lay -> addWidget  ( Lbl , R , 0 ) ; Lay -> addWidget ( UCLine  , R ++ , 1 ) ;
-  Lbl = new QLabel  ( ECl ) ; Lbl -> setBuddy ( ECLine ) ;
-  Lbl -> setToolTip ( ECt ) ; ECLine -> setToolTip ( ECt ) ;
-  Lay -> addWidget  ( Lbl , R , 0 ) ; Lay -> addWidget ( ECLine  , R ++ , 1 ) ;
-  Lbl = new QLabel  ( HDl ) ; Lbl -> setBuddy ( HDLine ) ;
-  Lbl -> setToolTip ( HDt ) ; HDLine -> setToolTip ( HDt ) ;
-  Lay -> addWidget  ( Lbl , R , 0 ) ; Lay -> addWidget ( HDLine  , R ++ , 1 ) ;
-  Lay -> addWidget  ( MNBox , R    , 0 ) ;
-  Lay -> addWidget  ( MMBox , R ++ , 1 ) ;
-  Lay -> addWidget  ( MSBox , R ++ , 0 ) ;
+  MountCmdLine = new QLineEdit ( MountCmdVal ) ;
+  EjectCmdLine = new QLineEdit ( EjectCmdVal ) ;
+  UnmntCmdLine = new QLineEdit ( UnmntCmdVal ) ;
+  HideDevsLine = new QLineEdit ( HideDevsVal ) ;
+  LockCmdLine  = new QLineEdit ( LockCmdVal  ) ;
+  UnlckCmdLine = new QLineEdit ( UnlckCmdVal ) ;
+  MntNewBox    = new QCheckBox ( MntNewLbl   ) ;
+  MntNewBox   -> setChecked    ( MntNewVal   ) ;
+  MntMediaBox  = new QCheckBox ( MntMediaLbl ) ;
+  MntMediaBox -> setChecked    ( MntMediaVal ) ;
+  MntStartBox  = new QCheckBox ( MntStartLbl ) ;
+  MntStartBox -> setChecked    ( MntStartVal ) ;
+
+  Lbl = new QLabel  ( MountCmdLbl ) ; Lbl -> setBuddy ( MountCmdLine ) ;
+  Lbl -> setToolTip ( MountCmdTtp ) ;
+  MountCmdLine -> setToolTip ( MountCmdTtp ) ;
+  Lay -> addWidget  ( Lbl , R , 0 ) ;
+  Lay -> addWidget  ( MountCmdLine  , R ++ , 1 ) ;
+
+  Lbl = new QLabel  ( UnmntCmdLbl ) ; Lbl -> setBuddy ( UnmntCmdLine ) ;
+  Lbl -> setToolTip ( UnmntCmdTtp ) ;
+  UnmntCmdLine -> setToolTip ( UnmntCmdTtp ) ;
+  Lay -> addWidget  ( Lbl , R , 0 ) ;
+  Lay -> addWidget  ( UnmntCmdLine  , R ++ , 1 ) ;
+
+  Lbl = new QLabel  ( EjectCmdLbl ) ; Lbl -> setBuddy ( EjectCmdLine ) ;
+  Lbl -> setToolTip ( EjectCmdTtp ) ;
+  EjectCmdLine -> setToolTip ( EjectCmdTtp ) ;
+  Lay -> addWidget  ( Lbl , R , 0 ) ;
+  Lay -> addWidget  ( EjectCmdLine  , R ++ , 1 ) ;
+
+  Lbl = new QLabel  ( HideDevsLbl ) ; Lbl -> setBuddy ( HideDevsLine ) ;
+  Lbl -> setToolTip ( HideDevsTtp ) ;
+  HideDevsLine -> setToolTip ( HideDevsTtp ) ;
+  Lay -> addWidget  ( Lbl , R , 0 ) ;
+  Lay -> addWidget  ( HideDevsLine  , R ++ , 1 ) ;
+
+  Lbl = new QLabel  ( UnlckCmdLbl ) ; Lbl -> setBuddy ( UnlckCmdLine ) ;
+  Lbl -> setToolTip ( UnlckCmdTtp ) ;
+  UnlckCmdLine -> setToolTip ( UnlckCmdTtp ) ;
+  Lay -> addWidget  ( Lbl , R , 0 ) ;
+  Lay -> addWidget  ( UnlckCmdLine  , R ++ , 1 ) ;
+
+  Lbl = new QLabel  ( LockCmdLbl  ) ; Lbl -> setBuddy ( LockCmdLine  ) ;
+  Lbl -> setToolTip ( LockCmdTtp  ) ;
+  LockCmdLine  -> setToolTip ( LockCmdTtp  ) ;
+  Lay -> addWidget  ( Lbl , R , 0 ) ;
+  Lay -> addWidget  ( LockCmdLine   , R ++ , 1 ) ;
+
+  Lay -> addWidget  ( MntNewBox     , R    , 0 ) ;
+  Lay -> addWidget  ( MntMediaBox   , R ++ , 1 ) ;
+  Lay -> addWidget  ( MntStartBox   , R ++ , 0 ) ;
 
   QPushButton * pbOk   = new QPushButton ( tr ( "&Ok"     ) ) ;
   QPushButton * pbCanc = new QPushButton ( tr ( "&Cancel" ) ) ;
   connect ( pbOk   , SIGNAL ( clicked ( ) ) , SLOT ( accept ( ) ) ) ;
   connect ( pbCanc , SIGNAL ( clicked ( ) ) , SLOT ( reject ( ) ) ) ;
-  Lay -> addWidget ( pbOk , R , 0 ) ; Lay -> addWidget ( pbCanc , R , 1 ) ;
+  Lay -> addWidget ( pbOk   , R , 0 ) ;
+  Lay -> addWidget ( pbCanc , R , 1 ) ;
 
   setLayout ( Lay ) ;
 
@@ -103,40 +159,61 @@ int LOpts :: exec ( ) {
   int R  =  QDialog :: exec ( ) ;
   if ( R == QDialog :: Accepted ) {
     NeedSave = true ;
-    MCData = MCLine -> text  ( ) ; UCData = UCLine -> text ( ) ;
-    ECData = ECLine -> text  ( ) ; HDData = HDLine -> text ( ) ;
-    MNData = MNBox  -> isChecked ( ) ; MMData = MMBox -> isChecked ( ) ;
-    MSData = MSBox  -> isChecked ( ) ;
+    MountCmdVal = MountCmdLine -> text  ( ) ;
+    UnmntCmdVal = UnmntCmdLine -> text  ( ) ;
+    EjectCmdVal = EjectCmdLine -> text  ( ) ;
+    HideDevsVal = HideDevsLine -> text  ( ) ;
+    UnlckCmdVal = UnlckCmdLine -> text  ( ) ;
+    LockCmdVal  = LockCmdLine  -> text  ( ) ;
+    MntNewVal   = MntNewBox    -> isChecked ( ) ;
+    MntMediaVal = MntMediaBox  -> isChecked ( ) ;
+    MntStartVal = MntStartBox  -> isChecked ( ) ;
   } else {
-    MCLine -> setText   ( MCData ) ; UCLine -> setText  ( UCData ) ;
-    ECLine -> setText   ( ECData ) ; HDLine -> setText  ( HDData ) ;
-    MNBox -> setChecked ( MNData ) ; MMBox  -> setChecked ( MMData ) ;
-    MSBox -> setChecked ( MSData ) ;
+    MountCmdLine -> setText    ( MountCmdVal ) ;
+    UnmntCmdLine -> setText    ( UnmntCmdVal ) ;
+    EjectCmdLine -> setText    ( EjectCmdVal ) ;
+    HideDevsLine -> setText    ( HideDevsVal ) ;
+    UnlckCmdLine -> setText    ( UnlckCmdVal ) ;
+    LockCmdLine  -> setText    ( LockCmdVal  ) ;
+    MntNewBox    -> setChecked ( MntNewVal   ) ;
+    MntMediaBox  -> setChecked ( MntMediaVal ) ;
+    MntStartBox  -> setChecked ( MntStartVal ) ;
   }
   return R ;
 }// LOpts :: Execute
 
 LOpts :: ~LOpts ( ) {
   if ( NeedSave ) {
-    Conf . setValue ( MC , MCData ) ; Conf . setValue ( UC , UCData ) ;
-    Conf . setValue ( EC , ECData ) ; Conf . setValue ( HD , HDData ) ;
-    Conf . setValue ( MN , MNData ) ; Conf . setValue ( MM , MMData ) ;
-    Conf . setValue ( MS , MSData ) ;
+    Conf . setValue ( MountCmdItm , MountCmdVal ) ;
+    Conf . setValue ( UnmntCmdItm , UnmntCmdVal ) ;
+    Conf . setValue ( EjectCmdItm , EjectCmdVal ) ;
+    Conf . setValue ( HideDevsItm , HideDevsVal ) ;
+    Conf . setValue ( UnlckCmdItm , UnlckCmdVal ) ;
+    Conf . setValue ( LockCmdItm  , LockCmdVal  ) ;
+    Conf . setValue ( MntNewItm   , MntNewVal   ) ;
+    Conf . setValue ( MntMediaItm , MntMediaVal ) ;
+    Conf . setValue ( MntStartItm , MntStartVal ) ;
   }//fi
 }// ~LOpts
 
-QString LOpts :: HideDevs   ( ) { return HDData ; }// LOpts :: HideDevs
+QStringList LOpts :: HideDevs ( ) {
+  return HideDevsVal . split ( ' ' , QString :: SkipEmptyParts ) ;
+}// LOpts :: HideDevs
 
-QString LOpts :: MountCmd   ( ) { return MCData ; }// LOpts :: MountCmd
+QString LOpts :: MountCmd ( ) { return MountCmdVal ; }// LOpts :: MountCmd
 
-QString LOpts :: EjectCmd   ( ) { return ECData ; }// LOpts :: EjectCmd
+QString LOpts :: EjectCmd ( ) { return EjectCmdVal ; }// LOpts :: EjectCmd
 
-QString LOpts :: UnmountCmd ( ) { return UCData ; }// LOpts :: UnmountCmd
+QString LOpts :: UnmntCmd ( ) { return UnmntCmdVal ; }// LOpts :: UnmntCmd
 
-bool    LOpts :: MountNew   ( ) { return MNData ; }// LOpts :: MountNew
+QString LOpts :: LockCmd  ( ) { return LockCmdVal  ; }// LOpts :: LockCmd
 
-bool    LOpts :: MountMedia ( ) { return MMData ; }// LOpts :: MountMedia
+QString LOpts :: UnlckCmd ( ) { return UnlckCmdVal ; }// LOpts :: UnlckCmd
 
-bool    LOpts :: MountStart ( ) { return MSData ; }// LOpts :: MountStart
+bool    LOpts :: MntNew   ( ) { return MntNewVal   ; }// LOpts :: MntNew
+
+bool    LOpts :: MntMedia ( ) { return MntMediaVal ; }// LOpts :: MntMedia
+
+bool    LOpts :: MntStart ( ) { return MntStartVal ; }// LOpts :: MntStart
 
 //eof LOpts.cpp

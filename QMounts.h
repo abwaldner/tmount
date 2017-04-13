@@ -13,12 +13,12 @@
 class Mounts {
   public :
     explicit Mounts ( ) ; virtual ~Mounts ( ) ;
-    QStringList MPoints ( const QString & Devnode ) ;
+    QStringList MPoints ( const QString & DevNum ) ;
       // isEmpty if device not mounted.
     static QString DecodeIFS ( const QString & S ) ; // man getmntent(3)
+    static QString EncodeIFS ( const QString & S ) ;
     void RefreshMountInfo  ( ) ;
   private :
-    static QString EncodeIFS ( const QString & S ) ;
     QStringList MInfoTab ;
     QFile MInfoFile ;
 } ; // Mounts

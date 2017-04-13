@@ -1,0 +1,10 @@
+v. 0.0.2 - 2017.04.13
+  1) Added support for LUKS containers.
+  2) Added support for regular expressions in the list of hidden devices.
+  3) Added and updated documentation in accordance with paragraphs 1-2.
+  4) Fixed processing mountpoints containing quotes.
+  5) Fixed processing mountpoints of symlinked devices.
+  6) Minor refactoring.
+
+v. 0.0.1 - 2016.04.13
+  Initial release.

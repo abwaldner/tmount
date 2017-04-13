@@ -1,0 +1,29 @@
+      LUKS container unlocking process essentially depends on
+  the particular environment.  Therefore, the default configuration of
+  "tmount" does not define of any action for such devices.
+      You can select the appropriate scripts available in the directory
+  /usr/share/tmount/docs (or in a subdirectory of the project directory
+  ./examples), modify them to meet your needs and preferences, put them
+  at any place available for execution and edit the "Unlocking command"
+  and "Locking command" fields of "Settings" dialog of "tmount".
+      Unlocking command takes a parameter is the same as
+  the mount/unmount commands.
+      Locking command takes as parameter the name, which opens the
+  container in the directory /dev/mapper "cryptsetup" utility (without
+  the directory name).
+      Unlock command requires interactive input of LUKS passphrase, and
+  both commands may require interactive input of password, if
+  implemented through the use of "su" or "sudo".  Therefore, "tmount"
+  launches them without setting a timeout.  Be careful: these scripts
+  hang blocking the application.  For this reason, the containers will
+  never be unlocked automatically.
+      The "pmount" program can by itself unlock LUKS container and can
+  automatically lock it after unmounting contained to it filesystem and
+  does not require an explicit call to the utility "cryptsetup".
+      "udevil" users must add at least "/dev/dm*" to the parameter
+  "allowed_internal_devices" in udevil.conf file.
+      "sudo" users can greatly simplify the scripts that use the utility
+  "cryptsetup", if will be entitled to its execution without entering
+  a password.  In addition, when using terminal emulators or tools like
+  "ktsuss" lost the return code and the stderr output of the called
+  program.

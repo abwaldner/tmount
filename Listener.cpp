@@ -7,44 +7,59 @@
 #include <QSocketNotifier>
 #include <QMessageBox>
 #include <QTextCodec>
+#include <QTextStream>
+#include <QFile>
 #include <QApplication>
 
 #include "Listener.h"
 #include "defs.h"
 
+//   These constants are hardcoded in "udev"
+// and "util-linux"(in libblkid) packages.
+
+// Property names.
 static const char * FS_USAGE = "ID_FS_USAGE" ;
 static const char * FS_LABEL = "ID_FS_LABEL" ;
 static const char * FS_TYPE  = "ID_FS_TYPE"  ;
-static const char * USAGE_filesystem = "filesystem" ;
+static const char * DM_NAME  = "DM_NAME"     ;
 
-static const char * SA_events    = "events"  ;
-static const char * events_Eject = "eject_request"  ;
+// Property values.
+static const char * USAGE_filesystem = "filesystem"  ;
+static const char * TYPE_LUKS        = "crypto_LUKS" ;
 
-static const int StartTimeout = 2000 ; // 2 s for start of external program.
-static const int ExecTimeout  = 5000 ; // 5 s for run the external program.
+// UEvent actions.
+static const char * ACT_add    = "add"    ;
+static const char * ACT_remove = "remove" ;
+static const char * ACT_change = "change" ;
+
+// These constants are defined by "sysfs".
+
+static const char * SysAttr_Events = "events" ;
+static const char * Events_Eject   = "eject_request" ;
+static const char * Subsys_Block   = "block"  ;
 
 Listener :: Listener ( QWidget * parent ) : QMenu ( parent ) {
 
   MIcon = QIcon ( ":/icons/mount.png"   ) ;
   UIcon = QIcon ( ":/icons/unmount.png" ) ;
   UdevEnum En ( & UdevContext ) ;
-  En . MatchSubsys ( "block"  ) ; En . ScanDevs ( ) ;
+  En . MatchSubsys ( Subsys_Block ) ; En . ScanDevs ( ) ;
   foreach ( UdevPair P , En . GetList ( ) ) {
     UdevDev Dev ( & UdevContext , P . first ) ;
-    AddDevice ( Dev , Opt . MountStart ( ) ) ;
+    AddDevice ( Dev , Opt . MntStart  ( ) ) ;
   }//done
 
   UMonitor  = new UdevMon ( & UdevContext ) ;
-  UMonitor -> AddMatch ( "block" , NULL ) ;
+  UMonitor -> AddMatch ( Subsys_Block , NULL ) ;
   UMonitor -> EnableReceiving ( ) ;
   QSocketNotifier * Ntfr ;
   Ntfr = new QSocketNotifier (
-               UMonitor -> GetFD ( ) , QSocketNotifier :: Read , this ) ;
+               UMonitor -> GetFD ( ) , QSocketNotifier :: Read     , this ) ;
   connect ( Ntfr , SIGNAL ( activated    ( int ) ) ,
             this , SLOT   ( DeviceAction ( int ) ) ) ;
 
   Ntfr = new QSocketNotifier (
-               MMonitor .  GetFD ( ) , QSocketNotifier :: Exception , this ) ;
+               MMonitor . GetFD ( ) , QSocketNotifier :: Exception , this ) ;
   connect ( Ntfr , SIGNAL ( activated   ( int ) ) ,
             this , SLOT   ( MountAction ( int ) ) ) ;
 
@@ -66,35 +81,39 @@ ActPtr Listener :: exec ( const QPoint & Loc , ActPtr At ) {
     UdevDev Dev ( & UdevContext , CurrDev ) ;
     QString N = Dev . DevNode ( ) ;
     P = Mounts :: DecodeIFS ( P . section ( ' ' , 1 , 1 ) ) ;
-    bool M = P . isEmpty ( ) ; // Mount required.
-    int R ;
+    bool C = Dev . Property ( FS_TYPE  ) == TYPE_LUKS , // It's container.
+         M = P   . isEmpty  ( ) ; // Mount or unlock required.
 
-    R = ExecCmd ( M ? Opt . MountCmd   ( ) + " \"" + N + '"'
-                    : Opt . UnmountCmd ( ) + " \"" + P + '"' ) ;
+    QString  Cmd , Arg ;
+    if ( M ) { Cmd = C ? Opt . UnlckCmd ( ) : Opt . MountCmd ( ) ; Arg = N ;
+    } else {   Cmd = C ? Opt . LockCmd  ( ) : Opt . UnmntCmd ( ) ; Arg = P ;
+    }//fi
+
+    int R = ExecCmd ( Cmd , Arg , C ? NoTimeout : ExecTimeout ) ;
+
     if ( R ) { SetActions ( Dev ) ; }//fi // workaround for setChecked ()
 
     MInfo . RefreshMountInfo   ( ) ;
     QString E = Opt . EjectCmd ( ) ;
     if ( ! M && ! R && ! E . isEmpty ( ) &&
-                MInfo . MPoints ( N ) . isEmpty ( ) &&
-                Dev . SysAttr ( SA_events ) . contains ( events_Eject ) ) {
-      ExecCmd ( E + " \"" + N + '"' ) ;
+           MPoints ( Dev ) . isEmpty ( ) &&
+           Dev . SysAttr ( SysAttr_Events ) . contains ( Events_Eject ) ) {
+      ExecCmd  ( E , N ) ;
     }//fi
 
   }//fi
 
   return Act ;
 
-}// Listener :: ShowDevices
+}// Listener :: exec
 
 void Listener :: DeviceAction ( int socket ) { ( void ) socket ;
 
   UdevDev Dev ( UMonitor ) ; QString DAct = Dev . Action ( ) ;
-
-  if ( DAct == "add" ) { AddDevice ( Dev , Opt . MountNew ( ) ) ;
-  } else if ( DAct == "remove" ) { RemoveDevice ( Dev ) ;
-  } else if ( DAct == "change" ) {
-    if ( !  AddDevice ( Dev , Opt . MountMedia ( ) ) ) {
+  if ( DAct == ACT_add ) { AddDevice ( Dev , Opt . MntNew ( ) ) ;
+  } else if ( DAct == ACT_remove ) { RemoveDevice ( Dev ) ;
+  } else if ( DAct == ACT_change ) {
+    if ( ! AddDevice ( Dev , Opt . MntMedia ( ) ) ) {
       RemoveDevice ( Dev ) ;
     }//fi
   }//fi
@@ -114,9 +133,12 @@ void Listener :: MountAction ( int socket ) { ( void ) socket ;
 bool Listener :: AddDevice ( UdevDev & Dev , bool TryMount ) {
 
   QString N = Dev . DevNode ( ) ;
-  bool    T = Dev . Property ( FS_USAGE ) == USAGE_filesystem &&
-                ! Opt . HideDevs ( ) . contains (
-                    QRegExp ( "(^| )" + QRegExp :: escape ( N ) + "( |$)" ) ) ;
+  bool  C = Dev . Property ( FS_TYPE  ) == TYPE_LUKS ;
+          // It's container, FS_USAGE is "crypto"
+  bool  T = Dev . Property ( FS_USAGE ) == USAGE_filesystem || C ;
+  foreach ( QString R  , Opt . HideDevs ( ) ) {
+    T = T && ! QRegExp ( R ) . exactMatch ( N ) ; // Not disabled by config.
+  }//done
 
   if ( T ) { // is target device
 
@@ -124,9 +146,9 @@ bool Listener :: AddDevice ( UdevDev & Dev , bool TryMount ) {
     DevList += CurrDev ;
     DevList . removeDuplicates ( ) ; // overcaution
 
-    if ( TryMount && MInfo . MPoints ( N ) . isEmpty ( ) ) {
-      ExecCmd ( Opt . MountCmd ( ) + " \"" + N + '"' ) ;
-    }//fi
+    if ( ! C && TryMount && MPoints ( Dev ) . isEmpty ( ) ) {
+      ExecCmd ( Opt . MountCmd  ( ) , N ) ;
+    }//fi // LUKS containers are never automatically unlocked.
 
     SetActions ( Dev ) ;
 
@@ -140,13 +162,18 @@ void Listener :: RemoveDevice  ( UdevDev & Dev ) {
 
   QString P = Dev . SysPath ( ) ; DevList . removeOne ( P ) ;
 
-  foreach ( ActPtr Act , FindActs ( P ) ) { removeAction ( Act ) ; delete Act ;
+  foreach ( ActPtr Act , FindActs ( P ) ) {
+    removeAction ( Act ) ; delete Act ;
   }//done
 
-  foreach ( QString M , MInfo . MPoints ( Dev . DevNode ( ) ) ) {
-    ExecCmd ( Opt . UnmountCmd ( ) +
-                      " \"" + Mounts :: DecodeIFS ( M ) + '"' ) ;
+  // Desperate attempt.
+  foreach ( QString M , MPoints ( Dev ) ) {
+    ExecCmd ( Opt . UnmntCmd ( ) , Mounts :: DecodeIFS ( M ) ) ;
   }//done
+
+  if ( ! Dev . Property ( DM_NAME ) . isEmpty ( ) ) {
+    MountAction ( -1 ) ; // workaround for LUKS.
+  }//fi
 
 }// Listener :: RemoveDevice
 
@@ -159,14 +186,27 @@ void Listener :: SetActions ( UdevDev & Dev ) {
 
   QIcon * I = & MIcon ;
   QString N = Dev . DevNode ( ) , L = Dev . Property ( FS_LABEL ) ,
-          P = Dev . SysPath ( ) ;
-  L = N . mid ( 5 ) + ' ' + Dev . Property ( FS_TYPE  ) + ',' +
-                    ( L . isNull ( ) ? tr ( "(no label)" ) : '[' + L + ']' ) ;
+          P = Dev . SysPath ( ) , T = Dev . Property ( FS_TYPE  ) ;
 
-  ActList A = FindActs  ( P ) ;
-  QStringList M = MInfo . MPoints ( N ) ; bool U = M . isEmpty ( ) ;
+  L = N . mid ( 5 ) + ' ' + T + ',' +
+        ( L . isNull ( ) ? tr ( "(no label)" ) : '[' + L + ']' ) ;
 
-  if ( U ) { M += "" ; } else { I = & UIcon ; L += tr ( " on " ) ; }//fi
+  QStringList M ;
+  if ( T == TYPE_LUKS ) {
+    foreach ( QString H , Dev . Holders ( ) ) {
+      QFile F ( P + "/holders/" + H + "/dm/name" ) ;
+      if ( F . open ( QFile  :: ReadOnly ) ) {
+        H = QTextStream ( & F ) . readLine ( ) ;
+        M << Mounts :: EncodeIFS ( H ) ; // (It may contain "\").
+      }
+    }//done
+  } else { M = MPoints ( Dev ) ;
+  }//fi
+
+  bool U = M . isEmpty ( ) ;
+  if ( U ) { M << "" ; } else { I = & UIcon ; L += tr ( " on " ) ; }//fi
+
+  ActList A = FindActs ( P ) ;
 
   int S = M . size ( ) ;
   while ( A . size ( ) > S ) {
@@ -184,23 +224,37 @@ void Listener :: SetActions ( UdevDev & Dev ) {
 
 }// Listener :: SetActions
 
-int Listener :: ExecCmd ( const QString & Cmd ) {
+int Listener :: ExecCmd ( const QString & Cmd ,
+                          const QString & Arg , int Timeout ) {
 
-  QProcess Pr ; int R = -1 ;
-  Pr . setStandardInputFile  ( "/dev/null" ) ;
-  Pr . setStandardOutputFile ( "/dev/null" ) ;
-  Pr . start ( Cmd , QIODevice :: ReadOnly ) ;
+  int R = -1 ; QString A = Arg ;
 
-  if ( ! Pr . waitForStarted ( StartTimeout ) ) {
-    QMessageBox :: critical ( NULL , tr ( "Error"  ) ,
-                                tr ( "Can't execute" ) + " '" + Cmd + "'" ) ;
-  } else if ( ! Pr . waitForFinished ( ExecTimeout ) ) {
-    QMessageBox :: critical ( NULL , tr ( "Error"  ) ,
-                                "'" + Cmd + "' " + tr ( "crashed." ) ) ;
-  } else if ( ( R = Pr . exitCode ( ) ) ) {
-    QMessageBox :: warning ( NULL , tr ( "Warning" ) ,
-                     QTextCodec :: codecForLocale () ->
-                       toUnicode ( Pr . readAllStandardError ( ) ) ) ;
+  if ( Cmd . trimmed ( ) . isEmpty ( ) ) {
+
+    QMessageBox :: critical ( NULL , tr ( "Error" ) ,
+                     tr ( "Action disabled by configuration." ) ) ;
+
+  } else {
+
+    QProcess Pr ;
+    Pr . setStandardInputFile  ( "/dev/null" ) ;
+    Pr . setStandardOutputFile ( "/dev/null" ) ;
+    QString C = Cmd + " \"" + A . replace ( '"' , "\"\"\"" ) + '"' ;
+
+    Pr . start ( C , QIODevice :: ReadOnly ) ;
+
+    if ( ! Pr . waitForStarted ( StartTimeout ) ) {
+      QMessageBox :: critical ( NULL , tr ( "Error" ) ,
+                       tr ( "Can't execute" ) + " '" + C + "'" ) ;
+    } else if ( ! Pr . waitForFinished (  Timeout ) ) {
+      QMessageBox :: critical ( NULL , tr ( "Error" ) ,
+                       "'" + C + "' " + tr ( "crashed." ) ) ;
+    } else if ( ( R = Pr . exitCode ( ) ) ) {
+      QMessageBox :: warning  ( NULL , tr ( "Warning" ) ,
+                       QTextCodec :: codecForLocale ( ) ->
+                         toUnicode ( Pr . readAllStandardError ( ) ) ) ;
+    }//fi
+
   }//fi
 
   return R ;
@@ -213,5 +267,9 @@ void Listener :: About ( ) {
     tr ( " - block devices mounter/unmounter<br/>" ) + COPYRYGHT +
     tr ( "<br/>License: " ) + LICENSE ) ;
 }// Listener :: About
+
+QStringList Listener :: MPoints ( UdevDev & Dev ) {
+  return MInfo . MPoints ( Dev . DevNum ( ) ) ;
+}// Listener :: MPoints
 
 //eof Listener.cpp

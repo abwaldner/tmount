@@ -3,6 +3,8 @@
 // See COPYING file for terms of usage.
 // Alexander B. Waldner, 2016.
 
+#include <QDir>
+
 #include "QUdev.h"
 #include <libudev.h>
 
@@ -51,6 +53,11 @@ QString UdevDev :: DevNode ( ) {
   return QString ( udev_device_get_devnode ( mDev ) ) ;
 }// UdevDev :: DevNode
 
+QString UdevDev :: DevNum ( ) {
+  dev_t DN = udev_device_get_devnum ( mDev ) ;
+  return QString ( "%1:%2" ) . arg ( major ( DN ) ) . arg ( minor ( DN ) ) ;
+}// UdevDev :: DevNum
+
 QString UdevDev :: Property ( const char * Key  ) {
   return QString ( udev_device_get_property_value ( mDev , Key ) ) ;
 }// UdevDev :: Property
@@ -58,6 +65,11 @@ QString UdevDev :: Property ( const char * Key  ) {
 QString UdevDev :: SysAttr  ( const char * Key  ) {
   return QString ( udev_device_get_sysattr_value  ( mDev , Key ) ) ;
 }// UdevDev :: SysAttr
+
+QStringList UdevDev :: Holders ( ) {
+  return QDir ( SysPath ( ) + "/holders" ) .
+           entryList ( QDir :: Dirs | QDir :: NoDotAndDotDot ) ;
+}// UdevDev :: Holders
 
 UdevEnum :: UdevEnum ( const Udev * Context ) {
   mEnum = udev_enumerate_new ( Context -> mUdev ) ;

@@ -23,14 +23,16 @@ typedef class  QList < UdevPair > UdevList ;
 
 class UdevDev {
   public  :
-    explicit UdevDev ( const Udev * Context , QString SysPath ) ;
+    explicit UdevDev ( const Udev    * Context , QString SysPath ) ;
     explicit UdevDev ( const UdevMon * Monitor ) ;
     virtual ~UdevDev ( ) ;
     QString DevNode  ( ) ; // isNull if no device node exists.
     QString SysPath  ( ) ; // isNull if internal udev error only.
     QString Action   ( ) ; // isNull if no action available.
+    QString DevNum   ( ) ; // MAJOR:MINOR
     QString Property ( const char * Key ) ; // isNull if key not present.
     QString SysAttr  ( const char * Key ) ; // isNull if key not present.
+    QStringList Holders ( ) ;
   private : struct udev_device * mDev ;
 } ; // UdevDev
 
@@ -50,7 +52,7 @@ class UdevEnum {
   public :
     explicit UdevEnum ( const Udev * Context ) ; virtual ~UdevEnum ( ) ;
     int MatchSubsys   ( const char * Subsys  ) , ScanDevs  ( ) ;
-      //   Functions abowe returns 0 on success,
+      //   Functions above returns 0 on success,
       // otherwise a negative error value.
     UdevList GetList ( ) ;
   private : struct udev_enumerate * mEnum ;

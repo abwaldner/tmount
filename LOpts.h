@@ -16,20 +16,24 @@ class LOpts : public QDialog { Q_OBJECT
     int exec ( ) ;
   public :
     explicit LOpts ( QWidget * parent = 0 ) ; virtual ~LOpts ( ) ;
-    QString HideDevs   ( ) ;
-    QString MountCmd   ( ) ;
-    QString UnmountCmd ( ) ;
-    QString EjectCmd   ( ) ;
-    bool    MountNew   ( ) ;
-    bool    MountMedia ( ) ;
-    bool    MountStart ( ) ;
+    QStringList HideDevs ( ) ;
+    QString MountCmd ( ) ;
+    QString UnmntCmd ( ) ;
+    QString EjectCmd ( ) ;
+    QString LockCmd  ( ) ;
+    QString UnlckCmd ( ) ;
+    bool MntNew    ( ) ;
+    bool MntMedia  ( ) ;
+    bool MntStart  ( ) ;
   private :
     QSettings Conf ;
     bool  NeedSave ;
-    QString MCData , UCData , ECData , HDData ;
-    bool    MNData , MMData , MSData ;
-    QLineEdit * MCLine ,  * UCLine , * ECLine , * HDLine ;
-    QCheckBox * MNBox  ,  * MMBox  , * MSBox  ;
+    QString MountCmdVal , UnmntCmdVal , EjectCmdVal ,
+            HideDevsVal , UnlckCmdVal , LockCmdVal  ;
+    bool    MntNewVal   , MntMediaVal , MntStartVal ;
+    QLineEdit * MountCmdLine , * UnmntCmdLine , * EjectCmdLine ,
+              * HideDevsLine , * UnlckCmdLine , * LockCmdLine  ;
+    QCheckBox * MntNewBox    , * MntMediaBox  , * MntStartBox  ;
 } ; // LOpts
 
 #endif // LOPTS_H

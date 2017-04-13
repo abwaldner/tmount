@@ -21,7 +21,7 @@ int main ( int ArgC , char * ArgV [ ] ) {
   App . setApplicationName    ( APPLICATION  ) ;
   App . setOrganizationName   ( ORGANIZATION ) ;
   App . setApplicationVersion ( VERSION      ) ;
-  App . setQuitOnLastWindowClosed (  false ) ;
+  App . setQuitOnLastWindowClosed ( false  ) ;
   QTranslator Tr ;
   Tr . load ( APPLICATION "_" + QLocale :: system ( ) . name ( ) ,
                                                           APP_TRANSLATIONS ) ;
@@ -35,12 +35,11 @@ int main ( int ArgC , char * ArgV [ ] ) {
   }//done
 
   if ( QSystemTrayIcon :: isSystemTrayAvailable ( ) ) {
-    TrayIcon * I = new TrayIcon ( & L ) ; ( void ) I ;
-    Ret = App . exec ( ) ;
+    new TrayIcon ( & L ) ; Ret = App . exec ( ) ;
   }//fi
 
   return Ret ;
 
-} // main
+}// main
 
 //eof tmount.cpp

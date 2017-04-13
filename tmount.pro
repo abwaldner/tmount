@@ -1,5 +1,5 @@
 
-VERSION = "0.0.1"
+VERSION = "0.0.2"
 
 TARGET = tmount
 TEMPLATE = app
@@ -17,7 +17,7 @@ unix {
   PREFIX = $$(PREFIX)
   isEmpty( PREFIX ):PREFIX = /usr
   target.path = $$PREFIX/bin/
-  APP_TRANSLATIONS = $$PREFIX/share/$$TARGET/
+  APP_TRANSLATIONS = $$PREFIX/share/$$TARGET/translations/
   DEFINES += APP_TRANSLATIONS=\\\"$$APP_TRANSLATIONS\\\"
   locale.path = $$APP_TRANSLATIONS
   locale.files = translations/*.qm
@@ -25,5 +25,7 @@ unix {
   icon.path = $$PREFIX/share/pixmaps/
   desktop.path = $$PREFIX/share/applications
   desktop.files = *.desktop
-  INSTALLS += target locale icon desktop
+  docs.path = $$PREFIX/share/$$TARGET/docs/
+  docs.files = README luks.txt examples/*.sh
+  INSTALLS += target locale icon desktop docs
 }
