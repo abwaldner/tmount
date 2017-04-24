@@ -74,3 +74,6 @@
   5)  Enter "make" to build the application.
   6)  Type "sudo make install" (or "su -c 'make install'").
 
+      Users of Gentoo or its derived distributions can place
+  "tmount.ebuild" into your local overlay, renaming it according to
+  the latest release (b.e., in "tmount-0.0.2.ebuild") and install it.
