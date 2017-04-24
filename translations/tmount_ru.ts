@@ -152,7 +152,7 @@
         <translation type="unfinished">Настройки</translation>
     </message>
     <message>
-        <location filename="../TrayIcon.cpp" line="22"/>
+        <location filename="../TrayIcon.cpp" line="21"/>
         <source>Quit</source>
         <translation type="unfinished">Выход</translation>
     </message>
@@ -160,6 +160,11 @@
         <location filename="../TrayIcon.cpp" line="26"/>
         <source>Removable devices and media.</source>
         <translation type="unfinished">Сменные устройства и носители.</translation>
+    </message>
+    <message>
+        <location filename="../TrayIcon.cpp" line="42"/>
+        <source>Devices not found.</source>
+        <translation type="unfinished">Устройства не найдены.</translation>
     </message>
 </context>
 </TS>
