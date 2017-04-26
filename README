@@ -76,4 +76,6 @@
 
       Users of Gentoo or its derived distributions can place
   "tmount.ebuild" into your local overlay, renaming it according to
-  the latest release (b.e., in "tmount-0.0.2.ebuild") and install it.
+  the latest release (b.e., in "tmount-0.0.2.ebuild") or to
+  "tmount-9999.ebuild" for install the current version, run
+  "ebuild ... digest" and emerge it.

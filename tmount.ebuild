@@ -1,6 +1,6 @@
-# Copyright 1999-2017 Gentoo Foundation
-# Distributed under the terms of the GNU General Public License v3
-# Alexander B. Waldner, 2017
+#   This "ebuild" template file is a part of "tmount" project.
+# See COPYING file for terms of usage.
+# Alexander B. Waldner, 2017.
 
 EAPI=6
 inherit qmake-utils
@@ -8,11 +8,21 @@ inherit qmake-utils
 DESCRIPTION="block devices mounter/unmounter for system tray"
 HOMEPAGE="https://github.com/abwaldner/tmount"
 LICENSE="GPL-3"
-
-SRC_URI="https://github.com/abwaldner/tmount/archive/${PV}.tar.gz -> ${P}.tar.gz"
 SLOT="0"
-KEYWORDS="x86"
 IUSE="qt5"
+
+if [ "${PV}" = "9999" ] ; then
+  EGIT_REPO_URI="
+    https://github.com/abwaldner/${PN}
+    git://github.com/abwaldner/${PN}.git"
+  inherit git-r3
+  KEYWORDS=""
+else
+  SRC_URI="
+    https://github.com/abwaldner/tmount/archive/${PV}.tar.gz -> ${P}.tar.gz
+  "
+  KEYWORDS="x86"
+fi
 
 RDEPEND="
   qt5? (
