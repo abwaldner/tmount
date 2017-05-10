@@ -1,7 +1,7 @@
 
-   tmount - block devices mounter/unmounter for system tray on Linux.
+      tmount - block devices mounter/unmounter for system tray on Linux.
 
-  Alexander B. Waldner, 2016.  See COPYING file for terms of usage.
+      Alexander B. Waldner, 2016.  See COPYING file for terms of usage.
 
       "tmount" is an application, that starts in system tray (aka
   notification area), then lists and monitors via "udev" all filesystem-
@@ -28,24 +28,25 @@
   containing the filesystem or LUKS container.  To hide some of them,
   for example the root filesystem, type a space-separated list of
   regular expressions, matches these devices (b.e.
-  "/dev/sd[ab].* /dev/sdb1") to the "Hidden devices" field and restart
+  "/dev/sd[ab].* /dev/sdc1") to the "Hidden devices" field and restart
   the application. (Note: these are regexps, not globs.)
       The options "Mount New", "Mount media", and "Mount on start"
   control attempts of program to mount the filesystems on the connected
-  devices, inserted removable media and during the start of
+  devices, inserted removable media and detected during the start of
   the application, respectively.  By default all set to "false".
       To configure the lock/unlock of LUKS containers see the file
   luks.txt in the directory /usr/share/tmount/docs or in the project
-  directory. Note: The containers will never be unlocked automatically.
+  directory.  Note: The cryptocontainers will never be unlocked
+  automatically.
       All options can be also installed by editing of the configuration
   file ~/.config/tmount/tmount.conf, which is created when you first
   start "tmount".
 
       The program sees all the mountpoints created by the outside
-  (by automounter, filemanager or manually), on the real, "loopback", or
-  "device mapper" devices, as well as using the "mount --bind", and
-  invites the separate menu items for unmounting each of them
-  individually.
+  (by automounter, filemanager or manually), on the real or virtual
+  ("loopback", "device mapper") devices, as well as using the
+  "mount --bind", and invites the separate menu items for unmounting
+  each of them individually.
       Note:  the "pmount" program, unlike the "udevil", can in this case
   work not properly, unmounting not the point that the specified.
   However, this is not the work of the fool the application.
@@ -61,8 +62,9 @@
       Installation:
       -------------
 
-  1)  Make sure that the packages "qtcore", "qtgui" and "linguist" are
-      installed.  In some distributions you may need "developers
+  1)  Make sure that the packages "qtcore", "qtgui" and "linguist-tools"
+      (in case of use of Qt5 and if you need to install the translation)
+      are installed.  In some distributions you may need "developers
       packages" - "-devel", "-tools" or similar.
   2)  Extract project directory from archive and "cd" to it.
   3)  Enter "lrelease tmount.pro" if you want to install

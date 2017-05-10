@@ -34,6 +34,7 @@ static const char * ACT_change = "change" ;
 
 // These constants are defined by "sysfs".
 
+static const char * SysAttr_Size   = "size"   ;
 static const char * SysAttr_Events = "events" ;
 static const char * Events_Eject   = "eject_request" ;
 static const char * Subsys_Block   = "block"  ;
@@ -158,7 +159,7 @@ bool Listener :: AddDevice ( UdevDev & Dev , bool TryMount ) {
 
 }// Listener :: AddDevice
 
-void Listener :: RemoveDevice  ( UdevDev & Dev ) {
+void Listener :: RemoveDevice ( UdevDev & Dev ) {
 
   QString P = Dev . SysPath ( ) ; DevList . removeOne ( P ) ;
 
@@ -182,14 +183,29 @@ ActList Listener :: FindActs ( const QString & Name ) {
            QRegExp ( '^' + QRegExp :: escape ( Name ) + "( |$)" ) ) ;
 }// Listener :: FindAct
 
+QString Listener :: ToHum ( qulonglong KB ) {
+  const int K = 1024 ; QString S = "" ;
+  uint R = KB % K ; qulonglong Q = KB / K ;
+  if ( R ) { S = QString :: number ( R ) + "K " + S ; }//fi
+  R = Q % K ; Q /= K ;
+  if ( R ) { S = QString :: number ( R ) + "M " + S ; }//fi
+  R = Q % K ; Q /= K ;
+  if ( R ) { S = QString :: number ( R ) + "G " + S ; }//fi
+  if ( Q ) { S = QString :: number ( Q ) + "T " + S ; }//fi
+  return S . trimmed ( ) ;
+}// Listener :: ToHum
+
 void Listener :: SetActions ( UdevDev & Dev ) {
 
   QIcon * I = & MIcon ;
   QString N = Dev . DevNode ( ) , L = Dev . Property ( FS_LABEL ) ,
           P = Dev . SysPath ( ) , T = Dev . Property ( FS_TYPE  ) ;
+  qulonglong C = Dev . SysAttr ( SysAttr_Size ) . toULongLong ( ) / 2 ;
+    // sysfs uses 512-bytes units.
 
   L = N . mid ( 5 ) + ' ' + T + ',' +
-        ( L . isNull ( ) ? tr ( "(no label)" ) : '[' + L + ']' ) ;
+        ( L . isNull ( ) ? tr ( "(no label)" ) : '[' + L + ']' ) +
+        ',' + ToHum  ( C ) ;
 
   QStringList M ;
   if ( T == TYPE_LUKS ) {

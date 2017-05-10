@@ -41,8 +41,10 @@ class Listener : public QMenu { Q_OBJECT
       // Find items for device in the devices menu.
     int  ExecCmd        ( const QString & Cmd ,
                           const QString & Arg ,
-                            int Timeout = ExecTimeout  ) ;
+                            int Timeout = ExecTimeout ) ;
     QStringList MPoints ( UdevDev & Dev ) ;
+
+    static QString ToHum ( qulonglong KB ) ;
 
     QIcon UIcon , MIcon ;
     Udev  UdevContext ;
