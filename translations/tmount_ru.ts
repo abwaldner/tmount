@@ -87,54 +87,64 @@
 <context>
     <name>Listener</name>
     <message>
-        <location filename="../Listener.cpp" line="192"/>
+        <location filename="../Listener.cpp" line="208"/>
         <source>(no label)</source>
         <translation type="unfinished">(без метки)</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="207"/>
+        <location filename="../Listener.cpp" line="224"/>
         <source> on </source>
         <translation type="unfinished"> на </translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="234"/>
-        <location filename="../Listener.cpp" line="247"/>
-        <location filename="../Listener.cpp" line="250"/>
+        <location filename="../Listener.cpp" line="251"/>
+        <location filename="../Listener.cpp" line="263"/>
+        <location filename="../Listener.cpp" line="266"/>
         <source>Error</source>
         <translation type="unfinished">Ошибка</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="235"/>
+        <location filename="../Listener.cpp" line="252"/>
         <source>Action disabled by configuration.</source>
         <translation type="unfinished">Действие запрещено конфигурацией.</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="248"/>
+        <location filename="../Listener.cpp" line="264"/>
         <source>Can&apos;t execute</source>
         <translation type="unfinished">Невозможно выполнить</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="251"/>
+        <location filename="../Listener.cpp" line="267"/>
         <source>crashed.</source>
         <translation type="unfinished">аварийно завершился.</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="253"/>
+        <location filename="../Listener.cpp" line="269"/>
         <source>Warning</source>
         <translation type="unfinished">Предупреждение</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="265"/>
+        <location filename="../Listener.cpp" line="282"/>
+        <source>Select filesystem image</source>
+        <translation type="unfinished">Выберите файл образа</translation>
+    </message>
+    <message>
+        <location filename="../Listener.cpp" line="283"/>
+        <source>Images (*.img *.iso);;All files (*)</source>
+        <translation type="unfinished">Файлы образов (*.img *.iso);;Все файлы (*)</translation>
+    </message>
+    <message>
+        <location filename="../Listener.cpp" line="288"/>
         <source>About</source>
         <translation type="unfinished">О программе</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="267"/>
+        <location filename="../Listener.cpp" line="291"/>
         <source> - block devices mounter/unmounter&lt;br/&gt;</source>
         <translation type="unfinished">- монтировщик/размонтировщик блочных устройств&lt;br/&gt;</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="268"/>
+        <location filename="../Listener.cpp" line="292"/>
         <source>&lt;br/&gt;License: </source>
         <translation type="unfinished">&lt;br/&gt;Лицензия: </translation>
     </message>
@@ -153,16 +163,21 @@
     </message>
     <message>
         <location filename="../TrayIcon.cpp" line="21"/>
+        <source>Add image</source>
+        <translation type="unfinished">Открыть образ</translation>
+    </message>
+    <message>
+        <location filename="../TrayIcon.cpp" line="24"/>
         <source>Quit</source>
         <translation type="unfinished">Выход</translation>
     </message>
     <message>
-        <location filename="../TrayIcon.cpp" line="26"/>
+        <location filename="../TrayIcon.cpp" line="29"/>
         <source>Removable devices and media.</source>
         <translation type="unfinished">Сменные устройства и носители.</translation>
     </message>
     <message>
-        <location filename="../TrayIcon.cpp" line="42"/>
+        <location filename="../TrayIcon.cpp" line="45"/>
         <source>Devices not found.</source>
         <translation type="unfinished">Устройства не найдены.</translation>
     </message>

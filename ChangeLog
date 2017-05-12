@@ -1,3 +1,10 @@
+v. 0.0.3 - 2017.05.13
+  1) Added support for mounting of filesistem images.
+  2) Added show of device capacity.
+  3) Added ebuild template for Gentoo users.
+  4) Added and updated documentation in accordance with paragraphs 1-3.
+  4) Added russian "documentation" and fixed translation.
+  5) Minor fixes and refactoring.
 v. 0.0.2 - 2017.04.13
   1) Added support for LUKS containers.
   2) Added support for regular expressions in the list of hidden devices.

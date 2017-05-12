@@ -57,7 +57,8 @@ src_install () {
   local f l p="translations/${PN}_"
 
   for f in "${p}"*.qm ; do
-    l=${f#${p}} ; l=${l%.qm} ; has "${l}" ${LINGUAS} || rm -f "${f}"
+    l=${f#${p}} ; l=${l%.qm}
+    has "${l}" ${LINGUAS} || { rm -f "${f}" ; rm -f *."${l}" ; }
   done
 
   emake INSTALL_ROOT="${D}" install

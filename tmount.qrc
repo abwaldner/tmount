@@ -6,5 +6,6 @@
     <file>icons/mount.png</file>
     <file>icons/unmount.png</file>
     <file>icons/config.png</file>
+    <file>icons/fsimg.png</file>
   </qresource>
 </RCC>

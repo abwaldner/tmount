@@ -9,6 +9,7 @@
 #include <QTextCodec>
 #include <QTextStream>
 #include <QFile>
+#include <QFileDialog>
 #include <QApplication>
 
 #include "Listener.h"
@@ -34,10 +35,11 @@ static const char * ACT_change = "change" ;
 
 // These constants are defined by "sysfs".
 
-static const char * SysAttr_Size   = "size"   ;
-static const char * SysAttr_Events = "events" ;
-static const char * Events_Eject   = "eject_request" ;
-static const char * Subsys_Block   = "block"  ;
+static const char * SA_Rem    = "removable" ;
+static const char * SA_Size   = "size" ;
+static const char * SA_Events = "events" ;
+static const char * Events_Eject = "eject_request" ;
+static const char * Subsys_Block = "block" ;
 
 Listener :: Listener ( QWidget * parent ) : QMenu ( parent ) {
 
@@ -54,15 +56,15 @@ Listener :: Listener ( QWidget * parent ) : QMenu ( parent ) {
   UMonitor -> AddMatch ( Subsys_Block , NULL ) ;
   UMonitor -> EnableReceiving ( ) ;
   QSocketNotifier * Ntfr ;
-  Ntfr = new QSocketNotifier (
-               UMonitor -> GetFD ( ) , QSocketNotifier :: Read     , this ) ;
+  Ntfr = new QSocketNotifier ( UMonitor -> GetFD ( ) ,
+                                 QSocketNotifier :: Read      , this ) ;
   connect ( Ntfr , SIGNAL ( activated    ( int ) ) ,
             this , SLOT   ( DeviceAction ( int ) ) ) ;
 
-  Ntfr = new QSocketNotifier (
-               MMonitor . GetFD ( ) , QSocketNotifier :: Exception , this ) ;
-  connect ( Ntfr , SIGNAL ( activated   ( int ) ) ,
-            this , SLOT   ( MountAction ( int ) ) ) ;
+  Ntfr = new QSocketNotifier ( MMonitor  . GetFD ( ) ,
+                                 QSocketNotifier :: Exception , this ) ;
+  connect ( Ntfr , SIGNAL ( activated    ( int ) ) ,
+            this , SLOT   ( MountAction  ( int ) ) ) ;
 
 }// Listener
 
@@ -98,7 +100,7 @@ ActPtr Listener :: exec ( const QPoint & Loc , ActPtr At ) {
     QString E = Opt . EjectCmd ( ) ;
     if ( ! M && ! R && ! E . isEmpty ( ) &&
            MPoints ( Dev ) . isEmpty ( ) &&
-           Dev . SysAttr ( SysAttr_Events ) . contains ( Events_Eject ) ) {
+           Dev . SysAttr ( SA_Events ) . contains ( Events_Eject ) ) {
       ExecCmd  ( E , N ) ;
     }//fi
 
@@ -114,9 +116,8 @@ void Listener :: DeviceAction ( int socket ) { ( void ) socket ;
   if ( DAct == ACT_add ) { AddDevice ( Dev , Opt . MntNew ( ) ) ;
   } else if ( DAct == ACT_remove ) { RemoveDevice ( Dev ) ;
   } else if ( DAct == ACT_change ) {
-    if ( ! AddDevice ( Dev , Opt . MntMedia ( ) ) ) {
-      RemoveDevice ( Dev ) ;
-    }//fi
+    bool M  = Opt . MntMedia ( ) && Dev . SysAttr ( SA_Rem  ) . toUInt ( ) ;
+    if ( ! AddDevice ( Dev , M ) ) { RemoveDevice ( Dev ) ; }//fi
   }//fi
 
 }// Listener :: DeviceAction
@@ -200,7 +201,7 @@ void Listener :: SetActions ( UdevDev & Dev ) {
   QIcon * I = & MIcon ;
   QString N = Dev . DevNode ( ) , L = Dev . Property ( FS_LABEL ) ,
           P = Dev . SysPath ( ) , T = Dev . Property ( FS_TYPE  ) ;
-  qulonglong C = Dev . SysAttr ( SysAttr_Size ) . toULongLong ( ) / 2 ;
+  qulonglong  C = Dev . SysAttr ( SA_Size ) . toULongLong ( ) / 2 ;
     // sysfs uses 512-bytes units.
 
   L = N . mid ( 5 ) + ' ' + T + ',' +
@@ -255,8 +256,7 @@ int Listener :: ExecCmd ( const QString & Cmd ,
     QProcess Pr ;
     Pr . setStandardInputFile  ( "/dev/null" ) ;
     Pr . setStandardOutputFile ( "/dev/null" ) ;
-    QString C = Cmd + " \"" + A . replace ( '"' , "\"\"\"" ) + '"' ;
-
+    QString  C = Cmd + " \"" + A . replace ( '"' , "\"\"\"" ) + '"' ;
     Pr . start ( C , QIODevice :: ReadOnly ) ;
 
     if ( ! Pr . waitForStarted ( StartTimeout ) ) {
@@ -277,11 +277,19 @@ int Listener :: ExecCmd ( const QString & Cmd ,
 
 }// Listener :: ExecCmd
 
+void Listener :: AddImage ( ) {
+  QString F = QFileDialog :: getOpenFileName ( NULL ,
+                tr ( "Select filesystem image" ) , "" ,
+                tr ( "Images (*.img *.iso);;All files (*)" ) ) ;
+  if ( ! F . isEmpty ( ) ) { ExecCmd ( Opt . MountCmd ( ) , F ) ; }//fi
+}// Listener :: AddImage
+
 void Listener :: About ( ) {
-  QMessageBox :: about ( NULL , tr ( "About" ) , QString ( "<center>" ) +
-    qApp -> applicationName ( ) + " v. " + qApp -> applicationVersion ( ) +
-    tr ( " - block devices mounter/unmounter<br/>" ) + COPYRYGHT +
-    tr ( "<br/>License: " ) + LICENSE ) ;
+  QMessageBox :: about ( NULL , tr  ( "About" ) ,
+                           "<center>" + qApp -> applicationName    ( ) +
+                           " v. "     + qApp -> applicationVersion ( ) +
+                           tr ( " - block devices mounter/unmounter<br/>" ) +
+                           COPYRYGHT + tr ( "<br/>License: "  ) + LICENSE ) ;
 }// Listener :: About
 
 QStringList Listener :: MPoints ( UdevDev & Dev ) {

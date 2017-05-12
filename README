@@ -1,16 +1,17 @@
 
       tmount - block devices mounter/unmounter for system tray on Linux.
 
-      Alexander B. Waldner, 2016.  See COPYING file for terms of usage.
+      Alexander B. Waldner, 2016,2017.
+  See COPYING file for terms of usage.
 
       "tmount" is an application, that starts in system tray (aka
   notification area), then lists and monitors via "udev" all filesystem-
   contains block devices and offers mounting/unmounting (or
   locking/unlocking for LUKS containers).  In addition, the application
   can operate as automounter for hotplug devices and removable media.
-      Actions are selected (toggled) from menu, wich shown on left-
+      Actions are selected (toggled) from menu, which shown on left-
   button click on the tray icon.  Context (right-click activated) menu
-  of that icon contains the "Settings" and "Quit" items.
+  of that icon contains the "Settings", "Quit" and "Add image" items.
 
      By default "tmount" use "udevil"
   (https://ignorantguru.github.com/udevil/) for mounting/unmountig.  You
@@ -42,6 +43,10 @@
   file ~/.config/tmount/tmount.conf, which is created when you first
   start "tmount".
 
+      The context menu "Add image" item allows you to choose
+  the filesystem image file in the dialog box and passes its pathname to
+  the mount command, similar to the device filename.  This is sufficient
+  for the "udevil" and "pmount" programs with the appropriate settings.
       The program sees all the mountpoints created by the outside
   (by automounter, filemanager or manually), on the real or virtual
   ("loopback", "device mapper") devices, as well as using the

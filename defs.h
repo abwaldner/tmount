@@ -18,7 +18,7 @@
 
   #define LICENSE "GPLv3"
 
-  #define COPYRYGHT "(C) 2016 Alexander B. Waldner."
+  #define COPYRYGHT "(C) 2016,2017 Alexander B. Waldner."
 
   #ifndef APP_TRANSLATIONS
 

@@ -13,13 +13,16 @@ TrayIcon :: TrayIcon ( Listener * parent ) : QSystemTrayIcon ( parent ) {
   Lstnr = parent ;
 
   QMenu * CMenu = new QMenu ;
-  CMenu -> addAction ( QIcon ( ":/icons/info.png"   ) , tr  ( "About"    ) ,
-                       Lstnr          , SLOT ( About  ( ) ) ) ;
-  CMenu -> addAction ( QIcon ( ":/icons/config.png" ) , tr  ( "Settings" ) ,
-                       & Lstnr -> Opt , SLOT ( exec   ( ) ) ) ;
+  CMenu -> addAction ( QIcon ( ":/icons/info.png"   ) , tr  ( "About"     ) ,
+                       Lstnr          , SLOT ( About    ( ) ) ) ;
+  CMenu -> addAction ( QIcon ( ":/icons/config.png" ) , tr  ( "Settings"  ) ,
+                       & Lstnr -> Opt , SLOT ( exec     ( ) ) ) ;
   CMenu -> addSeparator (  ) ;
-  CMenu -> addAction ( QIcon ( ":/icons/exit.png"   ) , tr  ( "Quit"     ) ,
-                       qApp           , SLOT ( quit   ( ) ) ) ;
+  CMenu -> addAction ( QIcon ( ":/icons/fsimg.png"  ) , tr  ( "Add image" ) ,
+                       Lstnr          , SLOT ( AddImage ( ) ) ) ;
+  CMenu -> addSeparator (  ) ;
+  CMenu -> addAction ( QIcon ( ":/icons/exit.png"   ) , tr  ( "Quit"      ) ,
+                       qApp           , SLOT ( quit     ( ) ) ) ;
   setContextMenu ( CMenu ) ;
 
   setIcon  ( QIcon ( ":/icons/tmount.png" ) ) ;

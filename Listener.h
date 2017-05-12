@@ -31,6 +31,7 @@ class Listener : public QMenu { Q_OBJECT
     void DeviceAction ( int socket  ) ;
     void MountAction  ( int socket  ) ;
     void About    ( ) ;
+    void AddImage ( ) ;
 
   private :
 
