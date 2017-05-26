@@ -16,21 +16,27 @@
      By default "tmount" use "udevil"
   (https://ignorantguru.github.com/udevil/) for mounting/unmountig.  You
   can use any other appropriate program or your own script by editing
-  "Mount command" and "Unmount command" fields in "Settings" dialog
-  window.  The device node name (b.e. /dev/sdc1 or /dev/sr0) will be
-  appended to the end of given command line for mount and eject commands
-  and the mountpoint pathname will be appended for unmount command.  For
-  example, for use of the "pmount" program
-  (http://pmount.alioth.debian.org/) just type "pmount" and "pumount" in
-  appropriate fields.  To disable the media ejection from the ejection-
-  capable devices after unmounting, just set "Eject command" field to
-  empty.
+  "Mount" and "Unmount" fields in "Settings" dialog window.  The device
+  node name (b.e. /dev/sdc1 or /dev/sr0) will be appended to the end of
+  given command line for mount and eject commands and the mountpoint
+  pathname will be appended for unmount command.  For example, for use
+  of the "pmount" program (http://pmount.alioth.debian.org/) just type
+  "pmount" and "pumount" in appropriate fields.  To disable the media
+  ejection from the ejection-capable devices after unmounting, just set
+  "Eject" field to empty.
+      The context menu "Add image" item allows you to choose
+  the filesystem image file in the dialog box and passes its pathname to
+  the command given in the "Add image" field of the settings dialog,
+  similar to the device filename.  This is sufficient for the "udevil"
+  and "pmount" programs with the appropriate settings.
+      The timeout is specified for each action in the corresponding
+  field.
       By default "tmount" shows all block devices and partitions
   containing the filesystem or LUKS container.  To hide some of them,
   for example the root filesystem, type a space-separated list of
   regular expressions, matches these devices (b.e.
   "/dev/sd[ab].* /dev/sdc1") to the "Hidden devices" field and restart
-  the application. (Note: these are regexps, not globs.)
+  the application. (Note: these are regexps, not shell globs.)
       The options "Mount New", "Mount media", and "Mount on start"
   control attempts of program to mount the filesystems on the connected
   devices, inserted removable media and detected during the start of
@@ -43,10 +49,6 @@
   file ~/.config/tmount/tmount.conf, which is created when you first
   start "tmount".
 
-      The context menu "Add image" item allows you to choose
-  the filesystem image file in the dialog box and passes its pathname to
-  the mount command, similar to the device filename.  This is sufficient
-  for the "udevil" and "pmount" programs with the appropriate settings.
       The program sees all the mountpoints created by the outside
   (by automounter, filemanager or manually), on the real or virtual
   ("loopback", "device mapper") devices, as well as using the

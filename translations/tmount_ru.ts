@@ -4,82 +4,112 @@
 <context>
     <name>LOpts</name>
     <message>
-        <location filename="../LOpts.cpp" line="29"/>
-        <source>Mount &amp;command</source>
-        <translation type="unfinished">Команда монтирования</translation>
-    </message>
-    <message>
-        <location filename="../LOpts.cpp" line="30"/>
-        <source>&amp;Unmount command</source>
-        <translation type="unfinished">Команда размонтирования</translation>
-    </message>
-    <message>
-        <location filename="../LOpts.cpp" line="31"/>
-        <source>&amp;Eject command</source>
-        <translation type="unfinished">Команда выбрасывания</translation>
-    </message>
-    <message>
-        <location filename="../LOpts.cpp" line="32"/>
+        <location filename="../LOpts.cpp" line="58"/>
         <source>&amp;Hidden devices</source>
         <translation type="unfinished">Скрытые устройства</translation>
     </message>
     <message>
-        <location filename="../LOpts.cpp" line="33"/>
-        <source>Unloc&amp;k command</source>
-        <translation type="unfinished">Команда разблокирования</translation>
+        <location filename="../LOpts.cpp" line="50"/>
+        <source>Command lines:</source>
+        <translation type="unfinished">Команды:</translation>
     </message>
     <message>
-        <location filename="../LOpts.cpp" line="34"/>
-        <source>&amp;Lock  command</source>
-        <translation type="unfinished">Команда блокирования</translation>
+        <location filename="../LOpts.cpp" line="49"/>
+        <source>Actions:</source>
+        <translation type="unfinished">Действия:</translation>
     </message>
     <message>
-        <location filename="../LOpts.cpp" line="35"/>
-        <source>Mount &amp;new</source>
+        <location filename="../LOpts.cpp" line="51"/>
+        <source>Timeouts:</source>
+        <translation type="unfinished">Таймауты:</translation>
+    </message>
+    <message>
+        <location filename="../LOpts.cpp" line="52"/>
+        <source>M&amp;ount</source>
+        <translation type="unfinished">Монтировать</translation>
+    </message>
+    <message>
+        <location filename="../LOpts.cpp" line="53"/>
+        <source>&amp;Unmount</source>
+        <translation type="unfinished">Отмонтировать</translation>
+    </message>
+    <message>
+        <location filename="../LOpts.cpp" line="54"/>
+        <source>&amp;Eject</source>
+        <translation type="unfinished">Извлечь</translation>
+    </message>
+    <message>
+        <location filename="../LOpts.cpp" line="55"/>
+        <source>Unloc&amp;k</source>
+        <translation type="unfinished">Разблокировать</translation>
+    </message>
+    <message>
+        <location filename="../LOpts.cpp" line="56"/>
+        <source>&amp;Lock</source>
+        <translation type="unfinished">Блокировать</translation>
+    </message>
+    <message>
+        <location filename="../LOpts.cpp" line="57"/>
+        <source>Add &amp;Image</source>
+        <translation type="unfinished">Открыть образ</translation>
+    </message>
+    <message>
+        <location filename="../LOpts.cpp" line="59"/>
+        <source>Mount &amp;new devices</source>
         <translation type="unfinished">Монтировать подключаемые устройства</translation>
     </message>
     <message>
-        <location filename="../LOpts.cpp" line="36"/>
-        <source>Mount &amp;media</source>
+        <location filename="../LOpts.cpp" line="60"/>
+        <source>Mount inserted &amp;media</source>
         <translation type="unfinished">Монтировать съёмные носители</translation>
     </message>
     <message>
-        <location filename="../LOpts.cpp" line="37"/>
+        <location filename="../LOpts.cpp" line="61"/>
         <source>Mount on &amp;start</source>
         <translation type="unfinished">Монтировать при запуске</translation>
     </message>
     <message>
-        <location filename="../LOpts.cpp" line="40"/>
+        <location filename="../LOpts.cpp" line="64"/>
         <source>The device node name (/dev/...) will be&lt;br/&gt;appended to the end of given command line.</source>
         <translation type="unfinished">Имя файла устройства (/dev/...) будет &lt;br/&gt;добавлено к командной строке.</translation>
     </message>
     <message>
-        <location filename="../LOpts.cpp" line="42"/>
+        <location filename="../LOpts.cpp" line="66"/>
         <source>The mountpoint pathname (/media/...) will be&lt;br/&gt;appended to the end of given command line.</source>
         <translation type="unfinished">Имя точки монтирования (/media/...) будет&lt;br/&gt; добавлено к командной строке.</translation>
     </message>
     <message>
-        <location filename="../LOpts.cpp" line="44"/>
+        <location filename="../LOpts.cpp" line="68"/>
+        <source>The mapping name will be appended&lt;br/&gt;to the end of given command line.</source>
+        <translation type="unfinished">Имя отображённого устройства будет&lt;br/&gt;добавлено к командной строке.</translation>
+    </message>
+    <message>
+        <location filename="../LOpts.cpp" line="70"/>
         <source>Type a space-separated list of regexps, b.e.&lt;br/&gt;&apos;/dev/sd[ab].* /dev/sdc1&apos; (restart required).</source>
         <translation type="unfinished">Введите список регулярных выражений через пробел, напр.&lt;br/&gt;&apos;/dev/sd[ab].* /dev/sdc1&apos; (требуется перезапуск).</translation>
     </message>
     <message>
-        <location filename="../LOpts.cpp" line="46"/>
-        <source>The mapping name will be&lt;br/&gt;appended to the end of given command line.</source>
-        <translation type="unfinished">Имя отображённого устройства будет&lt;br&gt;добавлено к командной строке.</translation>
+        <location filename="../LOpts.cpp" line="72"/>
+        <source>The selected file name will be appended&lt;br/&gt;to the end of given command line.</source>
+        <translation type="unfinished">Выбранное имя файла будет&lt;br&gt;добавлено к командной строке.</translation>
     </message>
     <message>
-        <location filename="../LOpts.cpp" line="50"/>
+        <location filename="../LOpts.cpp" line="74"/>
+        <source>Timeout in secs for given command,&lt;br/&gt; 0 means no timeout.</source>
+        <translation type="unfinished">Таймаут в секундах для данной&lt;br/&gt;команды, 0 - без таймаута.</translation>
+    </message>
+    <message>
+        <location filename="../LOpts.cpp" line="78"/>
         <source> - Settings</source>
-        <translation type="unfinished">Настройки</translation>
+        <translation type="unfinished"> - Настройки</translation>
     </message>
     <message>
-        <location filename="../LOpts.cpp" line="147"/>
+        <location filename="../LOpts.cpp" line="244"/>
         <source>&amp;Ok</source>
         <translation type="unfinished">&amp;Принять</translation>
     </message>
     <message>
-        <location filename="../LOpts.cpp" line="148"/>
+        <location filename="../LOpts.cpp" line="245"/>
         <source>&amp;Cancel</source>
         <translation type="unfinished">&amp;Отмена</translation>
     </message>
@@ -87,64 +117,64 @@
 <context>
     <name>Listener</name>
     <message>
-        <location filename="../Listener.cpp" line="208"/>
+        <location filename="../Listener.cpp" line="215"/>
         <source>(no label)</source>
         <translation type="unfinished">(без метки)</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="224"/>
+        <location filename="../Listener.cpp" line="231"/>
         <source> on </source>
         <translation type="unfinished"> на </translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="251"/>
-        <location filename="../Listener.cpp" line="263"/>
-        <location filename="../Listener.cpp" line="266"/>
+        <location filename="../Listener.cpp" line="258"/>
+        <location filename="../Listener.cpp" line="270"/>
+        <location filename="../Listener.cpp" line="273"/>
         <source>Error</source>
         <translation type="unfinished">Ошибка</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="252"/>
+        <location filename="../Listener.cpp" line="259"/>
         <source>Action disabled by configuration.</source>
         <translation type="unfinished">Действие запрещено конфигурацией.</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="264"/>
+        <location filename="../Listener.cpp" line="271"/>
         <source>Can&apos;t execute</source>
         <translation type="unfinished">Невозможно выполнить</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="267"/>
+        <location filename="../Listener.cpp" line="274"/>
         <source>crashed.</source>
         <translation type="unfinished">аварийно завершился.</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="269"/>
+        <location filename="../Listener.cpp" line="280"/>
         <source>Warning</source>
         <translation type="unfinished">Предупреждение</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="282"/>
+        <location filename="../Listener.cpp" line="292"/>
         <source>Select filesystem image</source>
         <translation type="unfinished">Выберите файл образа</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="283"/>
+        <location filename="../Listener.cpp" line="293"/>
         <source>Images (*.img *.iso);;All files (*)</source>
         <translation type="unfinished">Файлы образов (*.img *.iso);;Все файлы (*)</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="288"/>
+        <location filename="../Listener.cpp" line="300"/>
         <source>About</source>
         <translation type="unfinished">О программе</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="291"/>
+        <location filename="../Listener.cpp" line="303"/>
         <source> - block devices mounter/unmounter&lt;br/&gt;</source>
         <translation type="unfinished">- монтировщик/размонтировщик блочных устройств&lt;br/&gt;</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="292"/>
+        <location filename="../Listener.cpp" line="304"/>
         <source>&lt;br/&gt;License: </source>
         <translation type="unfinished">&lt;br/&gt;Лицензия: </translation>
     </message>

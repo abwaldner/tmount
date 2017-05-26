@@ -10,30 +10,32 @@
 #include <QDialog>
 #include <QLineEdit>
 #include <QCheckBox>
+#include <QSpinBox>
 
 class LOpts : public QDialog { Q_OBJECT
-  public slots :
-    int exec ( ) ;
+  public slots : int exec ( ) ;
   public :
     explicit LOpts ( QWidget * parent = 0 ) ; virtual ~LOpts ( ) ;
+    QString MountCmd ( ) , UnmntCmd ( ) , EjectCmd ( ) ,
+            UnlckCmd ( ) , LockCmd  ( ) , AddImCmd ( ) ;
+    int MountTO ( ) , UnmntTO ( ) , EjectTO ( ) ,
+        UnlckTO ( ) , LockTO  ( ) , AddImTO ( ) ;
     QStringList HideDevs ( ) ;
-    QString MountCmd ( ) ;
-    QString UnmntCmd ( ) ;
-    QString EjectCmd ( ) ;
-    QString LockCmd  ( ) ;
-    QString UnlckCmd ( ) ;
-    bool MntNew    ( ) ;
-    bool MntMedia  ( ) ;
-    bool MntStart  ( ) ;
+    bool MntNew ( ) , MntMedia ( ) , MntStart ( ) ;
   private :
-    QSettings Conf ;
-    bool  NeedSave ;
+    QSettings Conf ; bool  NeedSave ;
     QString MountCmdVal , UnmntCmdVal , EjectCmdVal ,
-            HideDevsVal , UnlckCmdVal , LockCmdVal  ;
+            UnlckCmdVal , LockCmdVal  , AddImCmdVal , HideDevsVal ;
+    int     MountTOVal  , UnmntTOVal  , EjectTOVal  ,
+            UnlckTOVal  , LockTOVal   , AddImTOVal  ;
     bool    MntNewVal   , MntMediaVal , MntStartVal ;
     QLineEdit * MountCmdLine , * UnmntCmdLine , * EjectCmdLine ,
-              * HideDevsLine , * UnlckCmdLine , * LockCmdLine  ;
+              * UnlckCmdLine , * LockCmdLine  , * AddImCmdLine ,
+              * HideDevsLine ;
+    QSpinBox  * MountTOSpin  , * UnmntTOSpin  , * EjectTOSpin  ,
+              * UnlckTOSpin  , * LockTOSpin   , * AddImTOSpin  ;
     QCheckBox * MntNewBox    , * MntMediaBox  , * MntStartBox  ;
+    static int  ms ( int Sec ) ; // convert secs to ms or NoTimeout
 } ; // LOpts
 
 #endif // LOPTS_H

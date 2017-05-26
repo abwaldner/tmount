@@ -87,12 +87,18 @@ ActPtr Listener :: exec ( const QPoint & Loc , ActPtr At ) {
     bool C = Dev . Property ( FS_TYPE  ) == TYPE_LUKS , // It's container.
          M = P   . isEmpty  ( ) ; // Mount or unlock required.
 
-    QString  Cmd , Arg ;
-    if ( M ) { Cmd = C ? Opt . UnlckCmd ( ) : Opt . MountCmd ( ) ; Arg = N ;
-    } else {   Cmd = C ? Opt . LockCmd  ( ) : Opt . UnmntCmd ( ) ; Arg = P ;
+    int T ; QString  Cmd , Arg = M ? N : P ;
+    if ( M ) {
+      if ( C ) { Cmd = Opt . UnlckCmd ( ) ; T = Opt . UnlckTO ( ) ;
+      } else {   Cmd = Opt . MountCmd ( ) ; T = Opt . MountTO ( ) ;
+      }//fi
+    } else {
+      if ( C ) { Cmd = Opt . LockCmd  ( ) ; T = Opt . LockTO  ( ) ;
+      } else {   Cmd = Opt . UnmntCmd ( ) ; T = Opt . UnmntTO ( ) ;
+      }//fi
     }//fi
 
-    int R = ExecCmd ( Cmd , Arg , C ? NoTimeout : ExecTimeout ) ;
+    int R = ExecCmd ( Cmd , Arg , T ) ;
 
     if ( R ) { SetActions ( Dev ) ; }//fi // workaround for setChecked ()
 
@@ -101,7 +107,7 @@ ActPtr Listener :: exec ( const QPoint & Loc , ActPtr At ) {
     if ( ! M && ! R && ! E . isEmpty ( ) &&
            MPoints ( Dev ) . isEmpty ( ) &&
            Dev . SysAttr ( SA_Events ) . contains ( Events_Eject ) ) {
-      ExecCmd  ( E , N ) ;
+      ExecCmd  ( E , N , Opt . EjectTO ( ) ) ;
     }//fi
 
   }//fi
@@ -149,7 +155,7 @@ bool Listener :: AddDevice ( UdevDev & Dev , bool TryMount ) {
     DevList . removeDuplicates ( ) ; // overcaution
 
     if ( ! C && TryMount && MPoints ( Dev ) . isEmpty ( ) ) {
-      ExecCmd ( Opt . MountCmd  ( ) , N ) ;
+      ExecCmd ( Opt . MountCmd  ( ) , N , Opt . MountTO ( ) ) ;
     }//fi // LUKS containers are never automatically unlocked.
 
     SetActions ( Dev ) ;
@@ -170,7 +176,8 @@ void Listener :: RemoveDevice ( UdevDev & Dev ) {
 
   // Desperate attempt.
   foreach ( QString M , MPoints ( Dev ) ) {
-    ExecCmd ( Opt . UnmntCmd ( ) , Mounts :: DecodeIFS ( M ) ) ;
+    ExecCmd ( Opt . UnmntCmd ( ) , Mounts :: DecodeIFS ( M ) ,
+              Opt . UnmntTO  ( ) ) ;
   }//done
 
   if ( ! Dev . Property ( DM_NAME ) . isEmpty ( ) ) {
@@ -261,14 +268,17 @@ int Listener :: ExecCmd ( const QString & Cmd ,
 
     if ( ! Pr . waitForStarted ( StartTimeout ) ) {
       QMessageBox :: critical ( NULL , tr ( "Error" ) ,
-                       tr ( "Can't execute" ) + " '" + C + "'" ) ;
+                                  tr ( "Can't execute" ) + " '" + C + "'" ) ;
     } else if ( ! Pr . waitForFinished (  Timeout ) ) {
       QMessageBox :: critical ( NULL , tr ( "Error" ) ,
-                       "'" + C + "' " + tr ( "crashed." ) ) ;
+                                  "'" + C + "' " + tr ( "crashed." ) ) ;
     } else if ( ( R = Pr . exitCode ( ) ) ) {
-      QMessageBox :: warning  ( NULL , tr ( "Warning" ) ,
-                       QTextCodec :: codecForLocale ( ) ->
-                         toUnicode ( Pr . readAllStandardError ( ) ) ) ;
+      QStringList M = QTextCodec :: codecForLocale ( ) ->
+                        toUnicode ( Pr . readAllStandardError ( ) ) .
+                          split ( '\n' , QString ::  SkipEmptyParts ) ;
+      M . removeDuplicates ( ) ;
+      QMessageBox :: warning ( NULL , tr ( "Warning" ) ,
+                                 M  . join ( "\n"  ) ) ;
     }//fi
 
   }//fi
@@ -281,7 +291,9 @@ void Listener :: AddImage ( ) {
   QString F = QFileDialog :: getOpenFileName ( NULL ,
                 tr ( "Select filesystem image" ) , "" ,
                 tr ( "Images (*.img *.iso);;All files (*)" ) ) ;
-  if ( ! F . isEmpty ( ) ) { ExecCmd ( Opt . MountCmd ( ) , F ) ; }//fi
+  if ( ! F . isEmpty ( ) ) {
+    ExecCmd ( Opt . AddImCmd ( ) , F , Opt . AddImTO ( ) ) ;
+  }//fi
 }// Listener :: AddImage
 
 void Listener :: About ( ) {

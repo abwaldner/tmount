@@ -11,12 +11,10 @@
 #include "Listener.h"
 
 class TrayIcon : public QSystemTrayIcon { Q_OBJECT
-  public :
-    explicit TrayIcon ( Listener * parent ) ; virtual ~TrayIcon ( ) ;
+  public : explicit TrayIcon ( Listener * parent ) ; virtual ~TrayIcon ( ) ;
   private slots :
-    void Activated ( QSystemTrayIcon :: ActivationReason reason ) ;
-  private :
-    Listener * Lstnr ;
+   void Activated ( QSystemTrayIcon :: ActivationReason reason ) ;
+  private : Listener * Lstnr ;
 } ; // TrayIcon
 
 #endif // TRAYICON_H

@@ -25,10 +25,8 @@ class Mounts {
 
 class MntMonitor {
   public :
-    explicit MntMonitor ( ) ; virtual ~MntMonitor ( ) ;
-    int GetFD ( ) ;
-  private :
-    QFile MInfoFile ;
+    explicit MntMonitor ( ) ; virtual ~MntMonitor ( ) ; int GetFD ( ) ;
+  private : QFile MInfoFile ;
 } ; // MntMonitor
 
 #endif // QMOUNTS_H

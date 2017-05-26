@@ -12,10 +12,8 @@
 #include "QUdev.h"
 #include "QMounts.h"
 
-//  Arbitrary values.
+//  Arbitrary value.
 static const int StartTimeout = 2000 ; // 2 s for start of external program.
-static const int ExecTimeout  = 5000 ; // 5 s for run the external program.
-static const int NoTimeout    =   -1 ; // for interactive external program.
 
 typedef QAction * ActPtr ;
 typedef class QList < ActPtr  > ActList ;
@@ -35,16 +33,14 @@ class Listener : public QMenu { Q_OBJECT
 
   private :
 
-    void RemoveDevice   ( UdevDev & Dev ) ;
-    bool AddDevice      ( UdevDev & Dev , bool TryMount ) ;
-    void SetActions     ( UdevDev & Dev ) ; // Redraw menu items for device.
-    ActList FindActs    ( const QString & Name ) ;
+    void RemoveDevice    ( UdevDev & Dev ) ;
+    bool AddDevice       ( UdevDev & Dev , bool TryMount ) ;
+    void SetActions      ( UdevDev & Dev ) ; // Redraw menu items for device.
+    ActList FindActs     ( const QString & Name ) ;
       // Find items for device in the devices menu.
-    int  ExecCmd        ( const QString & Cmd ,
-                          const QString & Arg ,
-                            int Timeout = ExecTimeout ) ;
-    QStringList MPoints ( UdevDev & Dev ) ;
-
+    int  ExecCmd         ( const QString & Cmd ,
+                           const QString & Arg , int Timeout ) ;
+    QStringList MPoints  ( UdevDev & Dev ) ;
     static QString ToHum ( qulonglong KB ) ;
 
     QIcon UIcon , MIcon ;

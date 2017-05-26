@@ -4,19 +4,19 @@
       You can select the appropriate scripts available in the directory
   /usr/share/tmount/docs (or in a subdirectory of the project directory
   ./examples), modify them to meet your needs and preferences, put them
-  at any place available for execution and edit the "Unlocking command"
-  and "Locking command" fields of "Settings" dialog of "tmount".
-      Unlocking command takes a parameter is the same as
-  the mount/unmount commands.
+  at any place available for execution and edit the "Unlock" and "Lock"
+  fields of "Settings" dialog of "tmount".
+      Unlocking command takes a parameter is the same as the mount
+  command.
       Locking command takes as parameter the name, which opens the
   container in the directory /dev/mapper "cryptsetup" utility (without
   the directory name).
       Unlock command requires interactive input of LUKS passphrase, and
   both commands may require interactive input of password, if
   implemented through the use of "su" or "sudo".  Therefore, "tmount"
-  launches them without setting a timeout.  Be careful: these scripts
-  hang blocking the application.  For this reason, the containers will
-  never be unlocked automatically.
+  by default launches them without setting a timeout.  Be careful: in
+  this case these scripts hang blocking the application.  For this
+  reason, the containers will never be unlocked automatically.
       The "pmount" program can by itself unlock LUKS container and can
   automatically lock it after unmounting contained to it filesystem and
   does not require an explicit call to the utility "cryptsetup".

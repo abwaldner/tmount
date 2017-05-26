@@ -22,8 +22,8 @@
 
   #ifndef APP_TRANSLATIONS
 
-    #define APP_TRANSLATIONS ( qApp -> applicationDirPath ( ) + \
-                                              "/translations" )
+    #define APP_TRANSLATIONS ( \
+      qApp -> applicationDirPath ( ) + "/translations" )
 
   #endif // APP_TRANSLATIONS
 
