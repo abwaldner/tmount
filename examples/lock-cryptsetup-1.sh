@@ -10,7 +10,7 @@
   if [ $( id -u ) = 0 ] ; then
     E=$( /sbin/cryptsetup close "${1}" 2>&1 ) ||
     qarma --warning --text "$( echo "${E}" | uniq | sed ' s/$/<br\/>/ ' )"
-  else exec ktsuss "${0}" "${1}" 2>/dev/null
+  else exec ktsuss "${0}" "${@}" 2>/dev/null
   fi
 
 #eof

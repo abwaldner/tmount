@@ -4,7 +4,7 @@
 
   alias myterm='exec xfce4-terminal \
     --disable-server --geometry=40x10 --hide-menubar --hide-toolbar \
-    --show-borders --icon /usr/share/pixmaps/tmount.png --title tmount -e'
+    --show-borders --icon /usr/share/pixmaps/tmount.png --title tmount -x'
 
 # ---------------------------------------------------------------------------
 
@@ -15,7 +15,7 @@
   if tty >/dev/null ; then
     su -c "/sbin/cryptsetup close \"${1}\"" ||
     { echo ; echo 'Press Enter to continue...' ; read ; }
-  else myterm "${0} ${1}" 2>/dev/null
+  else myterm "${0}" "${@}" 2>/dev/null
   fi
 
 #eof

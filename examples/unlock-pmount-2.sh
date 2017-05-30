@@ -4,7 +4,7 @@
 
   alias myterm='exec xfce4-terminal \
     --disable-server --geometry=40x10 --hide-menubar --hide-toolbar \
-    --show-borders --icon /usr/share/pixmaps/tmount.png --title tmount -e'
+    --show-borders --icon /usr/share/pixmaps/tmount.png --title tmount -x'
 
 # ---------------------------------------------------------------------------
 
@@ -24,7 +24,7 @@
     F=$( FSel ) &&
     if [ "${F}" ] ; then pmount -p "${F}" "${1}" ; else pmount "${1}" ; fi ||
     { echo ; echo 'Press Enter to continue...' ; read ; }
-  else myterm "${0} ${1}" 2>/dev/null
+  else myterm "${0}" "${@}" 2>/dev/null
   fi
 
 #eof

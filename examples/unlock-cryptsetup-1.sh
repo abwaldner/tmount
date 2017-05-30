@@ -26,7 +26,7 @@
       fi
     ) ||
     qarma --warning --text "${E:-"Cancelled."}"
-  else exec ktsuss "${0}" "${1}" 2>/dev/null
+  else exec ktsuss "${0}" "${@}" 2>/dev/null
   fi
 
 #eof
