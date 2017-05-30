@@ -2,6 +2,7 @@
 
   export SUDO_ASKPASS="$( dirname ${0} )"/tmount-askpass.sh
 
-  exec sudo -A -- /sbin/cryptsetup close "${1}"
+  E=$( sudo -A /sbin/cryptsetup close "${1}" 2>&1 ) ||
+  ! echo "${E:-"Cancelled."}" >&2
 
 #eof

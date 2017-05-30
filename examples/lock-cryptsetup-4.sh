@@ -12,8 +12,9 @@
 
 # ---------------------------------------------------------------------------
 
-  if tty >/dev/null
-  then exec sudo -- /sbin/cryptsetup close "${1}"
+  if tty >/dev/null ; then
+    sudo /sbin/cryptsetup close "${1}" ||
+    { echo ; echo 'Press Enter to continue...' ; read ; }
   else myterm "${0} ${1}" 2>/dev/null
   fi
 

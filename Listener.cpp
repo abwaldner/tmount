@@ -255,8 +255,8 @@ int Listener :: ExecCmd ( const QString & Cmd ,
 
   if ( Cmd . trimmed ( ) . isEmpty ( ) ) {
 
-    QMessageBox :: critical ( NULL , tr ( "Error" ) ,
-                     tr ( "Action disabled by configuration." ) ) ;
+    QMessageBox :: critical ( NULL , TPref + tr ( "Error" ) ,
+                              tr ( "Action disabled by configuration."  ) ) ;
 
   } else {
 
@@ -267,18 +267,18 @@ int Listener :: ExecCmd ( const QString & Cmd ,
     Pr . start ( C , QIODevice :: ReadOnly ) ;
 
     if ( ! Pr . waitForStarted ( StartTimeout ) ) {
-      QMessageBox :: critical ( NULL , tr ( "Error" ) ,
-                                  tr ( "Can't execute" ) + " '" + C + "'" ) ;
-    } else if ( ! Pr . waitForFinished (  Timeout ) ) {
-      QMessageBox :: critical ( NULL , tr ( "Error" ) ,
-                                  "'" + C + "' " + tr ( "crashed." ) ) ;
+      QMessageBox :: critical ( NULL , TPref + tr ( "Error" ) ,
+                                tr ( "Can't execute" ) + " '" + C + "'" ) ;
+    } else if ( ! Pr . waitForFinished ( Timeout ) ) {
+      QMessageBox :: critical ( NULL , TPref + tr ( "Error" ) ,
+                                "'" + C + "' " + tr ( "crashed." ) ) ;
     } else if ( ( R = Pr . exitCode ( ) ) ) {
       QStringList M = QTextCodec :: codecForLocale ( ) ->
                         toUnicode ( Pr . readAllStandardError ( ) ) .
                           split ( '\n' , QString ::  SkipEmptyParts ) ;
       M . removeDuplicates ( ) ;
-      QMessageBox :: warning ( NULL , tr ( "Warning" ) ,
-                                 M  . join ( "\n"  ) ) ;
+      QMessageBox :: warning ( NULL , TPref + tr ( "Warning" ) ,
+                               M . join ( "\n" ) ) ;
     }//fi
 
   }//fi
@@ -289,7 +289,7 @@ int Listener :: ExecCmd ( const QString & Cmd ,
 
 void Listener :: AddImage ( ) {
   QString F = QFileDialog :: getOpenFileName ( NULL ,
-                tr ( "Select filesystem image" ) , "" ,
+                TPref + tr ( "Select filesystem image" ) , "" ,
                 tr ( "Images (*.img *.iso);;All files (*)" ) ) ;
   if ( ! F . isEmpty ( ) ) {
     ExecCmd ( Opt . AddImCmd ( ) , F , Opt . AddImTO ( ) ) ;
@@ -298,10 +298,10 @@ void Listener :: AddImage ( ) {
 
 void Listener :: About ( ) {
   QMessageBox :: about ( NULL , tr  ( "About" ) ,
-                           "<center>" + qApp -> applicationName    ( ) +
-                           " v. "     + qApp -> applicationVersion ( ) +
-                           tr ( " - block devices mounter/unmounter<br/>" ) +
-                           COPYRYGHT + tr ( "<br/>License: "  ) + LICENSE ) ;
+                         "<center>" + qApp -> applicationName    ( ) +
+                         " v. "     + qApp -> applicationVersion ( ) +
+                         tr ( " - block devices mounter/unmounter<br/>" ) +
+                         COPYRYGHT + tr ( "<br/>License: "  ) + LICENSE ) ;
 }// Listener :: About
 
 QStringList Listener :: MPoints ( UdevDev & Dev ) {

@@ -12,8 +12,9 @@
 
 # ---------------------------------------------------------------------------
 
-  if tty >/dev/null
-  then exec su -c "/sbin/cryptsetup close ${1}"
+  if tty >/dev/null ; then
+    su -c "/sbin/cryptsetup close \"${1}\"" ||
+    { echo ; echo 'Press Enter to continue...' ; read ; }
   else myterm "${0} ${1}" 2>/dev/null
   fi
 

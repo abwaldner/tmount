@@ -12,8 +12,21 @@
 
 # ---------------------------------------------------------------------------
 
-  if tty >/dev/null
-  then exec su -c "/sbin/cryptsetup open ${1} luks-${1##*/}"
+  FSel () { : ; } # FSel ## Force interactive input.
+
+#  FSel () {
+#    local N
+#    echo 'Enter key filename or empty string for interactive input.' >&2
+#    read N && echo "${N}"
+#  } # FSel
+
+  if tty >/dev/null ; then
+    F=$( FSel ) &&
+    if [ "${F}" ]
+    then su -c "/sbin/cryptsetup open \"${1}\" \"luks-${1##*/}\" -d \"${F}\""
+    else su -c "/sbin/cryptsetup open \"${1}\" \"luks-${1##*/}\""
+    fi ||
+    { echo ; echo 'Press Enter to continue...' ; read ; }
   else myterm "${0} ${1}" 2>/dev/null
   fi
 

@@ -2,7 +2,9 @@ v. 0.0.4
   1) Added a separate setting for the "Add image" action.
   2) Separate timeout settings for all actions are added.
   3) Examples of using the "cryptsetup" with "sudo" are added.
-  4) Documentation fixed.
+  4) Added support for "cryptsetup" --key-file (and "pmount" -p) option.
+  5) Documentation fixed.
+  6) Minor fixes and refactoring.
 v. 0.0.3 - 2017.05.13
   1) Added support for mounting of filesistem images.
   2) Added show of device capacity.

@@ -100,8 +100,8 @@
     </message>
     <message>
         <location filename="../LOpts.cpp" line="78"/>
-        <source> - Settings</source>
-        <translation type="unfinished"> - Настройки</translation>
+        <source>Settings</source>
+        <translation type="unfinished">Настройки</translation>
     </message>
     <message>
         <location filename="../LOpts.cpp" line="244"/>

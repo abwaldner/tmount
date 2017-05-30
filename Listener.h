@@ -12,6 +12,8 @@
 #include "QUdev.h"
 #include "QMounts.h"
 
+#define TPref ( qApp -> applicationName ( ) + " - " )
+
 //  Arbitrary value.
 static const int StartTimeout = 2000 ; // 2 s for start of external program.
 

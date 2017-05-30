@@ -1,8 +1,11 @@
 #!/bin/sh
 
-  # qarma is full compatible Qt replacement for zenity.
+  #   qarma (http://github.com/luebking/qarma) is full
+  # compatible Qt replacement for zenity.
 
-  exec qarma --entry --hide-text --title 'tmount - sudo' \
-             --text "Enter your password"
+  alias qarma='qarma \
+    --window-icon /usr/share/pixmaps/tmount.png --title tmount'
+
+  qarma --entry --hide-text --text 'Enter your password'
 
 #eof

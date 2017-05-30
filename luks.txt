@@ -11,12 +11,13 @@
       Locking command takes as parameter the name, which opens the
   container in the directory /dev/mapper "cryptsetup" utility (without
   the directory name).
-      Unlock command requires interactive input of LUKS passphrase, and
-  both commands may require interactive input of password, if
-  implemented through the use of "su" or "sudo".  Therefore, "tmount"
-  by default launches them without setting a timeout.  Be careful: in
-  this case these scripts hang blocking the application.  For this
-  reason, the containers will never be unlocked automatically.
+      Unlock command requires interactive input of LUKS passphrase or
+  of key file name, and both commands may require interactive input of
+  password, if implemented through the use of "su" or "sudo".
+  Therefore, "tmount" by default launches them without setting
+  a timeout.  Be careful: in this case these scripts hang blocking
+  the application.  For this reason, the containers will never be
+  unlocked automatically.
       The "pmount" program can by itself unlock LUKS container and can
   automatically lock it after unmounting contained to it filesystem and
   does not require an explicit call to the utility "cryptsetup".
@@ -27,3 +28,11 @@
   a password.  In addition, when using terminal emulators or tools like
   "ktsuss" lost the return code and the stderr output of the called
   program.
+      Implementation notes:
+       Use in the examples of the "qarma" program
+   (http://github.com/luebking/qarma) and own wrapper for setting of
+   the SUDO_ASKPASS variable is caused by the fact that GTK-based
+   programs are output too much of garbage in stderr.  Therefore,
+   the use of such programs as "ssh-askpass-fullscreen",
+   "x11-ssh-askpass", "gtkdialog", "xdialog" (and even "zenity") etc. is
+   possible, but much less convenient.

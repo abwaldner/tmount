@@ -75,7 +75,7 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
                        " 0 means no timeout." ) ,
     EjectCmdTtp = MountCmdTtp , UnlckCmdTtp = MountCmdTtp ;
 
-  setWindowTitle ( qApp -> applicationName ( ) + tr ( " - Settings" ) ) ;
+  setWindowTitle ( TPref + tr ( "Settings"  ) ) ;
   setWindowIcon  ( QIcon ( ":/icons/config.png" ) ) ;
 
   NeedSave = false ;
