@@ -28,11 +28,17 @@
   a password.  In addition, when using terminal emulators or tools like
   "ktsuss" lost the return code and the stderr output of the called
   program.
+      To unlock containers that are in regular files, you should ensure
+  that the relevant scripts are run through the field "Add image" of
+  the settings dialog (see img-*.sh in examles).   Warning: don't forget
+  to change the timeout value.  Note: the "pmount" program works
+  incorrectly in this case, therefore it is necessary pre-unlock
+  the container and add "/dev/dm-*" to the "/etc/pmount.allow" file.
       Implementation notes:
-       Use in the examples of the "qarma" program
-   (http://github.com/luebking/qarma) and own wrapper for setting of
-   the SUDO_ASKPASS variable is caused by the fact that GTK-based
-   programs are output too much of garbage in stderr.  Therefore,
-   the use of such programs as "ssh-askpass-fullscreen",
-   "x11-ssh-askpass", "gtkdialog", "xdialog" (and even "zenity") etc. is
-   possible, but much less convenient.
+      Use in the examples of the "qarma" program
+  (http://github.com/luebking/qarma) and own wrapper for setting of
+  the SUDO_ASKPASS variable is caused by the fact that GTK-based
+  programs are output too much of garbage in stderr.  Therefore, the use
+  of such programs as "ssh-askpass-fullscreen", "x11-ssh-askpass",
+  "gtkdialog", "xdialog" (and even "zenity") etc. is possible, but much
+  less convenient.

@@ -33,7 +33,7 @@ static const QString
   MountCmdDef = "udevil mount"  , UnlckCmdDef = "" ,
   UnmntCmdDef = "udevil umount" , LockCmdDef  = "" ,
   EjectCmdDef = "eject"         , HideDevsDef = "" ,
-  AddImCmdDef = MountCmdDef     ;
+  AddImCmdDef = "" ;
 
 static const int
   MountTODef = DefTimeout , UnmntTODef = DefTimeout ,
