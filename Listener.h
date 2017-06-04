@@ -43,9 +43,10 @@ class Listener : public QMenu { Q_OBJECT
     int  ExecCmd         ( const QString & Cmd ,
                            const QString & Arg , int Timeout ) ;
     QStringList MPoints  ( UdevDev & Dev ) ;
+    QStringList MapDevs  ( UdevDev & Dev ) ;
     static QString ToHum ( qulonglong KB ) ;
 
-    QIcon UIcon , MIcon ;
+    QIcon MIcon , UIcon , DIcon , LIcon ;
     Udev  UdevContext ;
     UdevMon  * UMonitor ;
     MntMonitor MMonitor ;

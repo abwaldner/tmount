@@ -45,6 +45,8 @@ Listener :: Listener ( QWidget * parent ) : QMenu ( parent ) {
 
   MIcon = QIcon ( ":/icons/mount.png"   ) ;
   UIcon = QIcon ( ":/icons/unmount.png" ) ;
+  DIcon = QIcon ( ":/icons/unlock.png"  ) ;
+  LIcon = QIcon ( ":/icons/lock.png"    ) ;
   UdevEnum En ( & UdevContext ) ;
   En . MatchSubsys ( Subsys_Block ) ; En . ScanDevs ( ) ;
   foreach ( UdevPair P , En . GetList ( ) ) {
@@ -205,7 +207,6 @@ QString Listener :: ToHum ( qulonglong KB ) {
 
 void Listener :: SetActions ( UdevDev & Dev ) {
 
-  QIcon * I = & MIcon ;
   QString N = Dev . DevNode ( ) , L = Dev . Property ( FS_LABEL ) ,
           P = Dev . SysPath ( ) , T = Dev . Property ( FS_TYPE  ) ;
   qulonglong  C = Dev . SysAttr ( SA_Size ) . toULongLong ( ) / 2 ;
@@ -215,20 +216,18 @@ void Listener :: SetActions ( UdevDev & Dev ) {
         ( L . isNull ( ) ? tr ( "(no label)" ) : '[' + L + ']' ) +
         ',' + ToHum  ( C ) ;
 
-  QStringList M ;
-  if ( T == TYPE_LUKS ) {
-    foreach ( QString H , Dev . Holders ( ) ) {
-      QFile F ( P + "/holders/" + H + "/dm/name" ) ;
-      if ( F . open ( QFile  :: ReadOnly ) ) {
-        H = QTextStream ( & F ) . readLine ( ) ;
-        M << Mounts :: EncodeIFS ( H ) ; // (It may contain "\").
-      }
-    }//done
-  } else { M = MPoints ( Dev ) ;
+  QStringList M ; QIcon * I ;
+  bool K = T == TYPE_LUKS ;
+
+  if ( K ) { M = MapDevs ( Dev ) ; I = & LIcon ;
+  } else {   M = MPoints ( Dev ) ; I = & UIcon ;
   }//fi
 
   bool U = M . isEmpty ( ) ;
-  if ( U ) { M << "" ; } else { I = & UIcon ; L += tr ( " on " ) ; }//fi
+
+  if ( U ) { M << "" ; I = K ? & DIcon : & MIcon ;
+  } else { L += tr ( " on " ) ;
+  }//fi
 
   ActList A = FindActs ( P ) ;
 
@@ -307,5 +306,17 @@ void Listener :: About ( ) {
 QStringList Listener :: MPoints ( UdevDev & Dev ) {
   return MInfo . MPoints ( Dev . DevNum ( ) ) ;
 }// Listener :: MPoints
+
+QStringList Listener :: MapDevs ( UdevDev & Dev ) {
+  QStringList M ;
+  foreach ( QString H , Dev . Holders ( ) ) {
+    QFile F ( Dev . SysPath ( ) + "/holders/" + H + "/dm/name" ) ;
+    if ( F . open ( QFile :: ReadOnly ) ) {
+      H = QTextStream ( & F ) . readLine ( ) ;
+      M << Mounts :: EncodeIFS ( H ) ; // (It may contain "\").
+    }
+  }//done
+  return M ;
+}// Listener :: MapDevs
 
 //eof Listener.cpp

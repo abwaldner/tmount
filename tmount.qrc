@@ -7,5 +7,7 @@
     <file>icons/unmount.png</file>
     <file>icons/config.png</file>
     <file>icons/fsimg.png</file>
+    <file>icons/unlock.png</file>
+    <file>icons/lock.png</file>
   </qresource>
 </RCC>
