@@ -31,7 +31,7 @@
       To unlock containers that are in regular files, you should ensure
   that the relevant scripts are run through the field "Add image" of
   the settings dialog (see img-*.sh in examles).   Warning: don't forget
-  to change the timeout value.  Note: the "pmount" program works
+  to change the timeout value.  Note: the "pumount" program works
   incorrectly in this case, therefore it is necessary pre-unlock
   the container and add "/dev/dm-*" to the "/etc/pmount.allow" file.
       Implementation notes:

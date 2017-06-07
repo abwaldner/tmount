@@ -54,8 +54,8 @@
   ("loopback", "device mapper") devices, as well as using the
   "mount --bind", and invites the separate menu items for unmounting
   each of them individually.
-      Note:  the "pmount" program, unlike the "udevil", can in this case
-  work not properly, unmounting not the point that the specified.
+      Note:  the "pumount" program, unlike the "udevil", can in this
+  case work not properly, unmounting not the point that the specified.
   However, this is not the work of the fool the application.
       When starting this version of program wait the availability of
   the system tray up to 30 seconds, then silently ends, if it is not

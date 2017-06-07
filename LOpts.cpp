@@ -190,7 +190,6 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
   Lay -> addWidget  ( Lbl , R , 0 ) ;
   Lay -> addWidget  ( MountCmdLine  , R    , 1 ) ;
   Lay -> addWidget  ( MountTOSpin   , R ++ , 2 ) ;
-
   Lbl = new QLabel  ( UnmntCmdLbl ) ; Lbl -> setBuddy ( UnmntCmdLine ) ;
   Lbl -> setToolTip ( UnmntCmdTtp ) ;
   UnmntCmdLine -> setToolTip ( UnmntCmdTtp ) ;
