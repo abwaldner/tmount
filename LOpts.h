@@ -22,6 +22,9 @@ class LOpts : public QDialog { Q_OBJECT
         UnlckTO ( ) , LockTO  ( ) , AddImTO ( ) ;
     QStringList HideDevs ( ) ;
     bool MntNew ( ) , MntMedia ( ) , MntStart ( ) ;
+    QString MountIcon ( ) , UnmntIcon ( ) , LockIcon ( ) ,
+            AddImIcon ( ) , UnlckIcon ( ) , ExitIcon ( ) ,
+            EjectIcon ( ) , AboutIcon ( ) , ConfIcon ( ) , TMntIcon ( ) ;
   private :
     QSettings Conf ; bool  NeedSave ;
     QString MountCmdVal , UnmntCmdVal , EjectCmdVal ,

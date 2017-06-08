@@ -14,6 +14,7 @@ class TrayIcon : public QSystemTrayIcon { Q_OBJECT
   public : explicit TrayIcon ( Listener * parent ) ; virtual ~TrayIcon ( ) ;
   private slots :
    void Activated ( QSystemTrayIcon :: ActivationReason reason ) ;
+   void About ( ) ;
   private : Listener * Lstnr ;
 } ; // TrayIcon
 

@@ -4,28 +4,34 @@
 // Alexander B. Waldner, 2016.
 
 #include <QMenu>
+#include <QMessageBox>
 #include <QApplication>
 
 #include "TrayIcon.h"
+#include "defs.h"
 
 TrayIcon :: TrayIcon ( Listener * parent ) : QSystemTrayIcon ( parent ) {
 
-  Lstnr = parent ;
+  Lstnr = parent ; LOpts * Conf = & Lstnr -> Opt ;
 
   QMenu * CMenu = new QMenu ;
-  CMenu -> addAction ( QIcon ( ":/icons/info.png"   ) , tr  ( "About"     ) ,
-                       Lstnr          , SLOT ( About    ( ) ) ) ;
-  CMenu -> addAction ( QIcon ( ":/icons/config.png" ) , tr  ( "Settings"  ) ,
-                       & Lstnr -> Opt , SLOT ( exec     ( ) ) ) ;
+  CMenu -> addAction ( QIcon ( Conf -> AboutIcon ( ) ) ,
+                       tr  ( "About"     ) ,
+                       this  , SLOT ( About    ( ) ) ) ;
+  CMenu -> addAction ( QIcon ( Conf -> ConfIcon  ( ) ) ,
+                       tr  ( "Settings"  ) ,
+                       Conf  , SLOT ( exec     ( ) ) ) ;
   CMenu -> addSeparator (  ) ;
-  CMenu -> addAction ( QIcon ( ":/icons/fsimg.png"  ) , tr  ( "Add image" ) ,
-                       Lstnr          , SLOT ( AddImage ( ) ) ) ;
+  CMenu -> addAction ( QIcon ( Conf -> AddImIcon ( ) ) ,
+                       tr  ( "Add image" ) ,
+                       Lstnr , SLOT ( AddImage ( ) ) ) ;
   CMenu -> addSeparator (  ) ;
-  CMenu -> addAction ( QIcon ( ":/icons/exit.png"   ) , tr  ( "Quit"      ) ,
-                       qApp           , SLOT ( quit     ( ) ) ) ;
+  CMenu -> addAction ( QIcon ( Conf -> ExitIcon  ( ) ) ,
+                       tr  ( "Quit"      ) ,
+                       qApp  , SLOT ( quit     ( ) ) ) ;
   setContextMenu ( CMenu ) ;
 
-  setIcon  ( QIcon ( ":/icons/tmount.png" ) ) ;
+  setIcon  ( QIcon ( Conf -> TMntIcon ( ) ) ) ;
   setToolTip ( tr  ( "Removable devices and media." ) ) ;
 
   connect (
@@ -48,5 +54,12 @@ void TrayIcon :: Activated ( QSystemTrayIcon :: ActivationReason reason ) {
   }//fi
 }// TrayIcon :: Activated
 
+void TrayIcon :: About ( ) {
+  QMessageBox :: about ( NULL , tr  ( "About" ) ,
+                         "<center>" + qApp -> applicationName    ( ) +
+                         " v. "     + qApp -> applicationVersion ( ) +
+                         tr ( " - block devices mounter/unmounter<br/>" ) +
+                         COPYRYGHT + tr ( "<br/>License: "  ) + LICENSE ) ;
+}// TrayIcon :: About
 
 //eof TrayIcon.cpp

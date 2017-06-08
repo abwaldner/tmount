@@ -6,6 +6,7 @@
 #include <QGridLayout>
 #include <QPushButton>
 #include <QLabel>
+#include <QPixmap>
 #include <QApplication>
 
 #include "Listener.h"
@@ -29,11 +30,11 @@ static const int // arbitrary values
   DefTimeout = 5    , // 5 s for run the external program.
   MaxTimeout = 3600 ; // 1 h
 
-static const QString
-  MountCmdDef = "udevil mount"  , UnlckCmdDef = "" ,
-  UnmntCmdDef = "udevil umount" , LockCmdDef  = "" ,
-  EjectCmdDef = "eject"         , HideDevsDef = "" ,
-  AddImCmdDef = "" ;
+static const char
+  * MountCmdDef = "udevil mount"  , * UnlckCmdDef = "" ,
+  * UnmntCmdDef = "udevil umount" , * LockCmdDef  = "" ,
+  * EjectCmdDef = "eject"         , * HideDevsDef = "" ,
+  * AddImCmdDef = "" ;
 
 static const int
   MountTODef = DefTimeout , UnmntTODef = DefTimeout ,
@@ -42,6 +43,18 @@ static const int
 
 static const bool
   MntNewDef = false , MntMediaDef = false , MntStartDef = false ;
+
+static const char
+  * MountCmdPix = ":/icons/mount.png"   ,
+  * UnmntCmdPix = ":/icons/unmount.png" ,
+  * EjectCmdPix = ":/icons/eject.png"   ,
+  * UnlckCmdPix = ":/icons/unlock.png"  ,
+  * LockCmdPix  = ":/icons/lock.png"    ,
+  * AddImCmdPix = ":/icons/fsimg.png"   ,
+  * ConfigPix   = ":/icons/config.png"  ,
+  * AboutPix    = ":/icons/info.png"    ,
+  * TMountPix   = ":/icons/tmount.png"  ,
+  * ExitPix     = ":/icons/exit.png"    ;
 
 LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
 
@@ -75,8 +88,8 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
                        " 0 means no timeout." ) ,
     EjectCmdTtp = MountCmdTtp , UnlckCmdTtp = MountCmdTtp ;
 
-  setWindowTitle ( TPref + tr ( "Settings"  ) ) ;
-  setWindowIcon  ( QIcon ( ":/icons/config.png" ) ) ;
+  setWindowTitle ( TPref + tr ( "Settings" ) ) ;
+  setWindowIcon  ( QIcon ( ConfigPix ) ) ;
 
   NeedSave = false ;
 
@@ -145,8 +158,6 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
   } else { NeedSave = true ; MntStartVal = MntStartDef ;
   }//fi
 
-  QGridLayout * Lay = new QGridLayout ; QLabel * Lbl ; int R = 0 ;
-
   MountCmdLine = new QLineEdit ( MountCmdVal ) ;
   UnmntCmdLine = new QLineEdit ( UnmntCmdVal ) ;
   EjectCmdLine = new QLineEdit ( EjectCmdVal ) ;
@@ -154,6 +165,7 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
   LockCmdLine  = new QLineEdit ( LockCmdVal  ) ;
   AddImCmdLine = new QLineEdit ( AddImCmdVal ) ;
   HideDevsLine = new QLineEdit ( HideDevsVal ) ;
+
   MountTOSpin  = new QSpinBox  ( ) ;
   MountTOSpin -> setMaximum    ( MaxTimeout  ) ;
   MountTOSpin -> setValue      ( MountTOVal  ) ;
@@ -172,6 +184,7 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
   AddImTOSpin  = new QSpinBox  ( ) ;
   AddImTOSpin -> setMaximum    ( MaxTimeout  ) ;
   AddImTOSpin -> setValue      ( AddImTOVal  ) ;
+
   MntNewBox    = new QCheckBox ( MntNewLbl   ) ;
   MntNewBox   -> setChecked    ( MntNewVal   ) ;
   MntMediaBox  = new QCheckBox ( MntMediaLbl ) ;
@@ -179,73 +192,96 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
   MntStartBox  = new QCheckBox ( MntStartLbl ) ;
   MntStartBox -> setChecked    ( MntStartVal ) ;
 
-  Lbl = new QLabel  ( ActTitleLbl ) ; Lay -> addWidget ( Lbl , R    , 0 ) ;
-  Lbl = new QLabel  ( CmdTitleLbl ) ; Lay -> addWidget ( Lbl , R    , 1 ) ;
-  Lbl = new QLabel  ( TOTitleLbl  ) ; Lay -> addWidget ( Lbl , R ++ , 2 ) ;
+  QGridLayout * Lay = new QGridLayout ; QLabel * Lbl ; int R = 0 ;
 
-  Lbl = new QLabel  ( MountCmdLbl ) ; Lbl -> setBuddy ( MountCmdLine ) ;
-  Lbl -> setToolTip ( MountCmdTtp ) ;
+  Lbl = new QLabel  ( ActTitleLbl ) ; Lay -> addWidget ( Lbl , R    , 1 ) ;
+  Lbl = new QLabel  ( CmdTitleLbl ) ; Lay -> addWidget ( Lbl , R    , 2 ) ;
+  Lbl = new QLabel  ( TOTitleLbl  ) ; Lay -> addWidget ( Lbl , R ++ , 3 ) ;
+
+  QPixmap P ; int H = MountCmdLine -> sizeHint ( ) . height ( ) ;
+
+  P . load  ( MountCmdPix ) ;
+  Lbl = new QLabel  ( ) ; Lbl -> setPixmap ( P . scaled ( H , H ) ) ;
+  Lbl -> setToolTip ( MountCmdTtp ) ; Lay -> addWidget  ( Lbl , R , 0 ) ;
+  Lbl = new QLabel  ( MountCmdLbl ) ;
+  Lbl -> setToolTip ( MountCmdTtp ) ; Lbl -> setBuddy ( MountCmdLine  ) ;
   MountCmdLine -> setToolTip ( MountCmdTtp ) ;
   MountTOSpin  -> setToolTip ( TimeoutTtp  ) ;
-  Lay -> addWidget  ( Lbl , R , 0 ) ;
-  Lay -> addWidget  ( MountCmdLine  , R    , 1 ) ;
-  Lay -> addWidget  ( MountTOSpin   , R ++ , 2 ) ;
-  Lbl = new QLabel  ( UnmntCmdLbl ) ; Lbl -> setBuddy ( UnmntCmdLine ) ;
-  Lbl -> setToolTip ( UnmntCmdTtp ) ;
+  Lay -> addWidget  ( Lbl , R , 1 ) ;
+  Lay -> addWidget  ( MountCmdLine  , R    , 2 ) ;
+  Lay -> addWidget  ( MountTOSpin   , R ++ , 3 ) ;
+
+  P . load  ( UnmntCmdPix ) ;
+  Lbl = new QLabel  ( ) ; Lbl -> setPixmap ( P . scaled ( H , H ) ) ;
+  Lbl -> setToolTip ( UnmntCmdTtp ) ; Lay -> addWidget  ( Lbl , R , 0 ) ;
+  Lbl = new QLabel  ( UnmntCmdLbl ) ;
+  Lbl -> setToolTip ( UnmntCmdTtp ) ; Lbl -> setBuddy ( UnmntCmdLine  ) ;
   UnmntCmdLine -> setToolTip ( UnmntCmdTtp ) ;
   UnmntTOSpin  -> setToolTip ( TimeoutTtp  ) ;
-  Lay -> addWidget  ( Lbl , R , 0 ) ;
-  Lay -> addWidget  ( UnmntCmdLine  , R    , 1 ) ;
-  Lay -> addWidget  ( UnmntTOSpin   , R ++ , 2 ) ;
+  Lay -> addWidget  ( Lbl , R , 1 ) ;
+  Lay -> addWidget  ( UnmntCmdLine  , R    , 2 ) ;
+  Lay -> addWidget  ( UnmntTOSpin   , R ++ , 3 ) ;
 
-  Lbl = new QLabel  ( EjectCmdLbl ) ; Lbl -> setBuddy ( EjectCmdLine ) ;
-  Lbl -> setToolTip ( EjectCmdTtp ) ;
+  P . load  ( EjectCmdPix ) ;
+  Lbl = new QLabel  ( ) ; Lbl -> setPixmap ( P . scaled ( H , H ) ) ;
+  Lbl -> setToolTip ( EjectCmdTtp ) ; Lay -> addWidget  ( Lbl , R , 0 ) ;
+  Lbl = new QLabel  ( EjectCmdLbl ) ;
+  Lbl -> setToolTip ( EjectCmdTtp ) ; Lbl -> setBuddy ( EjectCmdLine  ) ;
   EjectCmdLine -> setToolTip ( EjectCmdTtp ) ;
   EjectTOSpin  -> setToolTip ( TimeoutTtp  ) ;
-  Lay -> addWidget  ( Lbl , R , 0 ) ;
-  Lay -> addWidget  ( EjectCmdLine  , R    , 1 ) ;
-  Lay -> addWidget  ( EjectTOSpin   , R ++ , 2 ) ;
+  Lay -> addWidget  ( Lbl , R , 1 ) ;
+  Lay -> addWidget  ( EjectCmdLine  , R    , 2 ) ;
+  Lay -> addWidget  ( EjectTOSpin   , R ++ , 3 ) ;
 
-  Lbl = new QLabel  ( UnlckCmdLbl ) ; Lbl -> setBuddy ( UnlckCmdLine ) ;
-  Lbl -> setToolTip ( UnlckCmdTtp ) ;
+  P . load  ( UnlckCmdPix ) ;
+  Lbl = new QLabel  ( ) ; Lbl -> setPixmap ( P . scaled ( H , H ) ) ;
+  Lbl -> setToolTip ( UnlckCmdTtp ) ; Lay -> addWidget  ( Lbl , R , 0 ) ;
+  Lbl = new QLabel  ( UnlckCmdLbl ) ;
+  Lbl -> setToolTip ( UnlckCmdTtp ) ; Lbl -> setBuddy ( UnlckCmdLine  ) ;
   UnlckCmdLine -> setToolTip ( UnlckCmdTtp ) ;
   UnlckTOSpin  -> setToolTip ( TimeoutTtp  ) ;
-  Lay -> addWidget  ( Lbl , R , 0 ) ;
-  Lay -> addWidget  ( UnlckCmdLine  , R    , 1 ) ;
-  Lay -> addWidget  ( UnlckTOSpin   , R ++ , 2 ) ;
+  Lay -> addWidget  ( Lbl , R , 1 ) ;
+  Lay -> addWidget  ( UnlckCmdLine  , R    , 2 ) ;
+  Lay -> addWidget  ( UnlckTOSpin   , R ++ , 3 ) ;
 
-  Lbl = new QLabel  ( LockCmdLbl  ) ; Lbl -> setBuddy ( LockCmdLine  ) ;
-  Lbl -> setToolTip ( LockCmdTtp  ) ;
+  P . load  ( LockCmdPix  ) ;
+  Lbl = new QLabel  ( ) ; Lbl -> setPixmap ( P . scaled ( H , H ) ) ;
+  Lbl -> setToolTip ( LockCmdTtp  ) ; Lay -> addWidget  ( Lbl , R , 0 ) ;
+  Lbl = new QLabel  ( LockCmdLbl  ) ;
+  Lbl -> setToolTip ( LockCmdTtp  ) ; Lbl -> setBuddy ( LockCmdLine   ) ;
   LockCmdLine  -> setToolTip ( LockCmdTtp  ) ;
   LockTOSpin   -> setToolTip ( TimeoutTtp  ) ;
-  Lay -> addWidget  ( Lbl , R , 0 ) ;
-  Lay -> addWidget  ( LockCmdLine   , R    , 1 ) ;
-  Lay -> addWidget  ( LockTOSpin    , R ++ , 2 ) ;
+  Lay -> addWidget  ( Lbl , R , 1 ) ;
+  Lay -> addWidget  ( LockCmdLine   , R    , 2 ) ;
+  Lay -> addWidget  ( LockTOSpin    , R ++ , 3 ) ;
 
-  Lbl = new QLabel  ( AddImCmdLbl ) ; Lbl -> setBuddy ( AddImCmdLine ) ;
-  Lbl -> setToolTip ( AddImCmdTtp ) ;
+  P . load  ( AddImCmdPix ) ;
+  Lbl = new QLabel  ( ) ; Lbl -> setPixmap ( P . scaled ( H , H ) ) ;
+  Lbl -> setToolTip ( AddImCmdTtp ) ; Lay -> addWidget  ( Lbl , R , 0 ) ;
+  Lbl = new QLabel  ( AddImCmdLbl ) ;
+  Lbl -> setToolTip ( AddImCmdTtp ) ; Lbl -> setBuddy ( AddImCmdLine  ) ;
   AddImCmdLine -> setToolTip ( AddImCmdTtp ) ;
   AddImTOSpin  -> setToolTip ( TimeoutTtp  ) ;
-  Lay -> addWidget  ( Lbl , R , 0 ) ;
-  Lay -> addWidget  ( AddImCmdLine  , R    , 1 ) ;
-  Lay -> addWidget  ( AddImTOSpin   , R ++ , 2 ) ;
+  Lay -> addWidget  ( Lbl , R , 1 ) ;
+  Lay -> addWidget  ( AddImCmdLine  , R    , 2 ) ;
+  Lay -> addWidget  ( AddImTOSpin   , R ++ , 3 ) ;
 
-  Lbl = new QLabel  ( HideDevsLbl ) ; Lbl -> setBuddy ( HideDevsLine ) ;
-  Lbl -> setToolTip ( HideDevsTtp ) ;
+  Lbl = new QLabel  ( HideDevsLbl ) ;
+  Lbl -> setToolTip ( HideDevsTtp ) ; Lbl -> setBuddy ( HideDevsLine  ) ;
   HideDevsLine -> setToolTip ( HideDevsTtp ) ;
-  Lay -> addWidget  ( Lbl , R , 0 ) ;
-  Lay -> addWidget  ( HideDevsLine  , R ++ , 1 ) ;
+  Lay -> addWidget  ( Lbl , R , 1 ) ;
+  Lay -> addWidget  ( HideDevsLine  , R ++ , 2 ) ;
 
-  Lay -> addWidget  ( MntStartBox   , R    , 0 ) ;
-  Lay -> addWidget  ( MntNewBox     , R ++ , 1 ) ;
-  Lay -> addWidget  ( MntMediaBox   , R ++ , 1 ) ;
+  Lay -> addWidget  ( MntStartBox   , R ++ , 2 ) ;
+  Lay -> addWidget  ( MntNewBox     , R ++ , 2 ) ;
+  Lay -> addWidget  ( MntMediaBox   , R ++ , 2 ) ;
 
   QPushButton * pbOk   = new QPushButton ( tr ( "&Ok"     ) ) ;
   QPushButton * pbCanc = new QPushButton ( tr ( "&Cancel" ) ) ;
   connect ( pbOk   , SIGNAL ( clicked ( ) ) , SLOT ( accept ( ) ) ) ;
   connect ( pbCanc , SIGNAL ( clicked ( ) ) , SLOT ( reject ( ) ) ) ;
-  Lay -> addWidget ( pbOk   , R , 0 ) ;
-  Lay -> addWidget ( pbCanc , R , 1 ) ;
+  Lay -> addWidget ( pbOk   , R , 1 ) ;
+  Lay -> addWidget ( pbCanc , R , 2 ) ;
 
   setLayout ( Lay ) ;
 
@@ -346,6 +382,26 @@ bool LOpts :: MntNew    ( ) { return MntNewVal   ; }// LOpts :: MntNew
 bool LOpts :: MntMedia  ( ) { return MntMediaVal ; }// LOpts :: MntMedia
 
 bool LOpts :: MntStart  ( ) { return MntStartVal ; }// LOpts :: MntStart
+
+QString LOpts :: MountIcon ( ) { return MountCmdPix ; }// LOpts :: MountIcon
+
+QString LOpts :: UnmntIcon ( ) { return UnmntCmdPix ; }// LOpts :: UnmntIcon
+
+QString LOpts :: UnlckIcon ( ) { return UnlckCmdPix ; }// LOpts :: UnlckIcon
+
+QString LOpts :: EjectIcon ( ) { return EjectCmdPix ; }// LOpts :: EjectIcon
+
+QString LOpts :: LockIcon  ( ) { return LockCmdPix  ; }// LOpts :: LockIcon
+
+QString LOpts :: AddImIcon ( ) { return AddImCmdPix ; }// LOpts :: AddImIcon
+
+QString LOpts :: AboutIcon ( ) { return AboutPix    ; }// LOpts :: AboutIcon
+
+QString LOpts :: ExitIcon  ( ) { return ExitPix     ; }// LOpts :: ExitIcon
+
+QString LOpts :: ConfIcon  ( ) { return ConfigPix   ; }// LOpts :: ConfIcon
+
+QString LOpts :: TMntIcon  ( ) { return TMountPix   ; }// LOpts :: TMntIcon
 
 int LOpts :: ms ( int Sec ) { return Sec ? Sec * 1000 : NoTimeout ;
 }// LOpts :: ms

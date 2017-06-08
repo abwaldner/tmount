@@ -13,7 +13,6 @@
 #include <QApplication>
 
 #include "Listener.h"
-#include "defs.h"
 
 //   These constants are hardcoded in "udev"
 // and "util-linux"(in libblkid) packages.
@@ -43,10 +42,11 @@ static const char * Subsys_Block = "block" ;
 
 Listener :: Listener ( QWidget * parent ) : QMenu ( parent ) {
 
-  MIcon = QIcon ( ":/icons/mount.png"   ) ;
-  UIcon = QIcon ( ":/icons/unmount.png" ) ;
-  DIcon = QIcon ( ":/icons/unlock.png"  ) ;
-  LIcon = QIcon ( ":/icons/lock.png"    ) ;
+  MIcon = QIcon ( Opt . MountIcon ( ) ) ;
+  UIcon = QIcon ( Opt . UnmntIcon ( ) ) ;
+  DIcon = QIcon ( Opt . UnlckIcon ( ) ) ;
+  LIcon = QIcon ( Opt . LockIcon  ( ) ) ;
+
   UdevEnum En ( & UdevContext ) ;
   En . MatchSubsys ( Subsys_Block ) ; En . ScanDevs ( ) ;
   foreach ( UdevPair P , En . GetList ( ) ) {
@@ -57,7 +57,9 @@ Listener :: Listener ( QWidget * parent ) : QMenu ( parent ) {
   UMonitor  = new UdevMon ( & UdevContext ) ;
   UMonitor -> AddMatch ( Subsys_Block , NULL ) ;
   UMonitor -> EnableReceiving ( ) ;
+
   QSocketNotifier * Ntfr ;
+
   Ntfr = new QSocketNotifier ( UMonitor -> GetFD ( ) ,
                                  QSocketNotifier :: Read      , this ) ;
   connect ( Ntfr , SIGNAL ( activated    ( int ) ) ,
@@ -294,14 +296,6 @@ void Listener :: AddImage ( ) {
     ExecCmd ( Opt . AddImCmd ( ) , F , Opt . AddImTO ( ) ) ;
   }//fi
 }// Listener :: AddImage
-
-void Listener :: About ( ) {
-  QMessageBox :: about ( NULL , tr  ( "About" ) ,
-                         "<center>" + qApp -> applicationName    ( ) +
-                         " v. "     + qApp -> applicationVersion ( ) +
-                         tr ( " - block devices mounter/unmounter<br/>" ) +
-                         COPYRYGHT + tr ( "<br/>License: "  ) + LICENSE ) ;
-}// Listener :: About
 
 QStringList Listener :: MPoints ( UdevDev & Dev ) {
   return MInfo . MPoints ( Dev . DevNum ( ) ) ;

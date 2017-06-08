@@ -9,5 +9,6 @@
     <file>icons/fsimg.png</file>
     <file>icons/unlock.png</file>
     <file>icons/lock.png</file>
+    <file>icons/eject.png</file>
   </qresource>
 </RCC>
