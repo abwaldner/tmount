@@ -1,4 +1,4 @@
-v. 0.0.4
+v. 0.0.4 - 2017.06.13
   1) Added a separate setting for the "Add image" action.
   2) Separate timeout settings for all actions are added.
   3) Examples of using the "cryptsetup" with "sudo" are added.

@@ -69,6 +69,7 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
     LockCmdLbl  = tr ( "&Lock"                 ) ,
     AddImCmdLbl = tr ( "Add &Image"            ) ,
     HideDevsLbl = tr ( "&Hidden devices"       ) ,
+    HandlingLbl = tr ( "Handling:"             ) ,
     MntNewLbl   = tr ( "Mount &new devices"    ) ,
     MntMediaLbl = tr ( "Mount inserted &media" ) ,
     MntStartLbl = tr ( "Mount on &start"       ) ;
@@ -192,11 +193,23 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
   MntStartBox  = new QCheckBox ( MntStartLbl ) ;
   MntStartBox -> setChecked    ( MntStartVal ) ;
 
-  QGridLayout * Lay = new QGridLayout ; QLabel * Lbl ; int R = 0 ;
+  QGridLayout * Lay = new QGridLayout ;
+  QFrame * Frm ; QLabel * Lbl ; int R = 0 ;
 
-  Lbl = new QLabel  ( ActTitleLbl ) ; Lay -> addWidget ( Lbl , R    , 1 ) ;
-  Lbl = new QLabel  ( CmdTitleLbl ) ; Lay -> addWidget ( Lbl , R    , 2 ) ;
-  Lbl = new QLabel  ( TOTitleLbl  ) ; Lay -> addWidget ( Lbl , R ++ , 3 ) ;
+  Lbl = new QLabel ( QString ( ) . fill ( 'M' , 24 ) ) ;
+  Lay -> setColumnMinimumWidth ( 2 , Lbl -> sizeHint ( ) . width ( ) ) ;
+  delete Lbl ;
+
+  Lbl = new QLabel ( ActTitleLbl ) ; Lay -> addWidget ( Lbl , R    , 1 ) ;
+  Lbl = new QLabel ( CmdTitleLbl ) ; Lay -> addWidget ( Lbl , R    , 2 ) ;
+  Lbl = new QLabel ( TOTitleLbl  ) ; Lay -> addWidget ( Lbl , R ++ , 3 ) ;
+
+  Frm = new QFrame ; Frm -> setFrameShape ( QFrame :: HLine ) ;
+  Lay -> addWidget ( Frm , R    , 0 , 1 , 2 ) ;
+  Frm = new QFrame ; Frm -> setFrameShape ( QFrame :: HLine ) ;
+  Lay -> addWidget ( Frm , R    , 2 ) ;
+  Frm = new QFrame ; Frm -> setFrameShape ( QFrame :: HLine ) ;
+  Lay -> addWidget ( Frm , R ++ , 3 ) ;
 
   QPixmap P ; int H = MountCmdLine -> sizeHint ( ) . height ( ) ;
 
@@ -266,15 +279,25 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
   Lay -> addWidget  ( AddImCmdLine  , R    , 2 ) ;
   Lay -> addWidget  ( AddImTOSpin   , R ++ , 3 ) ;
 
+  Frm = new QFrame ; Frm -> setFrameShape ( QFrame :: HLine ) ;
+  Lay -> addWidget ( Frm , R ++ , 0 , 1 , -1 ) ;
+
   Lbl = new QLabel  ( HideDevsLbl ) ;
   Lbl -> setToolTip ( HideDevsTtp ) ; Lbl -> setBuddy ( HideDevsLine  ) ;
   HideDevsLine -> setToolTip ( HideDevsTtp ) ;
   Lay -> addWidget  ( Lbl , R , 1 ) ;
   Lay -> addWidget  ( HideDevsLine  , R ++ , 2 ) ;
 
+  Frm = new QFrame ; Frm -> setFrameShape ( QFrame :: HLine ) ;
+  Lay -> addWidget ( Frm , R ++ , 0 , 1 , -1 ) ;
+
   Lay -> addWidget  ( MntStartBox   , R ++ , 2 ) ;
+  Lbl = new QLabel  ( HandlingLbl ) ; Lay -> addWidget ( Lbl , R , 1 ) ;
   Lay -> addWidget  ( MntNewBox     , R ++ , 2 ) ;
   Lay -> addWidget  ( MntMediaBox   , R ++ , 2 ) ;
+
+  Frm = new QFrame ; Frm -> setFrameShape ( QFrame :: HLine ) ;
+  Lay -> addWidget ( Frm , R ++ , 0 , 1 , -1 ) ;
 
   QPushButton * pbOk   = new QPushButton ( tr ( "&Ok"     ) ) ;
   QPushButton * pbCanc = new QPushButton ( tr ( "&Cancel" ) ) ;
