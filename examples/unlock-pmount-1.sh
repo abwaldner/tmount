@@ -1,28 +1,36 @@
 #!/bin/sh
 
-  #   qarma (http://github.com/luebking/qarma) is full
-  # compatible Qt replacement for zenity.
-
-  alias qarma='qarma \
+  #   The "qarma" (http://github.com/luebking/qarma) is full compatible
+  # Qt replacement for zenity.  If you don't have "qarma", use
+  # 'zenity 2>/dev/null'.
+  alias mydlg='qarma \
     --window-icon /usr/share/pixmaps/tmount.png --title tmount'
 
-  MSel () { echo 'Interactive' ; } # MSel ## Force interactive input.
+  E='Usage: cmd [-k|-i|-a] [device|file]'
+  case "${1}" in -k|-i|-a ) M="${1}" ;; * ) M='' ;; esac
+  case  ${#}  in 1 ) M='-a' ;; 2 ) shift ;; * ) M='' ;; esac
 
-#  MSel () {
-#    qarma --forms --text 'LUKS passphrase input method:' \
-#          --add-combo 'Select' --combo-values 'Interactive|File'
-#  } # MSel
+  [ "${M}" = '-a' ] && {
+    M=$( mydlg --forms --text 'LUKS passphrase input method:' \
+           --add-combo 'Select' --combo-values 'Interactive|Key File' ) ||
+    E="Cancelled (${?})."
+    case "${M}" in 'Interactive' ) M='-i' ;; 'Key File' ) M='-k' ;; esac
+  }
 
-  M=$( MSel ) &&
-  E=$(
-    if [ 'File' = "${M}" ] ; then
-      F=$( qarma --file-selection --title 'tmount - Select a key file' ) &&
-      pmount -p "${F}" "${1}" 2>&1
-    else
-      qarma --entry --hide-text --text "Enter LUKS passphrase for ${1}" |
-      pmount "${1}" 2>&1
-    fi
-  ) ||
-  ! echo "${E:-"Cancelled."}" >&2
+  if [ -z "${M}" ] ; then ! echo "${E}" >&2
+  else
+
+    E=$(
+      if [ '-k' = "${M}" ] ; then
+        F=$( mydlg --file-selection --title 'tmount - Select a key file' ) &&
+        pmount -p "${F}" "${1}"
+      else
+        mydlg --entry --hide-text --text "Enter LUKS passphrase for ${1}" |
+        pmount "${1}"
+      fi 2>&1
+    ) ||
+    ! echo "${E:-Cancelled (${?}).}" >&2
+
+  fi
 
 #eof

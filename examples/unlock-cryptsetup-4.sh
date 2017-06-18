@@ -1,33 +1,45 @@
 #!/bin/sh
 
 # ---------------------------------------------------------------------------
-
-  alias myterm='exec xfce4-terminal \
+  alias myterm='exec 2>/dev/null xfce4-terminal \
     --disable-server --geometry=40x10 --hide-menubar --hide-toolbar \
     --show-borders --icon /usr/share/pixmaps/tmount.png --title tmount -x'
-
+# ---------------------------------------------------------------------------
+#  alias myterm='exec 2>/dev/null qterminal \
+#          --geometry 400x100 --title tmount -e'
 # ---------------------------------------------------------------------------
 
-#  alias myterm='exec qterminal --geometry 400x100 --title tmount -e'
+  case "${1}" in -k|-i|-a ) M="${1}" ;; * ) M='' ;; esac
+  case  ${#}  in 1 ) M='-a' ;; 2 ) shift ;; * ) M='' ;; esac
 
-# ---------------------------------------------------------------------------
+  if [ -z "${M}" ] ; then ! echo 'Usage: cmd [-k|-i|-a] [device|file]' >&2
+  else
 
-  FSel () { : ; } # FSel ## Force interactive input.
+    if ! tty >/dev/null ; then myterm "${0}" "${M}" "${@}"
+    else
 
-#  FSel () {
-#    local N
-#    echo 'Enter key filename or empty string for interactive input.' >&2
-#    read N && echo "${N}"
-#  } # FSel
+      [ "${M}" = '-a' ] && {
+        echo 'Enter'
+        echo '  "k" for key file selection,'
+        echo '  "i" for password interactive input,'
+        echo 'or any to cancel...'
+        read M
+        case "${M}" in K|k ) M='-k' ;; I|i ) M='-i' ;; * ) M='' ;; esac
+      }
 
-  if tty >/dev/null ; then
-    F=$( FSel ) &&
-    if [ "${F}" ]
-    then sudo /sbin/cryptsetup open "${1}" "luks-${1##*/}" -d "${F}"
-    else sudo /sbin/cryptsetup open "${1}" "luks-${1##*/}"
-    fi ||
-    { echo ; echo 'Press Enter to continue...' ; read ; }
-  else myterm "${0}" "${@}" 2>/dev/null
+      case "${M}" in
+        -k )
+          echo 'Enter key file name'
+          echo '  or empty string to cancel...'
+          IFS='' read -r M && [ "${M}" ] &&
+          sudo /sbin/cryptsetup open "${1}" "luks-${1##*/}" -d "${M}"
+        ;;
+        -i ) sudo /sbin/cryptsetup open "${1}" "luks-${1##*/}" ;;
+      esac ||
+      { echo ; echo 'Press Enter to continue...' ; read ; }
+
+    fi
+
   fi
 
 #eof

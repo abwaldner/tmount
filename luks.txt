@@ -23,11 +23,16 @@
   does not require an explicit call to the utility "cryptsetup".
       "udevil" users must add at least "/dev/dm*" to the parameter
   "allowed_internal_devices" in udevil.conf file.
-      "sudo" users can greatly simplify the scripts that use the utility
+      "sudo" users can greatly simplify the work with the utility
   "cryptsetup", if will be entitled to its execution without entering
-  a password.  In addition, when using terminal emulators or tools like
+  a password.  However, this does not require any modification of the
+  scripts.  In addition, when using terminal emulators or tools like
   "ktsuss" lost the return code and the stderr output of the called
   program.
+      Currently, all unlock scripts accept an additional parameter
+  specifying the way to enter the LUKS password: "-k" - request the key
+  file name, "-i" - interactive input, "-a" or the absence of the
+  parameter - the selection dialog.
       To unlock containers that are in regular files, you should ensure
   that the relevant scripts are run through the field "Add image" of
   the settings dialog (see img-*.sh in examles).   Warning: don't forget
