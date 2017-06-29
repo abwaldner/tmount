@@ -1,7 +1,7 @@
 
 //   This file is a part of code of "tmount" program.
 // See COPYING file for terms of usage.
-// Alexander B. Waldner, 2016.
+// Alexander B. Waldner, 2016-2017.
 
 #ifndef LISTENER_H
 #define LISTENER_H
@@ -16,6 +16,8 @@
 
 //  Arbitrary value.
 static const int StartTimeout = 2000 ; // 2 s for start of external program.
+
+typedef const char * const CPtr ;
 
 typedef QAction * ActPtr ;
 typedef class QList < ActPtr  > ActList ;

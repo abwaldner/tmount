@@ -1,7 +1,7 @@
 
 //   This file is a part of code of "tmount" program.
 // See COPYING file for terms of usage.
-// Alexander B. Waldner, 2016.
+// Alexander B. Waldner, 2016-2017.
 
 #include <QProcess>
 #include <QSocketNotifier>
@@ -17,28 +17,20 @@
 //   These constants are hardcoded in "udev"
 // and "util-linux"(in libblkid) packages.
 
-// Property names.
-static const char * FS_USAGE = "ID_FS_USAGE" ;
-static const char * FS_LABEL = "ID_FS_LABEL" ;
-static const char * FS_TYPE  = "ID_FS_TYPE"  ;
-static const char * DM_NAME  = "DM_NAME"     ;
+static CPtr // Property names.
+  FS_USAGE = "ID_FS_USAGE" , FS_LABEL = "ID_FS_LABEL" ,
+  FS_TYPE  = "ID_FS_TYPE"  , DM_NAME  = "DM_NAME"     ;
 
-// Property values.
-static const char * USAGE_filesystem = "filesystem"  ;
-static const char * TYPE_LUKS        = "crypto_LUKS" ;
+static const QString // Property values.
+  USAGE_filesystem = "filesystem" , TYPE_LUKS = "crypto_LUKS" ;
 
-// UEvent actions.
-static const char * ACT_add    = "add"    ;
-static const char * ACT_remove = "remove" ;
-static const char * ACT_change = "change" ;
+static const QString // UEvent actions.
+  ACT_add = "add" , ACT_remove = "remove" , ACT_change = "change" ;
 
-// These constants are defined by "sysfs".
-
-static const char * SA_Rem    = "removable" ;
-static const char * SA_Size   = "size" ;
-static const char * SA_Events = "events" ;
-static const char * Events_Eject = "eject_request" ;
-static const char * Subsys_Block = "block" ;
+static CPtr // These constants are defined by "sysfs".
+  Subsys_Block = "block"  , SA_Rem  = "removable" ,
+  SA_Events    = "events" , SA_Size = "size" ;
+static const QString Events_Eject = "eject_request" ;
 
 Listener :: Listener ( QWidget * parent ) : QMenu ( parent ) {
 
@@ -257,7 +249,7 @@ int Listener :: ExecCmd ( const QString & Cmd ,
   if ( Cmd . trimmed ( ) . isEmpty ( ) ) {
 
     QMessageBox :: critical ( NULL , TPref + tr ( "Error" ) ,
-                              tr ( "Action disabled by configuration."  ) ) ;
+                              tr ( "Action disabled by configuration." ) ) ;
 
   } else {
 

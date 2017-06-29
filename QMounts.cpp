@@ -7,7 +7,7 @@
 
 #include "QMounts.h"
 
-static const char * MInfoFileName = "/proc/self/mountinfo" ;
+static const char * const MInfoFileName = "/proc/self/mountinfo" ;
 
 Mounts :: Mounts ( ) {
   MInfoFile . setFileName ( MInfoFileName ) ; RefreshMountInfo ( ) ;

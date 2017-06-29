@@ -24,7 +24,7 @@ int main ( int ArgC , char * ArgV [ ] ) {
   App . setQuitOnLastWindowClosed ( false  ) ;
   QTranslator Tr ;
   Tr . load ( APPLICATION "_" + QLocale :: system ( ) . name ( ) ,
-                                                          APP_TRANSLATIONS ) ;
+                                                        APP_TRANSLATIONS ) ;
   App . installTranslator ( & Tr ) ;
 
   Listener L ;

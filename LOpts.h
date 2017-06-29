@@ -1,7 +1,7 @@
 
 //   This file is a part of code of "tmount" program.
 // See COPYING file for terms of usage.
-// Alexander B. Waldner, 2016.
+// Alexander B. Waldner, 2016-2017.
 
 #ifndef LOPTS_H
 #define LOPTS_H
@@ -26,7 +26,7 @@ class LOpts : public QDialog { Q_OBJECT
             AddImIcon ( ) , UnlckIcon ( ) , ExitIcon ( ) ,
             EjectIcon ( ) , AboutIcon ( ) , ConfIcon ( ) , TMntIcon ( ) ;
   private :
-    QSettings Conf ; bool  NeedSave ;
+    QSettings Conf ;
     QString MountCmdVal , UnmntCmdVal , EjectCmdVal ,
             UnlckCmdVal , LockCmdVal  , AddImCmdVal , HideDevsVal ;
     int     MountTOVal  , UnmntTOVal  , EjectTOVal  ,
