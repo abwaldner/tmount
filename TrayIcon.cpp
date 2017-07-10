@@ -15,19 +15,19 @@ TrayIcon :: TrayIcon ( Listener * parent ) : QSystemTrayIcon ( parent ) {
   Lstnr = parent ; LOpts * Conf = & Lstnr -> Opt ;
 
   QMenu * CMenu = new QMenu ;
-  CMenu -> addAction ( QIcon ( Conf -> AboutIcon ( ) ) , tr ( "About"     ) ,
-                       this  , SLOT ( About    ( ) ) ) ;
-  CMenu -> addAction ( QIcon ( Conf -> ConfIcon  ( ) ) , tr ( "Settings"  ) ,
-                       Conf  , SLOT ( exec     ( ) ) ) ;
+  CMenu -> addAction ( QIcon ( Conf -> toStr ( kAboutPix ) ) ,
+                       tr ( "About"     ) , this  , SLOT ( About    ( ) ) ) ;
+  CMenu -> addAction ( QIcon ( Conf -> toStr ( kConfPix  ) ) ,
+                       tr ( "Settings"  ) , Conf  , SLOT ( exec     ( ) ) ) ;
   CMenu -> addSeparator (  ) ;
-  CMenu -> addAction ( QIcon ( Conf -> AddImIcon ( ) ) , tr ( "Add image" ) ,
-                       Lstnr , SLOT ( AddImage ( ) ) ) ;
+  CMenu -> addAction ( QIcon ( Conf -> toStr ( kAddImPix ) ) ,
+                       tr ( "Add image" ) , Lstnr , SLOT ( AddImage ( ) ) ) ;
   CMenu -> addSeparator (  ) ;
-  CMenu -> addAction ( QIcon ( Conf -> ExitIcon  ( ) ) , tr ( "Quit"      ) ,
-                       qApp  , SLOT ( quit     ( ) ) ) ;
+  CMenu -> addAction ( QIcon ( Conf -> toStr ( kExitPix  ) ) ,
+                       tr ( "Quit"      ) , qApp  , SLOT ( quit     ( ) ) ) ;
   setContextMenu ( CMenu ) ;
 
-  setIcon  ( QIcon ( Conf -> TMntIcon ( ) ) ) ;
+  setIcon  ( QIcon ( Conf -> toStr ( kTMntPix ) ) ) ;
   setToolTip ( tr  ( "Removable devices and media." ) ) ;
 
   connect (

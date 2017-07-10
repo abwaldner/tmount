@@ -32,18 +32,21 @@ static CPtr // These constants are defined by "sysfs".
   SA_Events    = "events" , SA_Size = "size" ;
 static const QString Events_Eject = "eject_request" ;
 
+static const int NoTimeout = -1 ;
+  // For interactive external program, defined by QProcess.
+
 Listener :: Listener ( QWidget * parent ) : QMenu ( parent ) {
 
-  MIcon = QIcon ( Opt . MountIcon ( ) ) ;
-  UIcon = QIcon ( Opt . UnmntIcon ( ) ) ;
-  DIcon = QIcon ( Opt . UnlckIcon ( ) ) ;
-  LIcon = QIcon ( Opt . LockIcon  ( ) ) ;
+  MIcon = QIcon ( Opt . toStr ( kMountPix ) ) ;
+  UIcon = QIcon ( Opt . toStr ( kUnmntPix ) ) ;
+  DIcon = QIcon ( Opt . toStr ( kUnlckPix ) ) ;
+  LIcon = QIcon ( Opt . toStr ( kLockPix  ) ) ;
 
   UdevEnum En ( & UdevContext ) ;
   En . MatchSubsys ( Subsys_Block ) ; En . ScanDevs ( ) ;
   foreach ( UdevPair P , En . GetList ( ) ) {
     UdevDev Dev ( & UdevContext , P . first ) ;
-    AddDevice ( Dev , Opt . MntStart  ( ) ) ;
+    AddDevice ( Dev , Opt . toBool ( kMntStart ) ) ;
   }//done
 
   UMonitor  = new UdevMon ( & UdevContext ) ;
@@ -83,27 +86,22 @@ ActPtr Listener :: exec ( const QPoint & Loc , ActPtr At ) {
     bool C = Dev . Property ( FS_TYPE  ) == TYPE_LUKS , // It's container.
          M = P   . isEmpty  ( ) ; // Mount or unlock required.
 
-    int T ; QString  Cmd , Arg = M ? N : P ;
-    if ( M ) {
-      if ( C ) { Cmd = Opt . UnlckCmd ( ) ; T = Opt . UnlckTO ( ) ;
-      } else {   Cmd = Opt . MountCmd ( ) ; T = Opt . MountTO ( ) ;
-      }//fi
-    } else {
-      if ( C ) { Cmd = Opt . LockCmd  ( ) ; T = Opt . LockTO  ( ) ;
-      } else {   Cmd = Opt . UnmntCmd ( ) ; T = Opt . UnmntTO ( ) ;
-      }//fi
+    loKey K , T ; QString Arg = M ? N : P ;
+
+    if ( M ) { K = C ? kUnlckCmd : kMountCmd ; T = C ? kUnlckTO : kMountTO ;
+    } else {   K = C ? kLockCmd  : kUnmntCmd ; T = C ? kLockTO  : kUnmntTO ;
     }//fi
 
-    int R = ExecCmd ( Cmd , Arg , T ) ;
+    int R = ExecCmd ( Opt . toStr ( K ) , Arg ,  Opt . toInt ( T ) ) ;
 
     if ( R ) { SetActions ( Dev ) ; }//fi // workaround for setChecked ()
 
     MInfo . RefreshMountInfo   ( ) ;
-    QString E = Opt . EjectCmd ( ) ;
+    QString E = Opt . toStr ( kEjectCmd ) ;
     if ( ! M && ! R && ! E . isEmpty ( ) &&
            MPoints ( Dev ) . isEmpty ( ) &&
            Dev . SysAttr ( SA_Events ) . contains ( Events_Eject ) ) {
-      ExecCmd  ( E , N , Opt . EjectTO ( ) ) ;
+      ExecCmd  ( E , N , Opt . toInt ( kEjectTO ) ) ;
     }//fi
 
   }//fi
@@ -115,10 +113,11 @@ ActPtr Listener :: exec ( const QPoint & Loc , ActPtr At ) {
 void Listener :: DeviceAction ( int socket ) { ( void ) socket ;
 
   UdevDev Dev ( UMonitor ) ; QString DAct = Dev . Action ( ) ;
-  if ( DAct == ACT_add ) { AddDevice ( Dev , Opt . MntNew ( ) ) ;
+  if ( DAct == ACT_add ) { AddDevice ( Dev , Opt . toBool ( kMntNew ) ) ;
   } else if ( DAct == ACT_remove ) { RemoveDevice ( Dev ) ;
   } else if ( DAct == ACT_change ) {
-    bool M  = Opt . MntMedia ( ) && Dev . SysAttr ( SA_Rem  ) . toUInt ( ) ;
+    bool M  = Opt . toBool ( kMntMedia ) &&
+                Dev . SysAttr ( SA_Rem ) . toUInt ( ) ;
     if ( ! AddDevice ( Dev , M ) ) { RemoveDevice ( Dev ) ; }//fi
   }//fi
 
@@ -136,11 +135,11 @@ void Listener :: MountAction ( int socket ) { ( void ) socket ;
 
 bool Listener :: AddDevice ( UdevDev & Dev , bool TryMount ) {
 
-  QString N = Dev . DevNode ( ) ;
+  QString N = Dev . DevNode ( ) , H = Opt . toStr ( kHideDevs ) ;
   bool  C = Dev . Property ( FS_TYPE  ) == TYPE_LUKS ;
           // It's container, FS_USAGE is "crypto"
   bool  T = Dev . Property ( FS_USAGE ) == USAGE_filesystem || C ;
-  foreach ( QString R  , Opt . HideDevs ( ) ) {
+  foreach ( QString R , H . split ( ' ' , QString :: SkipEmptyParts ) ) {
     T = T && ! QRegExp ( R ) . exactMatch ( N ) ; // Not disabled by config.
   }//done
 
@@ -151,7 +150,7 @@ bool Listener :: AddDevice ( UdevDev & Dev , bool TryMount ) {
     DevList . removeDuplicates ( ) ; // overcaution
 
     if ( ! C && TryMount && MPoints ( Dev ) . isEmpty ( ) ) {
-      ExecCmd ( Opt . MountCmd  ( ) , N , Opt . MountTO ( ) ) ;
+      ExecCmd ( Opt . toStr ( kMountCmd ) , N , Opt . toInt ( kMountTO ) ) ;
     }//fi // LUKS containers are never automatically unlocked.
 
     SetActions ( Dev ) ;
@@ -172,8 +171,8 @@ void Listener :: RemoveDevice ( UdevDev & Dev ) {
 
   // Desperate attempt.
   foreach ( QString M , MPoints ( Dev ) ) {
-    ExecCmd ( Opt . UnmntCmd ( ) , Mounts :: DecodeIFS ( M ) ,
-              Opt . UnmntTO  ( ) ) ;
+    ExecCmd ( Opt . toStr ( kUnmntCmd ) , Mounts :: DecodeIFS ( M ) ,
+              Opt . toInt ( kUnmntTO  ) ) ;
   }//done
 
   if ( ! Dev . Property ( DM_NAME ) . isEmpty ( ) ) {
@@ -244,7 +243,7 @@ void Listener :: SetActions ( UdevDev & Dev ) {
 int Listener :: ExecCmd ( const QString & Cmd ,
                           const QString & Arg , int Timeout ) {
 
-  int R = -1 ; QString A = Arg ;
+  int R = -1 ;
 
   if ( Cmd . trimmed ( ) . isEmpty ( ) ) {
 
@@ -256,13 +255,14 @@ int Listener :: ExecCmd ( const QString & Cmd ,
     QProcess Pr ;
     Pr . setStandardInputFile  ( "/dev/null" ) ;
     Pr . setStandardOutputFile ( "/dev/null" ) ;
-    QString  C = Cmd + " \"" + A . replace ( '"' , "\"\"\"" ) + '"' ;
+    QString A = Arg ; int T = Timeout ? Timeout * 1000 : NoTimeout ;
+    QString C = Cmd + " \"" + A . replace ( '"' , "\"\"\"" ) + '"' ;
     Pr . start ( C , QIODevice :: ReadOnly ) ;
 
     if ( ! Pr . waitForStarted ( StartTimeout ) ) {
       QMessageBox :: critical ( NULL , TPref + tr ( "Error" ) ,
                                 tr ( "Can't execute" ) + " '" + C + "'" ) ;
-    } else if ( ! Pr . waitForFinished ( Timeout ) ) {
+    } else if ( ! Pr . waitForFinished ( T  ) ) {
       QMessageBox :: critical ( NULL , TPref + tr ( "Error" ) ,
                                 "'" + C + "' " + tr ( "crashed." ) ) ;
     } else if ( ( R = Pr . exitCode ( ) ) ) {
@@ -285,7 +285,7 @@ void Listener :: AddImage ( ) {
                 TPref + tr ( "Select filesystem image" ) , "" ,
                 tr ( "Images (*.img *.iso);;All files (*)" ) ) ;
   if ( ! F . isEmpty ( ) ) {
-    ExecCmd ( Opt . AddImCmd ( ) , F , Opt . AddImTO ( ) ) ;
+    ExecCmd ( Opt . toStr ( kAddImCmd ) , F , Opt . toInt ( kAddImTO ) ) ;
   }//fi
 }// Listener :: AddImage
 

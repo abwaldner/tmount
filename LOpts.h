@@ -12,33 +12,23 @@
 #include <QCheckBox>
 #include <QSpinBox>
 
+enum loKey {
+  kNoKey    ,
+  kMountCmd , kUnmntCmd , kEjectCmd , kUnlckCmd , kLockCmd , kAddImCmd ,
+  kMountTO  , kUnmntTO  , kEjectTO  , kUnlckTO  , kLockTO  , kAddImTO  ,
+  kHideDevs , kMntNew   , kMntMedia , kMntStart ,
+  kMountPix , kUnmntPix , kEjectPix , kUnlckPix , kLockPix , kAddImPix ,
+  kExitPix  , kConfPix  , kAboutPix , kTMntPix
+} ;
+
 class LOpts : public QDialog { Q_OBJECT
   public slots : int exec ( ) ;
   public :
     explicit LOpts ( QWidget * parent = 0 ) ; virtual ~LOpts ( ) ;
-    QString MountCmd ( ) , UnmntCmd ( ) , EjectCmd ( ) ,
-            UnlckCmd ( ) , LockCmd  ( ) , AddImCmd ( ) ;
-    int MountTO ( ) , UnmntTO ( ) , EjectTO ( ) ,
-        UnlckTO ( ) , LockTO  ( ) , AddImTO ( ) ;
-    QStringList HideDevs ( ) ;
-    bool MntNew ( ) , MntMedia ( ) , MntStart ( ) ;
-    QString MountIcon ( ) , UnmntIcon ( ) , LockIcon ( ) ,
-            AddImIcon ( ) , UnlckIcon ( ) , ExitIcon ( ) ,
-            EjectIcon ( ) , AboutIcon ( ) , ConfIcon ( ) , TMntIcon ( ) ;
+    int  toInt  ( loKey K ) ;
+    bool toBool ( loKey K ) ; QString toStr ( loKey K ) ;
   private :
-    QSettings Conf ;
-    QString MountCmdVal , UnmntCmdVal , EjectCmdVal ,
-            UnlckCmdVal , LockCmdVal  , AddImCmdVal , HideDevsVal ;
-    int     MountTOVal  , UnmntTOVal  , EjectTOVal  ,
-            UnlckTOVal  , LockTOVal   , AddImTOVal  ;
-    bool    MntNewVal   , MntMediaVal , MntStartVal ;
-    QLineEdit * MountCmdLine , * UnmntCmdLine , * EjectCmdLine ,
-              * UnlckCmdLine , * LockCmdLine  , * AddImCmdLine ,
-              * HideDevsLine ;
-    QSpinBox  * MountTOSpin  , * UnmntTOSpin  , * EjectTOSpin  ,
-              * UnlckTOSpin  , * LockTOSpin   , * AddImTOSpin  ;
-    QCheckBox * MntNewBox    , * MntMediaBox  , * MntStartBox  ;
-    static int  ms ( int Sec ) ; // convert secs to ms or NoTimeout
+    struct Item ; static Item ITbl [ ] ; int ITblSize ; QSettings Conf ;
 } ; // LOpts
 
 #endif // LOPTS_H
