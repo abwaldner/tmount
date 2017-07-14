@@ -7,6 +7,7 @@
 #define LISTENER_H
 
 #include <QMenu>
+#include <QProcessEnvironment>
 
 #include "LOpts.h"
 #include "QUdev.h"
@@ -54,6 +55,7 @@ class Listener : public QMenu { Q_OBJECT
     QStringList DevList ;
     QString     CurrDev ;
     Mounts MInfo ;
+    QProcessEnvironment Env ;
 
 } ; // Listener
 

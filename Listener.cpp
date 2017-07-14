@@ -41,6 +41,7 @@ Listener :: Listener ( QWidget * parent ) : QMenu ( parent ) {
   UIcon = QIcon ( Opt . toStr ( kUnmntPix ) ) ;
   DIcon = QIcon ( Opt . toStr ( kUnlckPix ) ) ;
   LIcon = QIcon ( Opt . toStr ( kLockPix  ) ) ;
+  Env = QProcessEnvironment :: systemEnvironment ( ) ;
 
   UdevEnum En ( & UdevContext ) ;
   En . MatchSubsys ( Subsys_Block ) ; En . ScanDevs ( ) ;
@@ -98,10 +99,11 @@ ActPtr Listener :: exec ( const QPoint & Loc , ActPtr At ) {
 
     MInfo . RefreshMountInfo   ( ) ;
     QString E = Opt . toStr ( kEjectCmd ) ;
-    if ( ! M && ! R && ! E . isEmpty ( ) &&
-           MPoints ( Dev ) . isEmpty ( ) &&
-           Dev . SysAttr ( SA_Events ) . contains ( Events_Eject ) ) {
-      ExecCmd  ( E , N , Opt . toInt ( kEjectTO ) ) ;
+    if ( ! M && ! R && ! E . isEmpty  ( ) &&
+           MPoints ( Dev ) . isEmpty  ( ) &&
+           Opt . toBool  ( kAutoEject )   &&
+           Dev . SysAttr ( SA_Events  ) . contains ( Events_Eject ) ) {
+      ExecCmd  ( E , N , Opt . toInt  ( kEjectTO ) ) ;
     }//fi
 
   }//fi
@@ -252,22 +254,26 @@ int Listener :: ExecCmd ( const QString & Cmd ,
 
   } else {
 
-    QProcess Pr ;
-    Pr . setStandardInputFile  ( "/dev/null" ) ;
-    Pr . setStandardOutputFile ( "/dev/null" ) ;
+    foreach ( OptPair P , Opt . GetAll ( ) ) {
+      Env . insert ( "TMOUNT_" + P . first , P . second ) ;
+    }//done
+    QProcess P ;
+    P . setStandardInputFile  ( "/dev/null" ) ;
+    P . setStandardOutputFile ( "/dev/null" ) ;
+    P . setProcessEnvironment ( Env ) ;
     QString A = Arg ; int T = Timeout ? Timeout * 1000 : NoTimeout ;
     QString C = Cmd + " \"" + A . replace ( '"' , "\"\"\"" ) + '"' ;
-    Pr . start ( C , QIODevice :: ReadOnly ) ;
+    P . start ( C , QIODevice :: ReadOnly ) ;
 
-    if ( ! Pr . waitForStarted ( StartTimeout ) ) {
+    if ( ! P . waitForStarted ( StartTimeout ) ) {
       QMessageBox :: critical ( NULL , TPref + tr ( "Error" ) ,
                                 tr ( "Can't execute" ) + " '" + C + "'" ) ;
-    } else if ( ! Pr . waitForFinished ( T  ) ) {
+    } else if ( ! P . waitForFinished ( T  ) ) {
       QMessageBox :: critical ( NULL , TPref + tr ( "Error" ) ,
                                 "'" + C + "' " + tr ( "crashed." ) ) ;
-    } else if ( ( R = Pr . exitCode ( ) ) ) {
+    } else if ( ( R = P . exitCode ( ) ) ) {
       QStringList M = QTextCodec :: codecForLocale ( ) ->
-                        toUnicode ( Pr . readAllStandardError ( ) ) .
+                        toUnicode ( P . readAllStandardError ( ) ) .
                           split ( '\n' , QString ::  SkipEmptyParts ) ;
       M . removeDuplicates ( ) ;
       QMessageBox :: warning ( NULL , TPref + tr ( "Warning" ) ,

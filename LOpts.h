@@ -14,12 +14,15 @@
 
 enum loKey {
   kNoKey    ,
-  kMountCmd , kUnmntCmd , kEjectCmd , kUnlckCmd , kLockCmd , kAddImCmd ,
-  kMountTO  , kUnmntTO  , kEjectTO  , kUnlckTO  , kLockTO  , kAddImTO  ,
-  kHideDevs , kMntNew   , kMntMedia , kMntStart ,
-  kMountPix , kUnmntPix , kEjectPix , kUnlckPix , kLockPix , kAddImPix ,
+  kMountCmd , kUnmntCmd , kEjectCmd , kUnlckCmd , kLockCmd   , kAddImCmd ,
+  kMountTO  , kUnmntTO  , kEjectTO  , kUnlckTO  , kLockTO    , kAddImTO  ,
+  kHideDevs , kMntNew   , kMntMedia , kMntStart , kAutoEject ,
+  kMountPix , kUnmntPix , kEjectPix , kUnlckPix , kLockPix   , kAddImPix ,
   kExitPix  , kConfPix  , kAboutPix , kTMntPix
 } ;
+
+typedef struct QPair < QString , QString > OptPair ;
+typedef class  QList < OptPair > OptList ;
 
 class LOpts : public QDialog { Q_OBJECT
   public slots : int exec ( ) ;
@@ -27,6 +30,7 @@ class LOpts : public QDialog { Q_OBJECT
     explicit LOpts ( QWidget * parent = 0 ) ; virtual ~LOpts ( ) ;
     int  toInt  ( loKey K ) ;
     bool toBool ( loKey K ) ; QString toStr ( loKey K ) ;
+    OptList GetAll ( ) ;
   private :
     struct Item ; static Item ITbl [ ] ; int ITblSize ; QSettings Conf ;
 } ; // LOpts
