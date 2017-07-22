@@ -35,13 +35,19 @@ static const QString Events_Eject = "eject_request" ;
 static const int NoTimeout = -1 ;
   // For interactive external program, defined by QProcess.
 
+static QKeyEvent
+  EP ( QEvent :: KeyPress   , Qt :: Key_Enter , Qt :: NoModifier ) ,
+  ER ( QEvent :: KeyRelease , Qt :: Key_Enter , Qt :: NoModifier ) ;
+
 Listener :: Listener ( QWidget * parent ) : QMenu ( parent ) {
 
   MIcon = QIcon ( Opt . toStr ( kMountPix ) ) ;
   UIcon = QIcon ( Opt . toStr ( kUnmntPix ) ) ;
+  EIcon = QIcon ( Opt . toStr ( kEjectPix ) ) ;
   DIcon = QIcon ( Opt . toStr ( kUnlckPix ) ) ;
   LIcon = QIcon ( Opt . toStr ( kLockPix  ) ) ;
   Env = QProcessEnvironment :: systemEnvironment ( ) ;
+  Suppl = reqNoAct ;
 
   UdevEnum En ( & UdevContext ) ;
   En . MatchSubsys ( Subsys_Block ) ; En . ScanDevs ( ) ;
@@ -70,45 +76,51 @@ Listener :: Listener ( QWidget * parent ) : QMenu ( parent ) {
 
 Listener :: ~Listener ( ) { delete UMonitor ; }// ~Listener
 
-ActPtr Listener :: exec ( const QPoint & Loc , ActPtr At ) {
+void Listener :: exec (const QPoint & Loc ) {
 
   ActList T = FindActs ( CurrDev ) ;
   if ( ! T . isEmpty ( ) ) { setActiveAction ( T . first ( ) ) ; }//fi
 
-  ActPtr Act = QMenu :: exec ( Loc , At ) ;
+  ActPtr Act = QMenu :: exec ( Loc ) ;
 
   if ( Act ) {
 
-    QString P = Act -> objectName ( ) ;
-    CurrDev = P . section ( ' ' , 0 , 0 ) ;
+    QString P = Act -> objectName ( ) ; // Primary key.
+    CurrDev = P . section ( ' ' , 0 , 0 ) ; // SysPath.
     UdevDev Dev ( & UdevContext , CurrDev ) ;
     QString N = Dev . DevNode ( ) ;
     P = Mounts :: DecodeIFS ( P . section ( ' ' , 1 , 1 ) ) ;
+      // Now mountpoint/dm-name if any.
     bool C = Dev . Property ( FS_TYPE  ) == TYPE_LUKS , // It's container.
          M = P   . isEmpty  ( ) ; // Mount or unlock required.
+    int R = 0 ; // Return code for command.
 
-    loKey K , T ; QString Arg = M ? N : P ;
-
-    if ( M ) { K = C ? kUnlckCmd : kMountCmd ; T = C ? kUnlckTO : kMountTO ;
-    } else {   K = C ? kLockCmd  : kUnmntCmd ; T = C ? kLockTO  : kUnmntTO ;
+    if ( ! ( M && Suppl ) ) { // Currently Suppl may be Eject or Remove.
+      loKey K , T ;
+      if ( M ) { K = C ? kUnlckCmd : kMountCmd ; T = C ? kUnlckTO : kMountTO ;
+      } else {   K = C ? kLockCmd  : kUnmntCmd ; T = C ? kLockTO  : kUnmntTO ;
+      }//fi
+      R = ExecCmd ( Opt . toStr ( K ) , M ? N : P , Opt . toInt ( T ) ) ;
     }//fi
 
-    int R = ExecCmd ( Opt . toStr ( K ) , Arg ,  Opt . toInt ( T ) ) ;
+    if ( R ) { SetActions ( Dev ) ; // workaround for setChecked ()
+    } else {
 
-    if ( R ) { SetActions ( Dev ) ; }//fi // workaround for setChecked ()
+      MInfo . RefreshMountInfo ( ) ;
+      QString E = Opt . toStr ( kEjectCmd ) ;
 
-    MInfo . RefreshMountInfo   ( ) ;
-    QString E = Opt . toStr ( kEjectCmd ) ;
-    if ( ! M && ! R && ! E . isEmpty  ( ) &&
-           MPoints ( Dev ) . isEmpty  ( ) &&
-           Opt . toBool  ( kAutoEject )   &&
-           Dev . SysAttr ( SA_Events  ) . contains ( Events_Eject ) ) {
-      ExecCmd  ( E , N , Opt . toInt  ( kEjectTO ) ) ;
+      if ( // Eject or Autoeject requested, is applicable and configured.
+        ( ( ! M && Opt . toBool ( kAutoEject ) ) || Suppl == reqEject ) &&
+        Ejectable ( Dev ) && ! E . isEmpty ( ) &&
+        MPoints ( Dev ) . isEmpty ( ) // Overcaution.
+      ) { ExecCmd ( E , N , Opt . toInt ( kEjectTO ) ) ;
+      }//fi
+
     }//fi
 
   }//fi
 
-  return Act ;
+  Suppl = reqNoAct ;
 
 }// Listener :: exec
 
@@ -310,5 +322,35 @@ QStringList Listener :: MapDevs ( UdevDev & Dev ) {
   }//done
   return M ;
 }// Listener :: MapDevs
+
+bool Listener :: Ejectable ( UdevDev & Dev ) {
+  return Dev . SysAttr ( SA_Events ) . contains ( Events_Eject ) ;
+}// Listener :: Ejectable
+
+void Listener :: contextMenuEvent ( QContextMenuEvent * event ) {
+
+  ActPtr Act = activeAction ( ) , R ; QMenu S ;
+  QString P = Act -> objectName ( ) ; // Primary key.
+  UdevDev Dev ( & UdevContext , P . section ( ' ' , 0 , 0 ) ) ;
+  bool C = Dev . Property ( FS_TYPE  ) == TYPE_LUKS  , // It's container.
+       M = P . section ( ' ' , 1 , 1 ) . isEmpty ( ) ; // Not mounted.
+
+  R = S . addAction ( Act -> icon ( ) ,
+                      M ? ( C ? tr ( "Unlock" ) : tr ( "Mount"   ) )
+                        : ( C ? tr ( "Lock"   ) : tr ( "Unmount" ) ) ) ;
+  R -> setData ( ( uint ) reqNoAct ) ; S . setActiveAction ( R ) ;
+
+  if ( ! Opt . toStr ( kEjectCmd ) . isEmpty ( ) && Ejectable ( Dev ) ) {
+    R = S . addAction ( EIcon , tr ( "Eject" ) ) ;
+    R -> setData ( ( uint ) reqEject ) ; S . setActiveAction ( R ) ;
+  }//fi
+
+  R = S . exec ( event -> globalPos ( ) ) ;  setActiveAction ( Act ) ;
+  if ( R ) {
+    Suppl = ( ActReq ) ( R -> data ( ) . toUInt ( ) ) ;
+    keyPressEvent ( & EP ) ; keyPressEvent ( & ER ) ;
+  }//fi
+
+}// Listener :: contextMenuEvent
 
 //eof Listener.cpp
