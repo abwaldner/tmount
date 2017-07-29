@@ -20,7 +20,7 @@ TrayIcon :: TrayIcon ( Listener * parent ) : QSystemTrayIcon ( parent ) {
   CMenu -> addAction ( QIcon ( Conf -> toStr ( kConfPix  ) ) ,
                        tr ( "Settings"  ) , Conf  , SLOT ( exec     ( ) ) ) ;
   CMenu -> addSeparator (  ) ;
-  CMenu -> addAction ( QIcon ( Conf -> toStr ( kAddImPix ) ) ,
+  CMenu -> addAction ( QIcon ( Conf -> toStr ( kAddImgPix  ) ) ,
                        tr ( "Add image" ) , Lstnr , SLOT ( AddImage ( ) ) ) ;
   CMenu -> addSeparator (  ) ;
   CMenu -> addAction ( QIcon ( Conf -> toStr ( kExitPix  ) ) ,

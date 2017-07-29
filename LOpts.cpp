@@ -15,12 +15,13 @@ static const QString // ".conf" file items.
   MountCmdItm  = "Mount_command"   , MountTOItm  = "Mount_timeout"   ,
   UnmntCmdItm  = "Unmount_command" , UnmntTOItm  = "Unmount_timeout" ,
   EjectCmdItm  = "Eject_command"   , EjectTOItm  = "Eject_timeout"   ,
-  UnlckCmdItm  = "Unlock_command"  , UnlckTOItm  = "Unlock_timeout"  ,
+  RemoveCmdItm = "Remove_command"  , RemoveTOItm = "Remove_timeout"  ,
+  UnlockCmdItm = "Unlock_command"  , UnlockTOItm = "Unlock_timeout"  ,
   LockCmdItm   = "Lock_command"    , LockTOItm   = "Lock_timeout"    ,
-  AddImCmdItm  = "Add_Img_command" , AddImTOItm  = "Add_Img_timeout" ,
+  AddImgCmdItm = "Add_Img_command" , AddImgTOItm = "Add_Img_timeout" ,
   HideDevsItm  = "Hidden_devices"  , MntNewItm   = "Mount_new"       ,
   MntMediaItm  = "Mount_media"     , MntStartItm = "Mount_on_start"  ,
-  AutoEjectItm = "Auto_eject"    ;
+  AutoEjectItm = "Auto_eject"      ;
 
 // Defaults.
 
@@ -29,41 +30,50 @@ static const int // arbitrary values
   MaxTO = 3600 ; // 1 h
 
 static const QString
-  MDfl = "udevil mount" , UDfl = "udevil umount" , EDfl = "eject" ;
+  MDfl = "udevil mount" , UDfl = "udevil umount" ,
+  EDfl = "eject"        , RDfl = "eject -M"      ;
 
 static const QString // Icons.
-  MountP = ":/icons/mount.png" , UnmntP = ":/icons/unmount.png" ,
-  EjectP = ":/icons/eject.png" , UnlckP = ":/icons/unlock.png"  ,
-  LockP  = ":/icons/lock.png"  , AddImP = ":/icons/fsimg.png"   ,
-  ExitP  = ":/icons/exit.png"  , ConfP  = ":/icons/config.png"  ,
-  AboutP = ":/icons/info.png"  , TMntP  = ":/icons/tmount.png"  ;
+  MountP = ":/icons/mount.png"    , UnmntP  = ":/icons/unmount.png" ,
+  EjectP = ":/icons/eject.png"    , RemoveP = ":/icons/remove.png" ,
+  UnlockP = ":/icons/unlock.png"  , LockP   = ":/icons/lock.png"    ,
+  AddImgP = ":/icons/fsimg.png"   , ExitP   = ":/icons/exit.png"    ,
+  ConfigP = ":/icons/config.png"  , AboutP  = ":/icons/info.png"    ,
+  TMntP   = ":/icons/tmount.png"  ;
 
 static CPtr // Tooltips.
-  MountTtp = QT_TRANSLATE_NOOP ( "LOpts" ,
-    "The device node name (/dev/...) will be<br/>"
+  TtpStyle  = "<p style='white-space:pre'>" ,
+  MountTtp  = QT_TRANSLATE_NOOP ( "LOpts" ,
+    "    The device node name (/dev/...) will be<br/>"
     "appended to the end of given command line." ) ,
-  UnmntTtp = QT_TRANSLATE_NOOP ( "LOpts" ,
-    "The mountpoint pathname (/media/...) will be<br/>"
+  UnmntTtp  = QT_TRANSLATE_NOOP ( "LOpts" ,
+    "    The mountpoint pathname (/media/...) will be<br/>"
     "appended to the end of given command line." ) ,
-  LockTtp  = QT_TRANSLATE_NOOP ( "LOpts" ,
-    "The mapping name will be appended<br/>"
+  EjectTtp  = QT_TRANSLATE_NOOP ( "LOpts" ,
+    "    The whole disk node name for given<br/>"
+    "device (b.e. /dev/sdd for /dev/sdd[0-9]*,<br/>"
+    "/dev/sr0 for /dev/sr0) will be appended<br/>"
     "to the end of given command line." ) ,
-  HideTtp  = QT_TRANSLATE_NOOP ( "LOpts" ,
-    "Type a space-separated list of regexps, b.e.<br/>"
-    "'/dev/sd[ab].* /dev/sdc1' (restart required)." ) ,
-  AddImTtp = QT_TRANSLATE_NOOP ( "LOpts" ,
-    "The selected file name will be appended<br/>"
+  LockTtp   = QT_TRANSLATE_NOOP ( "LOpts" ,
+    "    The mapping name will be appended<br/>"
     "to the end of given command line." ) ,
-  TimeTtp  = QT_TRANSLATE_NOOP ( "LOpts" ,
-    "Timeout in secs for given command,<br/> 0 means no timeout." ) ;
+  HideTtp   = QT_TRANSLATE_NOOP ( "LOpts" ,
+    "    Type a space-separated list of regexps, b.e.<br/>"
+    "'/dev/sd[ab].*  /dev/sdc1' (restart required)." ) ,
+  AddImgTtp = QT_TRANSLATE_NOOP ( "LOpts" ,
+    "    The selected file name will be appended<br/>"
+    "to the end of given command line." ) ,
+  TimeTtp   = QT_TRANSLATE_NOOP ( "LOpts" ,
+    "    Timeout in secs for given command,<br/>0 means no timeout." ) ;
 
 static CPtr // Labels.
   MountLbl     = QT_TRANSLATE_NOOP ( "LOpts" , "&Mount"     ) ,
   UnmntLbl     = QT_TRANSLATE_NOOP ( "LOpts" , "&Unmount"   ) ,
   EjectLbl     = QT_TRANSLATE_NOOP ( "LOpts" , "&Eject"     ) ,
-  UnlckLbl     = QT_TRANSLATE_NOOP ( "LOpts" , "Unloc&k"    ) ,
+  RemoveLbl    = QT_TRANSLATE_NOOP ( "LOpts" , "&Remove"    ) ,
+  UnlockLbl    = QT_TRANSLATE_NOOP ( "LOpts" , "Unloc&k"    ) ,
   LockLbl      = QT_TRANSLATE_NOOP ( "LOpts" , "&Lock"      ) ,
-  AddImLbl     = QT_TRANSLATE_NOOP ( "LOpts" , "Add &Image" ) ,
+  AddImgLbl    = QT_TRANSLATE_NOOP ( "LOpts" , "Add &Image" ) ,
   HideLbl      = QT_TRANSLATE_NOOP ( "LOpts" , "&Hidden devices"       ) ,
   MntNewLbl    = QT_TRANSLATE_NOOP ( "LOpts" , "Mount &new devices"    ) ,
   MntMediaLbl  = QT_TRANSLATE_NOOP ( "LOpts" , "Mount inser&ted media" ) ,
@@ -76,61 +86,66 @@ static QFrame * HLine ( ) {
 }// NFrame
 
 struct LOpts :: Item {
-  QString    CFKey   ;
+  QString    CFKey   ; // Config file key.
   QVariant   Val     ;
   CPtr       Label   ;
   CPtr       ToolTip ;
   QWidget  * Editor  ;
   loKey      Pix     ;
-  loKey      Lnk     ;
+  loKey      Lnk     ; // Currently Command -> Timeout link.
 } ;
 
 LOpts :: Item LOpts :: ITbl [ ] = {
   { "" , "" , NULL , NULL , NULL , kNoKey , kNoKey } ,
-  { MountCmdItm  , MDfl  , MountLbl     , MountTtp , NULL , kMountPix ,
+  { MountCmdItm  , MDfl  , MountLbl     , MountTtp  , NULL , kMountPix  ,
     kMountTO     } ,
-  { UnmntCmdItm  , UDfl  , UnmntLbl     , UnmntTtp , NULL , kUnmntPix ,
+  { UnmntCmdItm  , UDfl  , UnmntLbl     , UnmntTtp  , NULL , kUnmntPix  ,
     kUnmntTO     } ,
-  { EjectCmdItm  , EDfl  , EjectLbl     , MountTtp , NULL , kEjectPix ,
+  { EjectCmdItm  , EDfl  , EjectLbl     , EjectTtp  , NULL , kEjectPix  ,
     kEjectTO     } ,
-  { UnlckCmdItm  , ""    , UnlckLbl     , MountTtp , NULL , kUnlckPix ,
-    kUnlckTO     } ,
-  { LockCmdItm   , ""    , LockLbl      , LockTtp  , NULL , kLockPix  ,
+  { RemoveCmdItm , RDfl  , RemoveLbl    , EjectTtp  , NULL , kRemovePix ,
+    kRemoveTO    } ,
+  { UnlockCmdItm , ""    , UnlockLbl    , MountTtp  , NULL , kUnlockPix ,
+    kUnlockTO    } ,
+  { LockCmdItm   , ""    , LockLbl      , LockTtp   , NULL , kLockPix   ,
     kLockTO      } ,
-  { AddImCmdItm  , ""    , AddImLbl     , AddImTtp , NULL , kAddImPix ,
-    kAddImTO     } ,
-  { MountTOItm   , DefTO , NULL         , TimeTtp  , NULL , kNoKey ,
+  { AddImgCmdItm , ""    , AddImgLbl    , AddImgTtp , NULL , kAddImgPix ,
+    kAddImgTO    } ,
+  { MountTOItm   , DefTO , NULL         , TimeTtp   , NULL , kNoKey ,
     kNoKey } ,
-  { UnmntTOItm   , DefTO , NULL         , TimeTtp  , NULL , kNoKey ,
+  { UnmntTOItm   , DefTO , NULL         , TimeTtp   , NULL , kNoKey ,
     kNoKey } ,
-  { EjectTOItm   , DefTO , NULL         , TimeTtp  , NULL , kNoKey ,
+  { EjectTOItm   , DefTO , NULL         , TimeTtp   , NULL , kNoKey ,
     kNoKey } ,
-  { UnlckTOItm   , 0     , NULL         , TimeTtp  , NULL , kNoKey ,
+  { RemoveTOItm  , DefTO , NULL         , TimeTtp   , NULL , kNoKey ,
     kNoKey } ,
-  { LockTOItm    , 0     , NULL         , TimeTtp  , NULL , kNoKey ,
+  { UnlockTOItm  , 0     , NULL         , TimeTtp   , NULL , kNoKey ,
     kNoKey } ,
-  { AddImTOItm   , DefTO , NULL         , TimeTtp  , NULL , kNoKey ,
+  { LockTOItm    , 0     , NULL         , TimeTtp   , NULL , kNoKey ,
     kNoKey } ,
-  { HideDevsItm  , ""    , HideLbl      , HideTtp  , NULL , kNoKey ,
+  { AddImgTOItm  , DefTO , NULL         , TimeTtp   , NULL , kNoKey ,
     kNoKey } ,
-  { MntNewItm    , false , MntNewLbl    , NULL     , NULL , kNoKey ,
+  { HideDevsItm  , ""    , HideLbl      , HideTtp   , NULL , kNoKey ,
     kNoKey } ,
-  { MntMediaItm  , false , MntMediaLbl  , NULL     , NULL , kNoKey ,
+  { MntNewItm    , false , MntNewLbl    , NULL      , NULL , kNoKey ,
     kNoKey } ,
-  { MntStartItm  , false , MntStartLbl  , NULL     , NULL , kNoKey ,
+  { MntMediaItm  , false , MntMediaLbl  , NULL      , NULL , kNoKey ,
     kNoKey } ,
-  { AutoEjectItm , true  , AutoEjectLbl , NULL     , NULL , kNoKey ,
+  { MntStartItm  , false , MntStartLbl  , NULL      , NULL , kNoKey ,
     kNoKey } ,
-  { "" , MountP , NULL  , NULL , NULL , kNoKey , kNoKey } ,
-  { "" , UnmntP , NULL  , NULL , NULL , kNoKey , kNoKey } ,
-  { "" , EjectP , NULL  , NULL , NULL , kNoKey , kNoKey } ,
-  { "" , UnlckP , NULL  , NULL , NULL , kNoKey , kNoKey } ,
-  { "" , LockP  , NULL  , NULL , NULL , kNoKey , kNoKey } ,
-  { "" , AddImP , NULL  , NULL , NULL , kNoKey , kNoKey } ,
-  { "" , ExitP  , NULL  , NULL , NULL , kNoKey , kNoKey } ,
-  { "" , ConfP  , NULL  , NULL , NULL , kNoKey , kNoKey } ,
-  { "" , AboutP , NULL  , NULL , NULL , kNoKey , kNoKey } ,
-  { "" , TMntP  , NULL  , NULL , NULL , kNoKey , kNoKey } ,
+  { AutoEjectItm , true  , AutoEjectLbl , NULL      , NULL , kNoKey ,
+    kNoKey } ,
+  { "" , MountP  , NULL  , NULL , NULL , kNoKey , kNoKey } ,
+  { "" , UnmntP  , NULL  , NULL , NULL , kNoKey , kNoKey } ,
+  { "" , EjectP  , NULL  , NULL , NULL , kNoKey , kNoKey } ,
+  { "" , RemoveP , NULL  , NULL , NULL , kNoKey , kNoKey } ,
+  { "" , UnlockP , NULL  , NULL , NULL , kNoKey , kNoKey } ,
+  { "" , LockP   , NULL  , NULL , NULL , kNoKey , kNoKey } ,
+  { "" , AddImgP , NULL  , NULL , NULL , kNoKey , kNoKey } ,
+  { "" , ExitP   , NULL  , NULL , NULL , kNoKey , kNoKey } ,
+  { "" , ConfigP , NULL  , NULL , NULL , kNoKey , kNoKey } ,
+  { "" , AboutP  , NULL  , NULL , NULL , kNoKey , kNoKey } ,
+  { "" , TMntP   , NULL  , NULL , NULL , kNoKey , kNoKey } ,
 } ;
 
 LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
@@ -140,7 +155,7 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
   Item * C ;
 
   for ( int I = 1 ; I < ITblSize ; ++ I ) {
-    C = & ITbl [ I ] ; QString K = C -> CFKey ;
+    C = & ITbl [ I ] ; const QString K = C -> CFKey ;
     if ( ! K . isEmpty ( ) ) {
       QVariant :: Type T = C -> Val . type ( ) ;
       if ( Conf . contains ( K ) ) {
@@ -155,8 +170,8 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
         QCheckBox * B = new QCheckBox ( tr ( C -> Label ) ) ;
         C -> Editor = B ; B -> setChecked ( C -> Val . toBool ( ) ) ;
       }//fi
-      if ( C -> Editor ) {
-        C -> Editor -> setToolTip ( tr ( C -> ToolTip ) ) ;
+      if ( C -> Editor && C -> ToolTip ) {
+        C -> Editor -> setToolTip ( TtpStyle + tr ( C -> ToolTip ) ) ;
       }//fi
     }//fi
   }//done
@@ -164,7 +179,7 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
   QGridLayout * Lay = new QGridLayout ;
   QLabel * Lbl ; QString Ttp ; QPixmap P ; int H , R = 0 ;
 
-  { QString L ( 24 , 'M' ) ; // 24 is arbitrary.
+  { const QString L ( 24 , 'M' ) ; // 24 is arbitrary.
     H = QLineEdit ( L ) . sizeHint ( ) . height ( ) ;
     Lay -> setColumnMinimumWidth (
       2  , QLabel ( L ) . sizeHint ( ) . width  ( ) ) ;
@@ -184,10 +199,12 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
       Ttp =  tr ( C -> ToolTip ) ;
       P . load ( toStr  ( C -> Pix ) ) ;
       Lbl =  new QLabel ( ) ; Lbl -> setPixmap ( P . scaled ( H , H ) ) ;
-      Lbl -> setToolTip ( Ttp ) ; Lay -> addWidget ( Lbl , R , 0 ) ;
+      Lbl -> setToolTip ( TtpStyle  + Ttp ) ;
+      Lay -> addWidget  ( Lbl , R , 0 ) ;
       Lbl =  new QLabel ( tr ( C -> Label ) ) ;
       Lbl -> setBuddy   ( C -> Editor ) ;
-      Lbl -> setToolTip ( Ttp ) ; Lay -> addWidget ( Lbl , R , 1 ) ;
+      Lbl -> setToolTip ( TtpStyle  + Ttp ) ;
+      Lay -> addWidget  ( Lbl , R , 1 ) ;
       Lay -> addWidget  ( C -> Editor , R , 2 ) ;
       Lay -> addWidget  ( ITbl [ C -> Lnk ] . Editor , R ++ , 3 ) ;
     }//fi
@@ -198,7 +215,7 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
   C = & ITbl [ kHideDevs ] ;
   Lbl =  new QLabel ( tr ( C -> Label ) ) ;
   Lbl -> setBuddy   ( C -> Editor ) ;
-  Lbl -> setToolTip ( tr ( C -> ToolTip ) ) ;
+  Lbl -> setToolTip ( TtpStyle + tr ( C -> ToolTip ) ) ;
   Lay -> addWidget  ( Lbl , R  , 1 ) ;
   Lay -> addWidget  ( C -> Editor  , R ++ , 2 ) ;
 
@@ -218,13 +235,13 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
   connect ( pbCanc , SIGNAL ( clicked ( ) ) , SLOT ( reject ( ) ) ) ;
   Lay -> addWidget ( pbOk , R , 1 ) ; Lay -> addWidget ( pbCanc , R , 2 ) ;
 
-  setLayout ( Lay ) ; setWindowIcon ( QIcon ( ConfP ) ) ;
+  setLayout ( Lay ) ; setWindowIcon ( QIcon ( ConfigP ) ) ;
   setWindowTitle ( TPref + tr ( "Settings" ) ) ;
 
 }// LOpts
 
 int LOpts :: exec ( ) {
-  int R = QDialog :: exec ( ) ; bool A = R == QDialog :: Accepted ;
+  int R = QDialog :: exec ( ) ; const bool A = R == QDialog :: Accepted ;
   for ( int I = 1 ; I < ITblSize ; ++ I ) {
     Item * C = & ITbl [ I ] ;
     if ( C -> Editor ) {
@@ -252,38 +269,31 @@ int LOpts :: exec ( ) {
 
 LOpts :: ~LOpts ( ) {
   for ( int I = 1 ; I < ITblSize ; ++ I ) {
-    Item * C = & ITbl [ I ] ; QString K = C -> CFKey ;
+    Item * C = & ITbl [ I ] ; const QString K = C -> CFKey ;
     if ( ! K . isEmpty ( ) ) { Conf . setValue ( K , C -> Val ) ; }//fi
   }//done
 }// ~LOpts
 
 QString LOpts :: toStr ( loKey K ) {
-  QString S = "" ;
-  if ( K && K < ITblSize ) { S = ITbl [ K ] . Val . toString ( ) ; }//fi
-  return S ;
+  return K && K < ITblSize ? ITbl [ K ] . Val . toString ( ) : "" ;
 }// LOpts :: toStr
 
 int LOpts :: toInt ( loKey K ) {
-  int I = -1 ;
-  if ( K && K < ITblSize ) { I = ITbl [ K ] . Val . toInt    ( ) ; }//fi
-  return I ;
+  return K && K < ITblSize ? ITbl [ K ] . Val . toInt    ( ) : -1 ;
 }// LOpts :: toStr
 
 bool LOpts :: toBool ( loKey K ) {
-  bool B = false ;
-  if ( K && K < ITblSize ) { B = ITbl [ K ] . Val . toBool   ( ) ; }//fi
-  return B ;
+  return K && K < ITblSize ? ITbl [ K ] . Val . toBool   ( ) : false ;
 }// LOpts :: toStr
 
 OptList LOpts :: GetAll ( ) {
   OptList L ;
   for ( int I = 1 ; I < ITblSize ; ++ I ) {
-    Item * C = & ITbl [ I ] ; QString K = C -> CFKey ;
+    Item * C = & ITbl [ I ] ; const QString K = C -> CFKey ;
     if ( ! K . isEmpty ( ) ) { L << OptPair ( K , C -> Val . toString ( ) ) ;
     }//fi
   }//done
   return L ;
 }// LOpts :: GetAll
-
 
 //eof LOpts.cpp

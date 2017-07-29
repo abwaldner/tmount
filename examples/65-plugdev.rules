@@ -1,0 +1,5 @@
+#
+
+ACTION=="add", KERNEL=="sd*", SUBSYSTEM=="block", SUBSYSTEMS=="usb", GROUP="plugdev"
+
+#

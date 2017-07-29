@@ -17,7 +17,7 @@
 #define TPref ( qApp -> applicationName ( ) + " - " )
 
 //  Arbitrary value.
-static const int StartTimeout = 2000 ; // 2 s for start of external program.
+static const int StartTO = 2000 ; // 2 s for start of external program.
 
 typedef const char * const CPtr ;
 
@@ -36,27 +36,31 @@ class Listener : public QMenu { Q_OBJECT
 
   private slots :
 
-    void DeviceAction ( int socket ) ;
-    void MountAction  ( int socket ) ;
+    void DeviceAction ( int socket ) ; // Handle udev events.
+    void MountAction  ( int socket ) ; // Handle mount/unmount events.
     void AddImage ( ) ;
 
   private :
 
-    void RemoveDevice     ( UdevDev & Dev ) ;
-    bool AddDevice        ( UdevDev & Dev , bool TryMount ) ;
-    void SetActions       ( UdevDev & Dev ) ; // Redraw menu items for device.
-    ActList FindActs      ( const QString & Name ) ;
+    void RemoveDevice      ( UdevDev & Dev ) ;
+    bool AddDevice         ( UdevDev & Dev , bool TryMount ) ;
+    void SetActions        ( UdevDev & Dev ) ; // Reset menu items for device.
+    ActList FindActs       ( const QString & Name ) ;
       // Find items for device in the devices menu.
-    int  ExecCmd          ( const QString & Cmd ,
-                            const QString & Arg , int Timeout ) ;
-    QStringList MPoints   ( UdevDev & Dev ) ;
-    QStringList MapDevs   ( UdevDev & Dev ) ;
-    static bool Ejectable ( UdevDev & Dev ) ;
-    static QString ToHum  ( qulonglong KB ) ;
+    int  ExecCmd           ( const QString & Cmd ,
+                             const QString & Arg , int Timeout ) ;
+    QStringList MPoints    ( UdevDev & Dev ) ; // Mountpoints for dev.
+    QStringList DM_Maps    ( UdevDev & Dev ) ; // Maps for container.
+    QStringList Parts      ( UdevDev & Dev ) ; // Partitions of dev.
+    static UdevDev & WDisk ( UdevDev & Dev ) ; // Whole disk for dev.
+    static bool Ejectable  ( UdevDev & Dev ) ;
+    static bool isLUKS     ( UdevDev & Dev ) ; // It's container.
+    static bool isPart     ( UdevDev & Dev ) ; // It's partition.
+    static QString ToHum   ( qulonglong KB ) ; // From KiB to human readable.
 
     enum ActReq { reqNoAct , reqEject , reqRemove } ;
 
-    QIcon MIcon , UIcon , EIcon , DIcon , LIcon ;
+    QIcon MIcon , UIcon , EIcon , RIcon , DIcon , LIcon ;
     Udev  UdevContext ;
     UdevMon  * UMonitor ;
     MntMonitor MMonitor ;

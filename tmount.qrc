@@ -10,5 +10,6 @@
     <file>icons/unlock.png</file>
     <file>icons/lock.png</file>
     <file>icons/eject.png</file>
+    <file>icons/remove.png</file>
   </qresource>
 </RCC>
