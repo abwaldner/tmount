@@ -1,3 +1,11 @@
+v. 0.0.5
+  1) Added "Supplementary menu" feature with "Eject" and "Remove" items.
+  2) Added "Autoeject" setting.
+  3) Added "Show output on success" feature and corresponding settings
+     for every command and "Auto..." setting.
+  4) Added example of "Remove" implementation via util-linux/eject.
+  5) Added setting of "TMOUNT_*" environment variables.
+
 v. 0.0.4 - 2017.06.13
   1) Added a separate setting for the "Add image" action.
   2) Separate timeout settings for all actions are added.
@@ -15,7 +23,8 @@ v. 0.0.3 - 2017.05.13
   5) Minor fixes and refactoring.
 v. 0.0.2 - 2017.04.13
   1) Added support for LUKS containers.
-  2) Added support for regular expressions in the list of hidden devices.
+  2) Added support for regular expressions in the list of hidden
+     devices.
   3) Added and updated documentation in accordance with paragraphs 1-2.
   4) Fixed processing mountpoints containing quotes.
   5) Fixed processing mountpoints of symlinked devices.

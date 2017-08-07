@@ -13,15 +13,19 @@
 #include <QSpinBox>
 
 enum loKey {
-  kNoKey     ,
-  kMountCmd  , kUnmntCmd , kEjectCmd  , kRemoveCmd ,
-  kUnlockCmd , kLockCmd  , kAddImgCmd ,
-  kMountTO   , kUnmntTO  , kEjectTO   , kRemoveTO  ,
-  kUnlockTO  , kLockTO   , kAddImgTO  ,
-  kHideDevs  , kMntNew   , kMntMedia  , kMntStart  , kAutoEject ,
-  kMountPix  , kUnmntPix , kEjectPix  , kRemovePix ,
-  kUnlockPix , kLockPix  , kAddImgPix ,
-  kExitPix   , kConfPix  , kAboutPix  , kTMntPix
+  kNoKey      ,
+  kMountCmd   , kUnmntCmd  , kEjectCmd   , kRemoveCmd  ,
+  kUnlockCmd  , kLockCmd   , kAddImgCmd  ,
+  kMountTO    , kUnmntTO   , kEjectTO    , kRemoveTO   ,
+  kUnlockTO   , kLockTO    , kAddImgTO   ,
+  kHideDevs   ,
+  kMntNew     , kMntMedia  , kMntStart   , kAutoEject  ,
+  kMountPix   , kUnmntPix  , kEjectPix   , kRemovePix  ,
+  kUnlockPix  , kLockPix   , kAddImgPix  ,
+  kExitPix    , kConfPix   , kAboutPix   , kTMntPix    ,
+  kMountShow  , kUnmntShow , kEjectShow  , kRemoveShow ,
+  kUnlockShow , kLockShow  , kAddImgShow ,
+  kNewShow    , kMediaShow , kAutoEjShow
 } ;
 
 typedef struct QPair < QString , QString > OptPair ;

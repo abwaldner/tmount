@@ -53,7 +53,6 @@ class UdevDev {
     QString SubSys   ( ) ;
     QString Property ( CPtr Key ) ; // isNull if key not present.
     QString SysAttr  ( CPtr Key ) ; // isNull if key not present.
-    QStringList Holders ( ) ;
     UdevDev & FindParent ( CPtr Subs , CPtr DType ) ;
   friend int UdevEnum :: MatchParent ( const UdevDev & Root ) ;
   private :

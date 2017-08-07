@@ -3,8 +3,6 @@
 // See COPYING file for terms of usage.
 // Alexander B. Waldner, 2016-2017.
 
-#include <QDir>
-
 #include "QUdev.h"
 #include <libudev.h>
 
@@ -106,11 +104,6 @@ QString UdevDev :: Property ( CPtr Key ) {
 QString UdevDev :: SysAttr  ( CPtr Key ) {
   return QString ( udev_device_get_sysattr_value  ( mDev , Key ) ) ;
 }// UdevDev :: SysAttr
-
-QStringList UdevDev :: Holders ( ) {
-  return QDir ( SysPath ( ) + "/holders" ) .
-           entryList ( QDir :: Dirs | QDir :: NoDotAndDotDot ) ;
-}// UdevDev :: Holders
 
 UdevDev & UdevDev :: FindParent ( CPtr Subs , CPtr DType ) {
   UdevDev * P = new UdevDev ( * this ) ;

@@ -51,7 +51,7 @@ void TrayIcon :: Activated ( QSystemTrayIcon :: ActivationReason reason ) {
 }// TrayIcon :: Activated
 
 void TrayIcon :: About ( ) {
-  QMessageBox :: about ( NULL , tr  ( "About" ) ,
+  QMessageBox :: about ( Lstnr , tr ( "About" ) ,
                          "<center>" + qApp -> applicationName    ( ) +
                          " v. "     + qApp -> applicationVersion ( ) +
                          tr ( " - block devices mounter/unmounter<br/>" ) +

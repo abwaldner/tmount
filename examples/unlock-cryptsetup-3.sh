@@ -22,16 +22,19 @@
   if [ -z "${M}" ] ; then ! echo "${E}" >&2
   else
 
+    P="luks-${1##*/}"
     E=$(
       if [ '-k' = "${M}" ] ; then
         F=$( mydlg --file-selection --title 'tmount - Select a key file' ) &&
-        sudo -A /sbin/cryptsetup open "${1}" "luks-${1##*/}" -d "${F}"
+        sudo -A /sbin/cryptsetup open "${1}" "${P}" -d "${F}"
       else
         mydlg --entry --hide-text --text "Enter LUKS passphrase for ${1}" |
-        sudo -A /sbin/cryptsetup open "${1}" "luks-${1##*/}"
+        sudo -A /sbin/cryptsetup open "${1}" "${P}"
       fi 2>&1
-    ) ||
-    ! echo "${E:-Cancelled (${?}).}" >&2
+    )
+    if [ ${?} = 0 ] ; then echo "${1} mapped to ${P}."
+    else ! echo "${E:-Cancelled (${?}).}" >&2
+    fi
 
   fi
 

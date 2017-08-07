@@ -43,24 +43,26 @@ class Listener : public QMenu { Q_OBJECT
   private :
 
     void RemoveDevice      ( UdevDev & Dev ) ;
-    bool AddDevice         ( UdevDev & Dev , bool TryMount ) ;
+    bool AddDevice         ( UdevDev & Dev , bool TryMount , bool Show ) ;
     void SetActions        ( UdevDev & Dev ) ; // Reset menu items for device.
     ActList FindActs       ( const QString & Name ) ;
       // Find items for device in the devices menu.
     int  ExecCmd           ( const QString & Cmd ,
-                             const QString & Arg , int Timeout ) ;
+                             const QString & Arg ,
+                             int   Timeout , bool Show ) ;
     QStringList MPoints    ( UdevDev & Dev ) ; // Mountpoints for dev.
-    QStringList DM_Maps    ( UdevDev & Dev ) ; // Maps for container.
     QStringList Parts      ( UdevDev & Dev ) ; // Partitions of dev.
-    static UdevDev & WDisk ( UdevDev & Dev ) ; // Whole disk for dev.
+    QStringList Holders    ( UdevDev & Dev ) ;
+    QStringList DM_Maps    ( UdevDev & Dev ) ; // Maps for container.
     static bool Ejectable  ( UdevDev & Dev ) ;
     static bool isLUKS     ( UdevDev & Dev ) ; // It's container.
     static bool isPart     ( UdevDev & Dev ) ; // It's partition.
+    static UdevDev & WDisk ( UdevDev & Dev ) ; // Whole disk for dev.
     static QString ToHum   ( qulonglong KB ) ; // From KiB to human readable.
 
     enum ActReq { reqNoAct , reqEject , reqRemove } ;
 
-    QIcon MIcon , UIcon , EIcon , RIcon , DIcon , LIcon ;
+    QIcon MIcon , UIcon , EIcon , RIcon , DIcon , LIcon , TIcon ;
     Udev  UdevContext ;
     UdevMon  * UMonitor ;
     MntMonitor MMonitor ;
