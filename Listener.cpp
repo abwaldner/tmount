@@ -131,8 +131,10 @@ void Listener :: exec ( const QPoint & Loc ) {
     UdevDev WD ( WDisk ( Dev ) ) ; // whole disk.
     bool Show = Opt . toBool ( kEjectShow ) ;
 
-    { const bool A = MoM && Opt . toBool ( kAutoEject ) && Ejectable ( WD ) ;
-      if ( A && ! Suppl ) {
+    { const bool A =
+        ! Opt . toStr  ( kEjectCmd  ) . trimmed ( ) . isEmpty ( ) &&
+          Opt . toBool ( kAutoEject ) && Ejectable ( WD ) ;
+      if ( MoM && A && ! Suppl ) {
         Suppl = reqEject ; Show = Opt . toBool ( kAutoEjShow ) ;
       }//fi
     }
@@ -216,11 +218,20 @@ void Listener :: MountAction ( int socket ) { ( void ) socket ;
 
   MInfo . RefreshMountInfo ( ) ;
 
-  foreach ( const QString P , DevList ) {
+  foreach ( const QString P , DevList ( ) ) {
     UdevDev Dev ( UdevContext , P ) ; SetActions ( Dev ) ;
   }//done
 
 }// Listener :: MountAction
+
+QStringList Listener :: DevList ( ) {
+  QStringList L ;
+  foreach ( const ActPtr A , findChildren < ActPtr > ( QRegExp ( "^." ) ) ) {
+    L << sect ( A -> objectName ( ) , 0 ) ;
+  }//fi
+  L . removeDuplicates ( ) ;
+  return L ;
+}// Listener :: DevList
 
 bool Listener :: AddDevice ( UdevDev & Dev , bool TryMount , bool Show ) {
 
@@ -235,8 +246,7 @@ bool Listener :: AddDevice ( UdevDev & Dev , bool TryMount , bool Show ) {
 
   if ( Targ ) { // is target device
 
-    CurrDev = Dev . SysPath ( ) ; DevList += CurrDev ;
-    DevList . removeDuplicates ( ) ; // overcaution
+    CurrDev = Dev . SysPath ( ) ;
 
     if ( ! Cont && TryMount && MPoints ( Dev ) . isEmpty ( ) ) {
 
@@ -256,7 +266,6 @@ bool Listener :: AddDevice ( UdevDev & Dev , bool TryMount , bool Show ) {
 void Listener :: RemoveDevice ( UdevDev & Dev ) {
 
   QString SP = Dev . SysPath ( ) ;
-  DevList . removeOne ( SP ) ;
 
   foreach ( const ActPtr Act , FindActs ( SP ) ) {
     removeAction ( Act ) ; delete Act ;
@@ -278,7 +287,7 @@ void Listener :: RemoveDevice ( UdevDev & Dev ) {
 ActList Listener :: FindActs ( const QString & Name ) {
   return findChildren < ActPtr > (
            QRegExp ( '^' + QRegExp :: escape ( Name ) + "( |$)" ) ) ;
-}// Listener :: FindAct
+}// Listener :: FindActs
 
 QString Listener :: ToHum ( qulonglong KB ) {
   const int K = 1024 ; QString S = "" ;
@@ -294,7 +303,7 @@ QString Listener :: ToHum ( qulonglong KB ) {
 
 void Listener :: SetActions ( UdevDev & Dev ) {
 
-  const QString Node = Dev . DevNode  ( ) ,  SPth = Dev . SysPath ( ) ,
+  const QString Node = Dev . DevNode ( ) , SPth = Dev . SysPath ( ) ,
                 FST  = Dev . Property ( FS_TYPE ) ;
   const qulonglong Cap = Dev . SysAttr ( SA_Size ) . toULongLong ( ) / 2 ;
     // Capacity in KiB, sysfs uses 512-bytes units.
@@ -303,16 +312,13 @@ void Listener :: SetActions ( UdevDev & Dev ) {
   Lbl = Lbl . isEmpty ( ) ? tr ( "(no label)" ) : '[' + Lbl + ']' ;
   Lbl = Node . mid ( 5 ) + ' ' + FST + ',' + Lbl + ',' + ToHum ( Cap ) ;
 
-  const bool Cont = FST == TYPE_LUKS ; // It's container.
-
+  const  bool Cont = FST == TYPE_LUKS ; // It's container.
   QStringList MPts = Cont ? DM_Maps ( Dev ) : MPoints ( Dev ) ;
-
-  const bool MoM = ! MPts . isEmpty ( ) ; // It's mounted or mapped.
+  const  bool MoM  = ! MPts . isEmpty ( ) ; // It's mounted or mapped.
 
   QIcon * Ico ;
-
-  if ( MoM ) { Ico = Cont ? & LIcon : & UIcon ; Lbl  += tr ( " on " ) ;
-  } else     { Ico = Cont ? & DIcon : & MIcon ; MPts << "" ;
+  if  ( MoM ) { Ico = Cont ? & LIcon : & UIcon ; Lbl  += tr ( " on " ) ;
+  } else      { Ico = Cont ? & DIcon : & MIcon ; MPts << "" ;
   }//fi
 
   ActList AL = FindActs ( SPth ) ; const int Sz = MPts . size ( ) ;
@@ -327,12 +333,12 @@ void Listener :: SetActions ( UdevDev & Dev ) {
   }//done
 
   foreach ( const QString MP , MPts ) {
-    const QString M = sect ( MP , 0 ) ;
+    QString M = sect ( MP , 0 ) ;
     ActPtr Act = AL . takeFirst ( ) ;
     Act -> setObjectName ( ( SPth + ' ' + M ) . trimmed ( ) ) ;
     Act -> setIcon ( * Ico ) ; Act -> setChecked ( MoM ) ;
-    Lbl += M + ( Cont && MoM ? " (" + sect ( MP , 1 ) + ")" : "" ) ;
-    Act -> setText ( Lbl ) ;
+    M += Cont && MoM ? " (" + sect ( MP , 1 ) + ")" : "" ;
+    Act -> setText ( Lbl + M ) ;
   }//done
 
 }// Listener :: SetActions
@@ -354,12 +360,13 @@ int Listener :: ExecCmd ( const QString & Cmd ,
     }//done
 
     QProcess Proc ;
-    Proc . setStandardInputFile  ( "/dev/null" ) ;
     Proc . setProcessEnvironment ( Env ) ;
+    Proc . setStandardInputFile  ( "/dev/null" ) ;
+    if ( ! Show ) { Proc . setStandardOutputFile ( "/dev/null" ) ; }//fi
 
     const int TO = Timeout ? Timeout * 1000 : NoTimeout ;
-    QString A = Arg ;
-    const QString C = Cmd + " \"" + A . replace ( '"' , "\"\"\"" ) + '"' ;
+    const QString C = Cmd + " \"" +
+                      QString ( Arg ) . replace ( '"' , "\"\"\"" ) + '"' ;
 
     Proc . start ( C , QIODevice :: ReadOnly ) ;
 
@@ -403,13 +410,18 @@ int Listener :: ExecCmd ( const QString & Cmd ,
 }// Listener :: ExecCmd
 
 void Listener :: AddImage ( ) {
-  const QString F = QFileDialog :: getOpenFileName ( this ,
-                      TPref + tr ( "Select filesystem image" ) , "" ,
-                      tr ( "Images (*.img *.iso);;All files (*)" ) ) ;
-  if ( ! F . isEmpty ( ) ) {
-    ExecCmd ( Opt . toStr  ( kAddImgCmd  ) , F ,
-              Opt . toInt  ( kAddImgTO   ) ,
-              Opt . toBool ( kAddImgShow ) ) ;
+  const QString Cmd = Opt . toStr ( kAddImgCmd ) . trimmed ( ) ;
+  if ( Cmd . isEmpty ( ) ) {
+    QMessageBox :: critical ( this , TPref + tr ( "Error" ) ,
+                              tr ( "Action disabled by configuration." ) ) ;
+  } else {
+    const QString F = QFileDialog :: getOpenFileName ( this ,
+                        TPref + tr ( "Select filesystem image" ) , "" ,
+                        tr ( "Images (*.img *.iso);;All files (*)" ) ) ;
+    if ( ! F . isEmpty ( ) ) {
+      ExecCmd ( Cmd , F , Opt . toInt  ( kAddImgTO   ) ,
+                          Opt . toBool ( kAddImgShow ) ) ;
+    }//fi
   }//fi
 }// Listener :: AddImage
 
@@ -481,18 +493,18 @@ void Listener :: contextMenuEvent ( QContextMenuEvent * event ) {
                           ? ( Cont ? tr ( "Lock"   ) : tr ( "Unmount" ) )
                           : ( Cont ? tr ( "Unlock" ) : tr ( "Mount"   ) ) ;
     SA = SMn . addAction ( Act -> icon ( ) , Txt ) ;
-    SA -> setCheckable ( true ) ;
-    SA -> setChecked ( Act -> isChecked ( ) ) ;
+    SA -> setCheckable ( true ) ; SA -> setChecked ( Act -> isChecked ( ) ) ;
     SA -> setData ( ( uint ) reqNoAct ) ; SMn . setActiveAction ( SA ) ;
   }
 
-  if ( ! Opt . toStr ( kEjectCmd ) . isEmpty ( ) && Ejectable ( WD ) ) {
+  if ( ! Opt . toStr ( kEjectCmd ) . trimmed ( ) . isEmpty ( ) &&
+         Ejectable ( WD ) ) {
     SA = SMn . addAction ( EIcon , tr ( "Eject" ) ) ;
     SA -> setData ( ( uint ) reqEject ) ; SMn . setActiveAction ( SA ) ;
   }//fi
 
-  if ( ! Opt . toStr ( kRemoveCmd ) . isEmpty ( ) &&
-       HOTPLUG . exactMatch ( WD . Property ( DEV_BUS ) ) ) {
+  if ( ! Opt . toStr ( kRemoveCmd ) . trimmed ( ) . isEmpty ( ) &&
+         HOTPLUG . exactMatch ( WD . Property ( DEV_BUS ) ) ) {
     SA = SMn . addAction ( RIcon , tr ( "Remove" ) ) ;
     SA -> setData ( ( uint ) reqRemove ) ; SMn . setActiveAction ( SA ) ;
   }//fi

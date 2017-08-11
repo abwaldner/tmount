@@ -1,7 +1,7 @@
 
 //   This file is a part of code of "tmount" program.
 // See COPYING file for terms of usage.
-// Alexander B. Waldner, 2016.
+// Alexander B. Waldner, 2016-2017.
 
 #ifndef TRAYICON_H
 #define TRAYICON_H

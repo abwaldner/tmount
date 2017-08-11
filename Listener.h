@@ -29,8 +29,9 @@ class Listener : public QMenu { Q_OBJECT
   public :
 
     explicit Listener ( QWidget * parent = 0 ) ; virtual ~Listener ( ) ;
-    void exec ( const QPoint & Loc ) ;
     LOpts Opt ;
+    QStringList DevList ( ) ;
+    void exec ( const QPoint & Loc ) ;
 
   protected : virtual void contextMenuEvent ( QContextMenuEvent * event ) ;
 
@@ -66,11 +67,10 @@ class Listener : public QMenu { Q_OBJECT
     Udev  UdevContext ;
     UdevMon  * UMonitor ;
     MntMonitor MMonitor ;
-    QStringList DevList ;
-    QString     CurrDev ;
-    Mounts MInfo ;
+    QString CurrDev ;
+    Mounts  MInfo ;
     QProcessEnvironment Env ;
-    ActReq Suppl ;
+    ActReq  Suppl ;
 
 } ; // Listener
 

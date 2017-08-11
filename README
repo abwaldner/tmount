@@ -12,18 +12,23 @@
       Actions are selected (toggled) from menu, which shown on left-
   button click on the tray icon.  Context (right-click activated) menu
   of that icon contains the "Settings", "Quit" and "Add image" items.
+  When you right-click on the action menu item, an supplementary menu is
+  activated that contains the "Extract" and/or "Disconnect" items, if
+  applicable to the device.
 
      By default "tmount" use "udevil"
   (https://ignorantguru.github.com/udevil/) for mounting/unmountig.  You
   can use any other appropriate program or your own script by editing
   "Mount" and "Unmount" fields in "Settings" dialog window.  The device
   node name (b.e. /dev/sdc1 or /dev/sr0) will be appended to the end of
-  given command line for mount and eject commands and the mountpoint
+  given command line for mount and unlock commands and the mountpoint
   pathname will be appended for unmount command.  For example, for use
   of the "pmount" program (http://pmount.alioth.debian.org/) just type
-  "pmount" and "pumount" in appropriate fields.  To disable the media
-  ejection from the ejection-capable devices after unmounting, just set
-  "Eject" field to empty.
+  "pmount" and "pumount" in appropriate fields.  The whole disk node
+  name (b.e. /dev/sdc for /dev/sdc[1-9] and /dev/sr0 for /dev/sr0) will
+  be appended for eject and remove commands.  If you leave the "Eject"
+  and "Remove" fields empty, the corresponding menu items will just
+  become unavailable.
       The context menu "Add image" item allows you to choose
   the filesystem image file in the dialog box and passes its pathname to
   the command given in the "Add image" field of the settings dialog,
@@ -31,23 +36,33 @@
   and "pmount" programs with the appropriate settings.
       The timeout is specified for each action in the corresponding
   field.
+      The switches "Mount New", "Mount media", and "Mount on start"
+  control attempts of program to mount the filesystems on the connected
+  devices, inserted removable media and detected during the start of
+  the application, respectively.  By default all set to "off".
+  The "Autoeject" switch controls the automatic use of the "eject"
+  command, if defined, to the ejection-capable devices after a
+  successful unmounting. It is set to "on" by default.
+      The "Show" group of switches determines whether to show the output
+  of the command (either explicitly or implicitly) when it successfully
+  completes.  Note: error messages can not be disabled.  Both blocks
+  the application's event loop.
+      To configure the lock/unlock of LUKS containers see the file
+  luks.txt in the directory /usr/share/tmount/docs or in the project
+  directory.  Note: the unlocking of cryptocontainers never starts
+  automatically.  For configuring the "Remove" item, see
+  the "remove.txt" file for details.
       By default "tmount" shows all block devices and partitions
   containing the filesystem or LUKS container.  To hide some of them,
   for example the root filesystem, type a space-separated list of
   regular expressions, matches these devices (b.e.
   "/dev/sd[ab].* /dev/sdc1") to the "Hidden devices" field and restart
   the application. (Note: these are regexps, not shell globs.)
-      The options "Mount New", "Mount media", and "Mount on start"
-  control attempts of program to mount the filesystems on the connected
-  devices, inserted removable media and detected during the start of
-  the application, respectively.  By default all set to "false".
-      To configure the lock/unlock of LUKS containers see the file
-  luks.txt in the directory /usr/share/tmount/docs or in the project
-  directory.  Note: The cryptocontainers will never be unlocked
-  automatically.
       All options can be also installed by editing of the configuration
   file ~/.config/tmount/tmount.conf, which is created when you first
-  start "tmount".
+  start "tmount".  For running programs or scripts, set environment
+  variables of the form "TMOUNT_ <name> = <value>", where <name> is
+  the key from this file.
 
       The program sees all the mountpoints created by the outside
   (by automounter, filemanager or manually), on the real or virtual
@@ -63,7 +78,7 @@
 
       "tmount" use only "udev", "procfs" and "sysfs" functionality and
   require only libudev and Qt libraries.  This is Linux-specific
-  program.  Current version tested on qt-4.8.6, qt-5.7.1 and
+  program.  Current version tested on qt-4.8.7, qt-5.7.1 and
   eudev 3.1.5.
 
       Installation:

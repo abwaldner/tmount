@@ -50,7 +50,7 @@ int UdevMon :: EnableReceiving ( ) {
 int UdevMon :: GetFD ( ) { return udev_monitor_get_fd ( mMon ) ;
 }// UdevMon :: GetFD
 
-UdevDev :: UdevDev ( const Udev & Context , QString SysPath ) {
+UdevDev :: UdevDev ( const Udev & Context , const QString & SysPath ) {
   mDev = udev_device_new_from_syspath (
            Context . mUdev , SysPath . toLatin1 ( ) ) ;
 }// UdevDev ( const Udev & , QString )

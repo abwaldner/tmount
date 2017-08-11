@@ -26,6 +26,6 @@ unix {
   desktop.path = $$PREFIX/share/applications
   desktop.files = *.desktop
   docs.path = $$PREFIX/share/$$TARGET/docs/
-  docs.files = README README.ru luks.txt luks.txt.ru examples/*.sh
+  docs.files = README README.ru *.txt *.txt.ru examples/*
   INSTALLS += target locale icon desktop docs
 }

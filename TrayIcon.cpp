@@ -1,7 +1,7 @@
 
 //   This file is a part of code of "tmount" program.
 // See COPYING file for terms of usage.
-// Alexander B. Waldner, 2016.
+// Alexander B. Waldner, 2016-2017.
 
 #include <QMenu>
 #include <QMessageBox>
@@ -12,23 +12,23 @@
 
 TrayIcon :: TrayIcon ( Listener * parent ) : QSystemTrayIcon ( parent ) {
 
-  Lstnr = parent ; LOpts * Conf = & Lstnr -> Opt ;
+  Lstnr = parent ; LOpts & Cnf = Lstnr -> Opt ;
 
   QMenu * CMenu = new QMenu ;
-  CMenu -> addAction ( QIcon ( Conf -> toStr ( kAboutPix ) ) ,
+  CMenu -> addAction ( QIcon ( Cnf . toStr ( kAboutPix ) ) ,
                        tr ( "About"     ) , this  , SLOT ( About    ( ) ) ) ;
-  CMenu -> addAction ( QIcon ( Conf -> toStr ( kConfPix  ) ) ,
-                       tr ( "Settings"  ) , Conf  , SLOT ( exec     ( ) ) ) ;
+  CMenu -> addAction ( QIcon ( Cnf . toStr ( kConfPix  ) ) ,
+                       tr ( "Settings"  ) , & Cnf , SLOT ( exec     ( ) ) ) ;
   CMenu -> addSeparator (  ) ;
-  CMenu -> addAction ( QIcon ( Conf -> toStr ( kAddImgPix  ) ) ,
+  CMenu -> addAction ( QIcon ( Cnf . toStr ( kAddImgPix  ) ) ,
                        tr ( "Add image" ) , Lstnr , SLOT ( AddImage ( ) ) ) ;
   CMenu -> addSeparator (  ) ;
-  CMenu -> addAction ( QIcon ( Conf -> toStr ( kExitPix  ) ) ,
+  CMenu -> addAction ( QIcon ( Cnf . toStr ( kExitPix  ) ) ,
                        tr ( "Quit"      ) , qApp  , SLOT ( quit     ( ) ) ) ;
   setContextMenu ( CMenu ) ;
 
-  setIcon  ( QIcon ( Conf -> toStr ( kTMntPix ) ) ) ;
-  setToolTip ( tr  ( "Removable devices and media." ) ) ;
+  setIcon  ( QIcon ( Cnf . toStr ( kTMntPix ) ) ) ;
+  setToolTip ( tr ( "Removable devices and media." ) ) ;
 
   connect (
     this , SIGNAL ( activated ( QSystemTrayIcon :: ActivationReason ) ) ,
@@ -42,8 +42,7 @@ TrayIcon :: ~TrayIcon ( ) { }// ~TrayIcon
 
 void TrayIcon :: Activated ( QSystemTrayIcon :: ActivationReason reason ) {
   if ( reason == QSystemTrayIcon :: Trigger ) {
-    if ( Lstnr ->
-           findChildren < ActPtr > ( QRegExp  ( "^." ) ) . isEmpty ( ) ) {
+    if ( Lstnr -> DevList ( ) . isEmpty ( ) ) {
       showMessage ( tr ( "Devices not found." ) , "" ) ;
     } else { Lstnr -> exec ( geometry ( ) . center ( ) ) ;
     }//fi

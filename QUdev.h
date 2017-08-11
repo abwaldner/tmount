@@ -15,7 +15,7 @@
 
 struct udev_device  ; struct udev_enumerate  ;
 struct udev_monitor ; struct udev_list_entry ; struct udev ;
-class Udev ;  class UdevMon ; class UdevDev ; // for internal use
+class Udev ;  class UdevMon  ; class UdevDev ; // for internal use
 
 typedef struct QPair < QString , QString > UdevPair ;
 typedef class  QList < UdevPair > UdevList ;
@@ -41,7 +41,8 @@ class UdevEnum {
 
 class UdevDev {
   public :
-    explicit UdevDev ( const Udev    & Context , QString SysPath ) ;
+    explicit UdevDev ( const Udev    & Context ,
+                       const QString & SysPath ) ;
     explicit UdevDev ( const UdevMon & Monitor ) ;
     explicit UdevDev ( const UdevDev & Dev ) ;
     virtual ~UdevDev ( ) ;
@@ -49,7 +50,7 @@ class UdevDev {
     QString SysPath  ( ) ; // isNull if internal udev error only.
     QString Action   ( ) ; // isNull if no action available.
     QString DevNum   ( ) ; // MAJOR:MINOR
-    QString DevType  ( ) ;
+    QString DevType  ( ) ; // disk, partition, etc.
     QString SubSys   ( ) ;
     QString Property ( CPtr Key ) ; // isNull if key not present.
     QString SysAttr  ( CPtr Key ) ; // isNull if key not present.
@@ -78,9 +79,10 @@ class UdevMon { // "udev" events only, no "kernel".
 class Udev {
   public :
     explicit Udev ( ) ; virtual ~Udev ( ) ;
-  friend UdevMon  :: UdevMon  ( const Udev & Context ) ;
-  friend UdevDev  :: UdevDev  ( const Udev & Context , QString SysPath ) ;
-  friend UdevEnum :: UdevEnum ( const Udev & Context ) ;
+  friend UdevMon  :: UdevMon  ( const Udev    & Context ) ;
+  friend UdevDev  :: UdevDev  ( const Udev    & Context ,
+                                const QString & SysPath ) ;
+  friend UdevEnum :: UdevEnum ( const Udev    & Context ) ;
   private :
     udev * mUdev ;
     explicit Udev    ( const Udev & Ud ) ;
