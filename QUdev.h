@@ -77,8 +77,7 @@ class UdevMon { // "udev" events only, no "kernel".
 } ; // UdevMon
 
 class Udev {
-  public :
-    explicit Udev ( ) ; virtual ~Udev ( ) ;
+  public : explicit Udev ( )  ; virtual ~Udev ( ) ;
   friend UdevMon  :: UdevMon  ( const Udev    & Context ) ;
   friend UdevDev  :: UdevDev  ( const Udev    & Context ,
                                 const QString & SysPath ) ;

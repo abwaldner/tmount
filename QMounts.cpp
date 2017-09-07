@@ -13,11 +13,11 @@ static QString sect ( const QString & S , int K ) {
   return S . section ( ' ' , K , K ) ;
 }// sect
 
-Mounts :: Mounts ( ) {
-  MInfoFile . setFileName ( MInfoFileName ) ; RefreshMountInfo ( ) ;
+Mounts :: Mounts ( ) : MInfoFile ( MInfoFileName ) {
+  MInfoFile . open ( QFile :: ReadOnly ) ; RefreshMountInfo ( ) ;
 }// Mounts
 
-Mounts :: ~Mounts ( ) { }// ~Mounts
+Mounts :: ~Mounts ( ) { MInfoFile . close ( ) ; }// ~Mounts
 
 QStringList Mounts :: MPoints ( const QString & DevNum ) {
   QStringList M ;
@@ -26,6 +26,13 @@ QStringList Mounts :: MPoints ( const QString & DevNum ) {
   }//done
   return M ;
 }// Mounts :: MPoints
+
+void Mounts :: RefreshMountInfo ( ) {
+  MInfoFile . reset ( ) ;
+  MInfoTab  = QTextStream ( & MInfoFile ) . readAll ( ) . split ( '\n' ) ;
+}// Mounts :: RefreshMountInfo
+
+int Mounts :: GetFD ( ) { return MInfoFile . handle ( ) ; }// Mounts :: GetFD
 
 QString Mounts :: DecodeIFS ( const QString & S ) {
   return QString ( S ) . // backslash should be unescaped last.
@@ -38,20 +45,5 @@ QString Mounts :: EncodeIFS ( const QString & S ) {
            replace ( "\\" , "\\134" ) . replace ( " "  , "\\040" ) .
            replace ( "\t" , "\\011" ) . replace ( "\n" , "\\012" ) ;
 }// Mounts :: EncodeIFS
-
-void Mounts :: RefreshMountInfo ( ) {
-  MInfoFile . open  ( QFile :: ReadOnly ) ;
-  MInfoTab = QTextStream  ( & MInfoFile ) . readAll ( ) . split ( '\n' ) ;
-  MInfoFile . close ( ) ;
-}// Mounts :: RefreshMountInfo
-
-MntMonitor :: MntMonitor ( ) {
-  MInfoFile . setFileName  ( MInfoFileName ) ;
-  MInfoFile . open ( QFile :: ReadOnly ) ;
-}// MntMonitor
-
-MntMonitor :: ~MntMonitor ( ) { MInfoFile . close ( ) ; }// ~MntMonitor
-
-int MntMonitor :: GetFD ( ) { return MInfoFile . handle ( ) ; }// GetFD
 
 //eof QMounts.cpp

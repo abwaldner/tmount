@@ -13,21 +13,14 @@
 class Mounts {
   public :
     explicit Mounts ( ) ; virtual ~Mounts ( ) ;
-    QStringList MPoints ( const QString & DevNum ) ;
+    QStringList MPoints ( const QString & DevNum ) ; // "maj:min"
       // isEmpty if device not mounted.
+    void RefreshMountInfo ( ) ;
+    int  GetFD ( ) ; // for QSocketNotifier
     static QString DecodeIFS ( const QString & S ) ; // man getmntent(3)
     static QString EncodeIFS ( const QString & S ) ;
-    void RefreshMountInfo  ( ) ;
-  private :
-    QStringList MInfoTab ;
-    QFile MInfoFile ;
+  private : QStringList MInfoTab ; QFile MInfoFile ;
 } ; // Mounts
-
-class MntMonitor {
-  public :
-    explicit MntMonitor ( ) ; virtual ~MntMonitor ( ) ; int GetFD ( ) ;
-  private : QFile MInfoFile ;
-} ; // MntMonitor
 
 #endif // QMOUNTS_H
 

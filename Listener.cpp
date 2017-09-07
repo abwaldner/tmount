@@ -48,7 +48,8 @@ static QString sect ( const QString & S , int K ) {
 
 static QString :: SplitBehavior SEP = QString :: SkipEmptyParts ;
 
-Listener :: Listener ( QWidget * parent ) : QMenu ( parent ) {
+Listener :: Listener ( QWidget * parent ) :
+  QMenu ( parent ) , UdevContext ( ) , UMonitor ( UdevContext ) {
 
   TIcon = QIcon ( Opt . toStr ( kTMntPix   ) ) ;
   MIcon = QIcon ( Opt . toStr ( kMountPix  ) ) ;
@@ -70,25 +71,24 @@ Listener :: Listener ( QWidget * parent ) : QMenu ( parent ) {
     AddDevice ( Dev , Opt . toBool ( kMntStart ) , false ) ;
   }//done
 
-  UMonitor  = new UdevMon ( UdevContext ) ;
-  UMonitor -> AddMatch ( Subsys_Block , NULL ) ;
-  UMonitor -> EnableReceiving ( ) ;
+  UMonitor . AddMatch ( Subsys_Block , NULL ) ;
+  UMonitor . EnableReceiving ( ) ;
 
   QSocketNotifier * Ntfr ;
 
-  Ntfr = new QSocketNotifier ( UMonitor -> GetFD ( ) ,
+  Ntfr = new QSocketNotifier ( UMonitor  . GetFD ( ) ,
                                  QSocketNotifier :: Read      , this ) ;
   connect ( Ntfr , SIGNAL ( activated    ( int ) ) ,
             this , SLOT   ( DeviceAction ( int ) ) ) ;
 
-  Ntfr = new QSocketNotifier ( MMonitor  . GetFD ( ) ,
+  Ntfr = new QSocketNotifier ( MInfo     . GetFD ( ) ,
                                  QSocketNotifier :: Exception , this ) ;
   connect ( Ntfr , SIGNAL ( activated    ( int ) ) ,
             this , SLOT   ( MountAction  ( int ) ) ) ;
 
 }// Listener
 
-Listener :: ~Listener ( ) { delete UMonitor ; }// ~Listener
+Listener :: ~Listener ( ) { }// ~Listener
 
 void Listener :: exec ( const QPoint & Loc ) {
 
@@ -160,11 +160,13 @@ void Listener :: exec ( const QPoint & Loc ) {
       }
 
       if ( ! Msg . isEmpty ( ) ) {
+
         QMessageBox :: critical (
           this , TPref + tr ( "Error" ) ,
           tr ( "Device "  ) + Node +
           tr ( " in use:" ) + "\n" + Msg . join ( "\n" )
         ) ;
+
       } else {
 
         QString Cmd ; int TO ;
@@ -191,7 +193,7 @@ void Listener :: exec ( const QPoint & Loc ) {
 
 void Listener :: DeviceAction ( int socket ) { ( void ) socket ;
 
-  UdevDev Dev ( * UMonitor ) ;
+  UdevDev Dev ( UMonitor ) ;
   const QString DAct = Dev . Action ( ) ;
 
   if ( DAct == ACT_add ) {
@@ -207,8 +209,11 @@ void Listener :: DeviceAction ( int socket ) { ( void ) socket ;
     const bool M = Opt . toBool  ( kMntMedia  ) &&
                    Dev . SysAttr ( SA_Rem     ) . toUInt ( ) ,
                S = Opt . toBool  ( kMediaShow ) ;
+      //   The test of "removable" attribute prevent attempt to mount of
+      // cryptsetup's dm-* devices.
 
     if ( ! AddDevice ( Dev , M , S ) ) { RemoveDevice ( Dev ) ; }//fi
+      // The extracted media looks like an non-target device.
 
   }//fi
 
@@ -219,7 +224,8 @@ void Listener :: MountAction ( int socket ) { ( void ) socket ;
   MInfo . RefreshMountInfo ( ) ;
 
   foreach ( const QString P , DevList ( ) ) {
-    UdevDev Dev ( UdevContext , P ) ; SetActions ( Dev ) ;
+    UdevDev Dev ( UdevContext , P ) ;
+    if ( ! isLUKS ( Dev ) ) { SetActions ( Dev ) ; }//fi
   }//done
 
 }// Listener :: MountAction
@@ -265,7 +271,8 @@ bool Listener :: AddDevice ( UdevDev & Dev , bool TryMount , bool Show ) {
 
 void Listener :: RemoveDevice ( UdevDev & Dev ) {
 
-  QString SP = Dev . SysPath ( ) ;
+  const QString SP = Dev . SysPath ( ) ,
+                DN = Mounts :: EncodeIFS ( Dev . Property ( DM_NAME ) ) ;
 
   foreach ( const ActPtr Act , FindActs ( SP ) ) {
     removeAction ( Act ) ; delete Act ;
@@ -278,15 +285,19 @@ void Listener :: RemoveDevice ( UdevDev & Dev ) {
               Opt . toInt ( kUnmntTO  )  , false ) ;
   }//done
 
-  if ( ! Dev . Property ( DM_NAME ) . isEmpty ( ) ) {
-    MountAction ( -1 ) ; // workaround for LUKS.
+  if ( ! DN . isEmpty ( ) ) {
+    QRegExp RE ( "^[^ ]+ " + QRegExp :: escape ( DN ) + '$' ) ;
+    foreach ( const ActPtr Act , findChildren < ActPtr > ( RE ) ) {
+      UdevDev UD ( UdevContext , sect ( Act -> objectName ( ) , 0 ) ) ;
+      SetActions ( UD ) ;
+    }//done
   }//fi
 
 }// Listener :: RemoveDevice
 
 ActList Listener :: FindActs ( const QString & Name ) {
-  return findChildren < ActPtr > (
-           QRegExp ( '^' + QRegExp :: escape ( Name ) + "( |$)" ) ) ;
+  QRegExp RE ( '^' + QRegExp :: escape ( Name ) + "( |$)" ) ;
+  return findChildren < ActPtr > ( RE ) ;
 }// Listener :: FindActs
 
 QString Listener :: ToHum ( qulonglong KB ) {
@@ -511,8 +522,9 @@ void Listener :: contextMenuEvent ( QContextMenuEvent * event ) {
 
   SA = SMn . exec ( event -> globalPos ( ) ) ;
 
-  if ( SA ) {
-    Suppl = ( ActReq ) ( SA -> data ( ) . toUInt ( ) ) ;
+  if ( SA && findChildren < ActPtr > ( ) . contains ( Act ) ) {
+    // "findchildren" is insufficient, but better than nothing.
+    Suppl  = ( ActReq ) ( SA -> data ( ) . toUInt ( ) ) ;
     setActiveAction ( Act ) ;
     keyPressEvent ( & EntrPrs ) ; keyPressEvent ( & EntrRls ) ;
   }//fi

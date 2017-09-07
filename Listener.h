@@ -64,13 +64,8 @@ class Listener : public QMenu { Q_OBJECT
     enum ActReq { reqNoAct , reqEject , reqRemove } ;
 
     QIcon MIcon , UIcon , EIcon , RIcon , DIcon , LIcon , TIcon ;
-    Udev  UdevContext ;
-    UdevMon  * UMonitor ;
-    MntMonitor MMonitor ;
-    QString CurrDev ;
-    Mounts  MInfo ;
-    QProcessEnvironment Env ;
-    ActReq  Suppl ;
+    Udev UdevContext ; UdevMon UMonitor ; Mounts  MInfo ;
+    QString CurrDev  ; ActReq  Suppl ; QProcessEnvironment Env ;
 
 } ; // Listener
 
