@@ -61,24 +61,27 @@ class UdevDev {
     UdevDev & operator= ( const UdevDev & Dev ) ;
 } ; // UdevDev
 
-class UdevMon { // "udev" events only, no "kernel".
+class UdevMon : public QObject { Q_OBJECT
+  // Monitors "udev" events only, no "kernel".
   public :
-    explicit UdevMon ( const Udev & Context ) ; virtual ~UdevMon ( ) ;
-    int AddMatch ( CPtr Subs , CPtr DTp ) ;
+    explicit UdevMon ( const Udev & Context , QObject * parent = 0 ) ;
+    virtual ~UdevMon ( ) ;
+    int AddMatch ( CPtr Subs , CPtr DevType ) ;
     int EnableReceiving (  ) ;
       //   Functions abowe returns 0 on success,
       // otherwise a negative error value.
-    int GetFD ( ) ;
   friend UdevDev :: UdevDev ( const UdevMon & Monitor ) ;
   private :
+    Q_DISABLE_COPY ( UdevMon )
     udev_monitor * mMon ;
-    explicit UdevMon    ( const UdevMon & Mon ) ;
-    UdevMon & operator= ( const UdevMon & Mon ) ;
+  signals : void  Changed ( ) ;
+  private slots : void DevAct ( int sock ) ;
 } ; // UdevMon
 
 class Udev {
   public : explicit Udev ( )  ; virtual ~Udev ( ) ;
-  friend UdevMon  :: UdevMon  ( const Udev    & Context ) ;
+  friend UdevMon  :: UdevMon  ( const Udev    & Context ,
+                                      QObject * parent  ) ;
   friend UdevDev  :: UdevDev  ( const Udev    & Context ,
                                 const QString & SysPath ) ;
   friend UdevEnum :: UdevEnum ( const Udev    & Context ) ;

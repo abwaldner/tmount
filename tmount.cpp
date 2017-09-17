@@ -5,7 +5,6 @@
 
 #include <QApplication>
 #include <QTranslator>
-#include <QLocale>
 
 #include <unistd.h>
 

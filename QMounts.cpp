@@ -4,6 +4,7 @@
 // Alexander B. Waldner, 2016-2017.
 
 #include <QTextStream>
+#include <QSocketNotifier>
 
 #include "QMounts.h"
 
@@ -13,11 +14,19 @@ static QString sect ( const QString & S , int K ) {
   return S . section ( ' ' , K , K ) ;
 }// sect
 
-Mounts :: Mounts ( ) : MInfoFile ( MInfoFileName ) {
+Mounts :: Mounts ( QObject * parent ) :
+                   QObject ( parent ) , MInfoFile ( MInfoFileName ) {
   MInfoFile . open ( QFile :: ReadOnly ) ; RefreshMountInfo ( ) ;
+  QSocketNotifier * Ntfr = new QSocketNotifier (
+      MInfoFile . handle ( ) , QSocketNotifier :: Exception , this ) ;
+  connect ( Ntfr , SIGNAL ( activated ( int ) ) ,
+            this , SLOT   ( MntAct    ( int ) ) ) ;
 }// Mounts
 
 Mounts :: ~Mounts ( ) { MInfoFile . close ( ) ; }// ~Mounts
+
+void Mounts :: MntAct ( int sock ) { ( void ) sock ; emit Changed ( ) ;
+}// Mounts :: MntAct
 
 QStringList Mounts :: MPoints ( const QString & DevNum ) {
   QStringList M ;
@@ -31,8 +40,6 @@ void Mounts :: RefreshMountInfo ( ) {
   MInfoFile . reset ( ) ;
   MInfoTab  = QTextStream ( & MInfoFile ) . readAll ( ) . split ( '\n' ) ;
 }// Mounts :: RefreshMountInfo
-
-int Mounts :: GetFD ( ) { return MInfoFile . handle ( ) ; }// Mounts :: GetFD
 
 QString Mounts :: DecodeIFS ( const QString & S ) {
   return QString ( S ) . // backslash should be unescaped last.

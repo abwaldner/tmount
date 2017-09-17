@@ -37,9 +37,9 @@ class Listener : public QMenu { Q_OBJECT
 
   private slots :
 
-    void DeviceAction ( int socket ) ; // Handle udev events.
-    void MountAction  ( int socket ) ; // Handle mount/unmount events.
-    void AddImage ( ) ;
+    void DeviceAction ( ) ; // Handle udev events.
+    void MountAction  ( ) ; // Handle mount/unmount events.
+    void AddImage     ( ) ;
 
   private :
 

@@ -3,11 +3,9 @@
 // See COPYING file for terms of usage.
 // Alexander B. Waldner, 2016-2017.
 
-#include <QProcess>
 #include <QSocketNotifier>
 #include <QMessageBox>
 #include <QTextCodec>
-#include <QTextStream>
 #include <QFile>
 #include <QFileDialog>
 #include <QApplication>
@@ -74,17 +72,11 @@ Listener :: Listener ( QWidget * parent ) :
   UMonitor . AddMatch ( Subsys_Block , NULL ) ;
   UMonitor . EnableReceiving ( ) ;
 
-  QSocketNotifier * Ntfr ;
+  connect ( & UMonitor , SIGNAL ( Changed      ( ) ) ,
+            this       , SLOT   ( DeviceAction ( ) ) ) ;
 
-  Ntfr = new QSocketNotifier ( UMonitor  . GetFD ( ) ,
-                                 QSocketNotifier :: Read      , this ) ;
-  connect ( Ntfr , SIGNAL ( activated    ( int ) ) ,
-            this , SLOT   ( DeviceAction ( int ) ) ) ;
-
-  Ntfr = new QSocketNotifier ( MInfo     . GetFD ( ) ,
-                                 QSocketNotifier :: Exception , this ) ;
-  connect ( Ntfr , SIGNAL ( activated    ( int ) ) ,
-            this , SLOT   ( MountAction  ( int ) ) ) ;
+  connect ( & MInfo    , SIGNAL ( Changed      ( ) ) ,
+            this       , SLOT   ( MountAction  ( ) ) ) ;
 
 }// Listener
 
@@ -191,7 +183,7 @@ void Listener :: exec ( const QPoint & Loc ) {
 
 }// Listener :: exec
 
-void Listener :: DeviceAction ( int socket ) { ( void ) socket ;
+void Listener :: DeviceAction ( ) {
 
   UdevDev Dev ( UMonitor ) ;
   const QString DAct = Dev . Action ( ) ;
@@ -219,7 +211,7 @@ void Listener :: DeviceAction ( int socket ) { ( void ) socket ;
 
 }// Listener :: DeviceAction
 
-void Listener :: MountAction ( int socket ) { ( void ) socket ;
+void Listener :: MountAction ( ) {
 
   MInfo . RefreshMountInfo ( ) ;
 
@@ -279,10 +271,10 @@ void Listener :: RemoveDevice ( UdevDev & Dev ) {
   }//done
 
   // Desperate attempt.
-  foreach ( const QString M , MPoints ( Dev ) ) {
-    ExecCmd ( Opt . toStr ( kUnmntCmd )  ,
+  foreach ( const QString M , MPoints  ( Dev ) ) {
+    ExecCmd ( Opt . toStr ( kUnmntCmd  ) ,
               Mounts :: DecodeIFS ( sect ( M , 0 ) ) ,
-              Opt . toInt ( kUnmntTO  )  , false ) ;
+              Opt . toInt ( kUnmntTO   ) , false ) ;
   }//done
 
   if ( ! DN . isEmpty ( ) ) {
