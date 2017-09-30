@@ -34,13 +34,15 @@ typedef class  QList < OptPair > OptList ;
 class LOpts : public QDialog { Q_OBJECT
   public slots : int exec ( ) ;
   public :
-    explicit LOpts ( QWidget * parent = 0 ) ; virtual ~LOpts ( ) ;
-    int     toInt  ( loKey K ) ;
-    bool    toBool ( loKey K ) ;
-    QString toStr  ( loKey K ) ;
-    OptList GetAll ( ) ;
+    explicit LOpts   ( QWidget * parent = 0 ) ; virtual ~LOpts ( ) ;
+    int      toInt   ( loKey K ) const ;
+    bool     toBool  ( loKey K ) const ;
+    QString  toStr   ( loKey K ) const ;
+    OptList  GetAll  ( ) const ;
+    QString  AppName ( ) const ; // applicationName from Conf.
   private :
-    struct Item ; static Item ITbl [ ] ; int ITblSize ; QSettings Conf ;
+    struct Item ; static Item ITbl [ ] ; static const int ITblSize ;
+    QSettings Conf ;
 } ; // LOpts
 
 #endif // LOPTS_H

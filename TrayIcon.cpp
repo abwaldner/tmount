@@ -5,9 +5,9 @@
 
 #include <QMenu>
 #include <QMessageBox>
-#include <QApplication>
 
 #include "TrayIcon.h"
+#include "QUnixApp.h"
 #include "defs.h"
 
 TrayIcon :: TrayIcon ( Listener * parent ) : QSystemTrayIcon ( parent ) {
@@ -34,8 +34,6 @@ TrayIcon :: TrayIcon ( Listener * parent ) : QSystemTrayIcon ( parent ) {
     this , SIGNAL ( activated ( QSystemTrayIcon :: ActivationReason ) ) ,
     this , SLOT   ( Activated ( QSystemTrayIcon :: ActivationReason ) ) ) ;
 
-  show ( ) ;
-
 }// TrayIcon
 
 TrayIcon :: ~TrayIcon ( ) { }// ~TrayIcon
@@ -48,6 +46,13 @@ void TrayIcon :: Activated ( QSystemTrayIcon :: ActivationReason reason ) {
     }//fi
   }//fi
 }// TrayIcon :: Activated
+
+void TrayIcon :: USigCaught ( int Sig ) {
+  if ( Sig == QUnixApp :: SigHUP || Sig == QUnixApp :: SigTERM ||
+       Sig == QUnixApp :: SigINT || Sig == QUnixApp :: SigQUIT  ) {
+    qApp -> exit ( Sig + 128 ) ;
+  }//fi
+}// TrayIcon :: USigCaught
 
 void TrayIcon :: About ( ) {
   QMessageBox :: about ( Lstnr , tr ( "About" ) ,

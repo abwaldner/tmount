@@ -9,6 +9,7 @@
 #ifndef QUDEV_H
 #define QUDEV_H
 
+#include <QObject>
 #include <QString>
 #include <QPair>
 #include <QList>
@@ -32,7 +33,7 @@ class UdevEnum {
     int ScanDevs  ( ) ;
       //   Functions above returns 0 on success,
       // otherwise a negative error value.
-    UdevList GetList ( ) ;
+    UdevList GetList ( ) const ;
   private :
     udev_enumerate * mEnum ;
     explicit UdevEnum    ( const UdevEnum & En ) ;
@@ -46,15 +47,15 @@ class UdevDev {
     explicit UdevDev ( const UdevMon & Monitor ) ;
     explicit UdevDev ( const UdevDev & Dev ) ;
     virtual ~UdevDev ( ) ;
-    QString DevNode  ( ) ; // isNull if no device node exists.
-    QString SysPath  ( ) ; // isNull if internal udev error only.
-    QString Action   ( ) ; // isNull if no action available.
-    QString DevNum   ( ) ; // MAJOR:MINOR
-    QString DevType  ( ) ; // disk, partition, etc.
-    QString SubSys   ( ) ;
-    QString Property ( CPtr Key ) ; // isNull if key not present.
-    QString SysAttr  ( CPtr Key ) ; // isNull if key not present.
-    UdevDev & FindParent ( CPtr Subs , CPtr DType ) ;
+    QString DevNode  ( ) const ; // isNull if no device node exists.
+    QString SysPath  ( ) const ; // isNull if internal udev error only.
+    QString Action   ( ) const ; // isNull if no action available.
+    QString DevNum   ( ) const ; // MAJOR:MINOR
+    QString DevType  ( ) const ; // disk, partition, etc.
+    QString SubSys   ( ) const ;
+    QString Property ( CPtr Key ) const ; // isNull if key not present.
+    QString SysAttr  ( CPtr Key ) const ; // isNull if key not present.
+    UdevDev & FindParent ( CPtr Subs , CPtr DType ) const ;
   friend int UdevEnum :: MatchParent ( const UdevDev & Root ) ;
   private :
     udev_device * mDev ;

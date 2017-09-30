@@ -8,7 +8,6 @@
 #include <QTextCodec>
 #include <QFile>
 #include <QFileDialog>
-#include <QApplication>
 
 #include "Listener.h"
 
@@ -40,14 +39,14 @@ static QKeyEvent
   EntrPrs ( QEvent :: KeyPress   , Qt :: Key_Enter , Qt :: NoModifier ) ,
   EntrRls ( QEvent :: KeyRelease , Qt :: Key_Enter , Qt :: NoModifier ) ;
 
-static QString sect ( const QString & S , int K ) {
+static const QString :: SplitBehavior SEP = QString :: SkipEmptyParts ;
+
+inline QString sect ( const QString & S , int K ) {
   return S . section ( ' ' , K , K ) ;
 }// sect
 
-static QString :: SplitBehavior SEP = QString :: SkipEmptyParts ;
-
 Listener :: Listener ( QWidget * parent ) :
-  QMenu ( parent ) , UdevContext ( ) , UMonitor ( UdevContext ) {
+                         QMenu ( parent ) , UMonitor ( UdevContext ) {
 
   TIcon = QIcon ( Opt . toStr ( kTMntPix   ) ) ;
   MIcon = QIcon ( Opt . toStr ( kMountPix  ) ) ;
@@ -57,7 +56,7 @@ Listener :: Listener ( QWidget * parent ) :
   DIcon = QIcon ( Opt . toStr ( kUnlockPix ) ) ;
   LIcon = QIcon ( Opt . toStr ( kLockPix   ) ) ;
 
-  setWindowIcon ( TIcon ) ;
+  setWindowIcon ( TIcon ) ; TPref = Opt . AppName ( ) + " - " ;
 
   Env   = QProcessEnvironment :: systemEnvironment ( ) ;
   Suppl = reqNoAct ;
@@ -222,7 +221,7 @@ void Listener :: MountAction ( ) {
 
 }// Listener :: MountAction
 
-QStringList Listener :: DevList ( ) {
+QStringList Listener :: DevList ( ) const {
   QStringList L ;
   foreach ( const ActPtr A , findChildren < ActPtr > ( QRegExp ( "^." ) ) ) {
     L << sect ( A -> objectName ( ) , 0 ) ;
@@ -231,7 +230,8 @@ QStringList Listener :: DevList ( ) {
   return L ;
 }// Listener :: DevList
 
-bool Listener :: AddDevice ( UdevDev & Dev , bool TryMount , bool Show ) {
+bool Listener :: AddDevice (
+                   const UdevDev & Dev , bool TryMount , bool Show ) {
 
   const QString Node = Dev . DevNode ( ) ;
   const bool Cont = isLUKS ( Dev ) ; // It's container, FS_USAGE is "crypto".
@@ -261,7 +261,7 @@ bool Listener :: AddDevice ( UdevDev & Dev , bool TryMount , bool Show ) {
 
 }// Listener :: AddDevice
 
-void Listener :: RemoveDevice ( UdevDev & Dev ) {
+void Listener :: RemoveDevice ( const UdevDev & Dev ) {
 
   const QString SP = Dev . SysPath ( ) ,
                 DN = Mounts :: EncodeIFS ( Dev . Property ( DM_NAME ) ) ;
@@ -287,8 +287,8 @@ void Listener :: RemoveDevice ( UdevDev & Dev ) {
 
 }// Listener :: RemoveDevice
 
-ActList Listener :: FindActs ( const QString & Name ) {
-  QRegExp RE ( '^' + QRegExp :: escape ( Name ) + "( |$)" ) ;
+ActList Listener :: FindActs ( const QString & Key ) {
+  QRegExp RE ( '^' + QRegExp :: escape ( Key ) + "( |$)" ) ;
   return findChildren < ActPtr > ( RE ) ;
 }// Listener :: FindActs
 
@@ -304,7 +304,7 @@ QString Listener :: ToHum ( qulonglong KB ) {
   return S . trimmed ( ) ;
 }// Listener :: ToHum
 
-void Listener :: SetActions ( UdevDev & Dev ) {
+void Listener :: SetActions ( const UdevDev & Dev ) {
 
   const QString Node = Dev . DevNode ( ) , SPth = Dev . SysPath ( ) ,
                 FST  = Dev . Property ( FS_TYPE ) ;
@@ -428,11 +428,11 @@ void Listener :: AddImage ( ) {
   }//fi
 }// Listener :: AddImage
 
-QStringList Listener :: MPoints ( UdevDev & Dev ) {
+QStringList Listener :: MPoints ( const UdevDev & Dev ) const {
   return MInfo . MPoints ( Dev . DevNum ( ) ) ;
 }// Listener :: MPoints
 
-QStringList Listener :: DM_Maps ( UdevDev & Dev ) {
+QStringList Listener :: DM_Maps ( const UdevDev & Dev ) const {
   QStringList ML ;
   foreach ( const QString H , Holders ( Dev ) ) {
     QString M = sect ( H , 1 ) ;
@@ -441,7 +441,7 @@ QStringList Listener :: DM_Maps ( UdevDev & Dev ) {
   return ML ;
 }// Listener :: DM_Maps
 
-QStringList Listener :: Holders ( UdevDev & Dev ) {
+QStringList Listener :: Holders ( const UdevDev & Dev ) const {
   QStringList SL ;
   foreach ( const QFileInfo I ,
             QDir ( Dev . SysPath ( ) + "/holders" ) .
@@ -453,28 +453,28 @@ QStringList Listener :: Holders ( UdevDev & Dev ) {
   return SL ;
 }// Listener :: Holders
 
-QStringList Listener :: Parts ( UdevDev & Dev ) {
+QStringList Listener :: Parts ( const UdevDev & Dev ) const {
   QStringList L ; UdevEnum En ( UdevContext ) ; En . MatchParent ( Dev ) ;
   En . MatchProperty ( DEV_TYPE , TYPE_PART ) ; En . ScanDevs ( ) ;
   foreach ( UdevPair const P , En . GetList ( ) ) { L << P . first  ; }//done
   return L ;
 }// Listener :: Parts
 
-UdevDev & Listener :: WDisk ( UdevDev & Dev ) {
+UdevDev & Listener :: WDisk ( const UdevDev & Dev ) {
   return * new UdevDev (
      isPart ( Dev ) ? Dev . FindParent ( Subsys_Block , TYPE_DISK ) : Dev
   ) ;
 }// Listener :: WDisk
 
-bool Listener :: Ejectable ( UdevDev & Dev ) {
+bool Listener :: Ejectable ( const UdevDev & Dev ) {
   return Dev . SysAttr ( SA_Events ) . contains ( Events_Eject ) ;
 }// Listener :: Ejectable
 
-bool Listener :: isLUKS ( UdevDev & Dev ) {
+bool Listener :: isLUKS ( const UdevDev & Dev ) {
   return Dev . Property ( FS_TYPE ) == TYPE_LUKS ;
 }// Listener :: isLUKS
 
-bool Listener :: isPart ( UdevDev & Dev ) {
+bool Listener :: isPart ( const UdevDev & Dev ) {
   return Dev . DevType ( ) == TYPE_PART ;
 }// Listener :: isLUKS
 

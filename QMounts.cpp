@@ -10,7 +10,7 @@
 
 static const char * const MInfoFileName = "/proc/self/mountinfo" ;
 
-static QString sect ( const QString & S , int K ) {
+inline QString sect ( const QString & S , int K ) {
   return S . section ( ' ' , K , K ) ;
 }// sect
 
@@ -28,7 +28,7 @@ Mounts :: ~Mounts ( ) { MInfoFile . close ( ) ; }// ~Mounts
 void Mounts :: MntAct ( int sock ) { ( void ) sock ; emit Changed ( ) ;
 }// Mounts :: MntAct
 
-QStringList Mounts :: MPoints ( const QString & DevNum ) {
+QStringList Mounts :: MPoints ( const QString & DevNum ) const {
   QStringList M ;
   foreach ( const QString L , MInfoTab ) {
     if ( sect ( L , 2 ) == DevNum ) { M << sect ( L , 4 ) ; }//fi

@@ -12,7 +12,7 @@
 class Mounts : public QObject { Q_OBJECT
   public :
     explicit Mounts ( QObject * parent = 0 ) ; virtual ~Mounts ( ) ;
-    QStringList MPoints ( const QString & DevNum ) ; // "maj:min"
+    QStringList MPoints ( const QString & DevNum ) const ; // "maj:min"
       // isEmpty if device not mounted.
     void RefreshMountInfo ( ) ;
     static QString DecodeIFS ( const QString & S ) ; // man getmntent(3)

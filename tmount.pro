@@ -3,8 +3,8 @@ VERSION = "0.0.6"
 
 TARGET = tmount
 TEMPLATE = app
-SOURCES += tmount.cpp LOpts.cpp Listener.cpp QUdev.cpp QMounts.cpp TrayIcon.cpp
-HEADERS += defs.h LOpts.h Listener.h QUdev.h QMounts.h TrayIcon.h
+SOURCES += tmount.cpp LOpts.cpp Listener.cpp QUdev.cpp QMounts.cpp TrayIcon.cpp QUnixApp.cpp
+HEADERS += defs.h LOpts.h Listener.h QUdev.h QMounts.h TrayIcon.h QUnixApp.h
 LIBS += -ludev
 # CONFIG += debug warn_on
 CONFIG += release

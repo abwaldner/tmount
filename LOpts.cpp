@@ -7,7 +7,6 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QPixmap>
-#include <QApplication>
 
 #include "Listener.h"
 
@@ -114,10 +113,10 @@ static CPtr // Labels.
   MntStartLbl  = QT_TRANSLATE_NOOP ( "LOpts" , "Mount on &start"       ) ,
   AutoEjectLbl = QT_TRANSLATE_NOOP ( "LOpts" , "Autoe&ject media"      ) ;
 
-static QFrame * HLine ( ) {
+inline QFrame * HLine ( ) {
   QFrame * F = new QFrame ; F -> setFrameShape ( QFrame :: HLine ) ;
   return F ;
-}// NFrame
+}// HLine
 
 struct LOpts :: Item {
   QString    CFKey   ; // Config file key.
@@ -203,12 +202,13 @@ LOpts :: Item LOpts :: ITbl [ ] = {
     kNoKey } ,
 } ;
 
+const int LOpts :: ITblSize =
+                     sizeof ( LOpts :: ITbl ) / sizeof ( LOpts :: Item ) ;
+
 LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
 
   static const Qt :: Alignment HC = Qt :: AlignHCenter  ;
   static const Qt :: Alignment VC = Qt :: AlignVCenter ;
-
-  ITblSize = sizeof ( ITbl ) / sizeof ( Item ) ;
 
   Item * C ;
 
@@ -307,7 +307,7 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
   Lay -> addWidget ( pbCanc , R , 3 , 1 , 2 , HC ) ;
 
   setLayout ( Lay ) ; setWindowIcon ( QIcon ( TMntP ) ) ;
-  setWindowTitle ( TPref + tr ( "Settings" ) ) ;
+  setWindowTitle ( AppName ( ) + " - " + tr ( "Settings" ) ) ;
 
 }// LOpts
 
@@ -345,19 +345,19 @@ LOpts :: ~LOpts ( ) {
   }//done
 }// ~LOpts
 
-QString LOpts :: toStr ( loKey K ) {
+QString LOpts :: toStr ( loKey K ) const {
   return K && K < ITblSize ? ITbl [ K ] . Val . toString ( ) : "" ;
 }// LOpts :: toStr
 
-int LOpts :: toInt ( loKey K ) {
+int LOpts :: toInt ( loKey K ) const {
   return K && K < ITblSize ? ITbl [ K ] . Val . toInt    ( ) : -1 ;
 }// LOpts :: toStr
 
-bool LOpts :: toBool ( loKey K ) {
+bool LOpts :: toBool ( loKey K ) const {
   return K && K < ITblSize ? ITbl [ K ] . Val . toBool   ( ) : false ;
 }// LOpts :: toStr
 
-OptList LOpts :: GetAll ( ) {
+OptList LOpts :: GetAll ( ) const {
   OptList L ;
   for ( int I = 1 ; I < ITblSize ; ++ I ) {
     Item * C = & ITbl [ I ] ; const QString K = C -> CFKey ;
@@ -366,5 +366,8 @@ OptList LOpts :: GetAll ( ) {
   }//done
   return L ;
 }// LOpts :: GetAll
+
+QString LOpts :: AppName ( ) const { return Conf . applicationName ( ) ;
+}// LOpts :: AppName
 
 //eof LOpts.cpp

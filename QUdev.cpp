@@ -8,7 +8,8 @@
 #include "QUdev.h"
 #include <libudev.h>
 
-const char * EvT = "udev" ; // Event type for monitor, hardcoded in libudev.
+static const char * EvT = "udev" ;
+  // Event type for monitor, hardcoded in libudev.
 
 Udev :: Udev  ( ) { mUdev = :: udev_new ( ) ; }// Udev
 
@@ -71,40 +72,40 @@ UdevDev & UdevDev :: operator= ( const UdevDev & Dev ) {
 
 UdevDev :: ~UdevDev ( ) { :: udev_device_unref ( mDev ) ; }// ~UdevDev
 
-QString UdevDev :: SysPath ( ) {
+QString UdevDev :: SysPath ( ) const {
   return QString ( :: udev_device_get_syspath ( mDev ) ) ;
 }// UdevDev :: SysPath
 
-QString UdevDev :: Action  ( ) {
+QString UdevDev :: Action  ( ) const {
   return QString ( :: udev_device_get_action  ( mDev ) ) ;
 }// UdevDev :: Action
 
-QString UdevDev :: DevNode ( ) {
+QString UdevDev :: DevNode ( ) const {
   return QString ( :: udev_device_get_devnode ( mDev ) ) ;
 }// UdevDev :: DevNode
 
-QString UdevDev :: DevNum  ( ) {
+QString UdevDev :: DevNum  ( ) const {
   dev_t DN = :: udev_device_get_devnum ( mDev ) ;
   return QString ( "%1:%2" ) . arg ( major ( DN ) ) . arg ( minor ( DN ) ) ;
 }// UdevDev :: DevNum
 
-QString UdevDev :: DevType ( ) {
+QString UdevDev :: DevType ( ) const {
   return QString ( :: udev_device_get_devtype ( mDev ) ) ;
 }// UdevDev :: DevType
 
-QString UdevDev :: SubSys ( ) {
+QString UdevDev :: SubSys ( ) const {
   return QString ( :: udev_device_get_subsystem ( mDev ) ) ;
 }// UdevDev :: SubSys
 
-QString UdevDev :: Property ( CPtr Key ) {
+QString UdevDev :: Property ( CPtr Key ) const {
   return QString ( :: udev_device_get_property_value ( mDev , Key ) ) ;
 }// UdevDev :: Property
 
-QString UdevDev :: SysAttr  ( CPtr Key ) {
+QString UdevDev :: SysAttr  ( CPtr Key ) const {
   return QString ( :: udev_device_get_sysattr_value ( mDev , Key ) ) ;
 }// UdevDev :: SysAttr
 
-UdevDev & UdevDev :: FindParent ( CPtr Subs , CPtr DType ) {
+UdevDev & UdevDev :: FindParent ( CPtr Subs , CPtr DType ) const {
   UdevDev * P = new UdevDev ( * this ) ;
   :: udev_device_unref ( P -> mDev ) ;
   P -> mDev = :: udev_device_ref (
@@ -147,7 +148,7 @@ int UdevEnum :: ScanDevs ( ) {
   return :: udev_enumerate_scan_devices ( mEnum ) ;
 }// UdevEnum :: ScanDevs
 
-UdevList UdevEnum :: GetList ( ) {
+UdevList UdevEnum :: GetList ( ) const {
   UdevList L ;
   struct udev_list_entry * N = :: udev_enumerate_get_list_entry ( mEnum ) ;
   while ( N ) {
