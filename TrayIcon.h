@@ -7,6 +7,7 @@
 #define TRAYICON_H
 
 #include <QSystemTrayIcon>
+#include <QDesktopWidget>
 
 #include "Listener.h"
 
@@ -16,8 +17,12 @@ class TrayIcon : public QSystemTrayIcon { Q_OBJECT
    void Activated  ( QSystemTrayIcon :: ActivationReason reason ) ;
    void USigCaught ( int Sig ) ;
    void About  ( ) ;
-  private : Listener * Lstnr ;
+  private : Listener * Lstnr ; QMenu CMenu ; QDesktopWidget * Desk ;
 } ; // TrayIcon
+
+inline bool TrayAvail ( ) {
+  return QSystemTrayIcon :: isSystemTrayAvailable ( ) ;
+}// TrayAvail
 
 #endif // TRAYICON_H
 

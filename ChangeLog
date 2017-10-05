@@ -1,3 +1,12 @@
+v. 0.0.6 -
+  1) Added Unix signal handling and correct termination on TERM, HUP,
+     INT, QUIT signals.
+  2) Added control (show menus) by SIGUSR1 and SIGUSR2 signals.
+  3) Added "work without system tray" feature and appropriate command
+     line option.
+  4) Added and updated documentation in accordance with paragraphs 1-3.
+  5) Refactoring and regression fixes.
+
 v. 0.0.5 - 2017.08.13
   1) Added "Supplementary menu" feature with "Eject" and "Remove" items.
   2) Added "Autoeject" setting.

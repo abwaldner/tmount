@@ -12,20 +12,18 @@
 
 TrayIcon :: TrayIcon ( Listener * parent ) : QSystemTrayIcon ( parent ) {
 
-  Lstnr = parent ; LOpts & Cnf = Lstnr -> Opt ;
+  Lstnr = parent ; const LOpts & Cnf = Lstnr -> Opt ;
 
-  QMenu * CMenu = new QMenu ;
-  CMenu -> addAction ( QIcon ( Cnf . toStr ( kAboutPix ) ) ,
+  CMenu . addAction ( QIcon ( Cnf . toStr ( kAboutPix ) ) ,
                        tr ( "About"     ) , this  , SLOT ( About    ( ) ) ) ;
-  CMenu -> addAction ( QIcon ( Cnf . toStr ( kConfPix  ) ) ,
+  CMenu . addAction ( QIcon ( Cnf . toStr ( kConfPix  ) ) ,
                        tr ( "Settings"  ) , & Cnf , SLOT ( exec     ( ) ) ) ;
-  CMenu -> addSeparator (  ) ;
-  CMenu -> addAction ( QIcon ( Cnf . toStr ( kAddImgPix  ) ) ,
+  CMenu . addSeparator (  ) ;
+  CMenu . addAction ( QIcon ( Cnf . toStr ( kAddImgPix  ) ) ,
                        tr ( "Add image" ) , Lstnr , SLOT ( AddImage ( ) ) ) ;
-  CMenu -> addSeparator (  ) ;
-  CMenu -> addAction ( QIcon ( Cnf . toStr ( kExitPix  ) ) ,
+  CMenu . addSeparator (  ) ;
+  CMenu . addAction ( QIcon ( Cnf . toStr ( kExitPix  ) ) ,
                        tr ( "Quit"      ) , qApp  , SLOT ( quit     ( ) ) ) ;
-  setContextMenu ( CMenu ) ;
 
   setIcon  ( QIcon ( Cnf . toStr ( kTMntPix ) ) ) ;
   setToolTip ( tr ( "Removable devices and media." ) ) ;
@@ -34,16 +32,21 @@ TrayIcon :: TrayIcon ( Listener * parent ) : QSystemTrayIcon ( parent ) {
     this , SIGNAL ( activated ( QSystemTrayIcon :: ActivationReason ) ) ,
     this , SLOT   ( Activated ( QSystemTrayIcon :: ActivationReason ) ) ) ;
 
+  Desk = QApplication :: desktop ( ) ;
+
 }// TrayIcon
 
 TrayIcon :: ~TrayIcon ( ) { }// ~TrayIcon
 
-void TrayIcon :: Activated ( QSystemTrayIcon :: ActivationReason reason ) {
-  if ( reason == QSystemTrayIcon :: Trigger ) {
+void TrayIcon :: Activated ( ActivationReason reason ) {
+  const QPoint Loc = isVisible ( ) ?
+    geometry ( ) . center ( ) : Desk -> availableGeometry ( ) . center ( ) ;
+  if ( reason == Trigger ) {
     if ( Lstnr -> DevList ( ) . isEmpty ( ) ) {
-      showMessage ( tr ( "Devices not found." ) , "" ) ;
-    } else { Lstnr -> exec ( geometry ( ) . center ( ) ) ;
+      QMessageBox :: about ( Lstnr , NULL , tr ( "Devices not found." ) ) ;
+    } else { Lstnr -> exec ( Loc ) ;
     }//fi
+  } else if ( reason == Context ) { CMenu . popup ( Loc ) ;
   }//fi
 }// TrayIcon :: Activated
 
@@ -51,6 +54,10 @@ void TrayIcon :: USigCaught ( int Sig ) {
   if ( Sig == QUnixApp :: SigHUP || Sig == QUnixApp :: SigTERM ||
        Sig == QUnixApp :: SigINT || Sig == QUnixApp :: SigQUIT  ) {
     qApp -> exit ( Sig + 128 ) ;
+  } else if ( Sig == QUnixApp :: SigUSR1 ) {
+    emit activated ( Trigger ) ;
+  } else if ( Sig == QUnixApp :: SigUSR2 ) {
+    emit activated ( Context ) ;
   }//fi
 }// TrayIcon :: USigCaught
 

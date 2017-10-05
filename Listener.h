@@ -62,7 +62,8 @@ class Listener : public QMenu { Q_OBJECT
 
     enum ActReq { reqNoAct , reqEject , reqRemove } ;
 
-    Udev UdevContext ; UdevMon UMonitor ; // Don't reorder.
+    Udev UdevContext ; UdevMon UMonitor ;
+      // Don't reorder, the monitor constructs from context.
     Mounts  MInfo ;
     QString CurrDev ; ActReq Suppl ;
     QProcessEnvironment Env ;

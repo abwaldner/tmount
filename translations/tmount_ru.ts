@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="ru_RU">
+<TS version="2.1" language="ru_RU">
 <context>
     <name>LOpts</name>
     <message>
@@ -9,17 +9,17 @@
         <translation type="unfinished">Скрытые устройства</translation>
     </message>
     <message>
-        <location filename="../LOpts.cpp" line="248"/>
+        <location filename="../LOpts.cpp" line="247"/>
         <source>Command lines:</source>
         <translation type="unfinished">Команды:</translation>
     </message>
     <message>
-        <location filename="../LOpts.cpp" line="247"/>
+        <location filename="../LOpts.cpp" line="246"/>
         <source>Actions:</source>
         <translation type="unfinished">Действия:</translation>
     </message>
     <message>
-        <location filename="../LOpts.cpp" line="249"/>
+        <location filename="../LOpts.cpp" line="248"/>
         <source>Timeouts:</source>
         <translation type="unfinished">Таймауты:</translation>
     </message>
@@ -74,12 +74,12 @@
         <translation type="unfinished">Автоизвлечение носителей</translation>
     </message>
     <message>
-        <location filename="../LOpts.cpp" line="250"/>
+        <location filename="../LOpts.cpp" line="249"/>
         <source>Show:</source>
         <translation type="unfinished">Выв.:</translation>
     </message>
     <message>
-        <location filename="../LOpts.cpp" line="279"/>
+        <location filename="../LOpts.cpp" line="278"/>
         <source>Handling:</source>
         <translation type="unfinished">Поведение:</translation>
     </message>
@@ -139,17 +139,17 @@
         <translation type="unfinished">Монтировать съёмные носители</translation>
     </message>
     <message>
-        <location filename="../LOpts.cpp" line="311"/>
+        <location filename="../LOpts.cpp" line="310"/>
         <source>Settings</source>
         <translation type="unfinished">Настройки</translation>
     </message>
     <message>
-        <location filename="../LOpts.cpp" line="303"/>
+        <location filename="../LOpts.cpp" line="302"/>
         <source>&amp;Ok</source>
         <translation type="unfinished">Принять</translation>
     </message>
     <message>
-        <location filename="../LOpts.cpp" line="304"/>
+        <location filename="../LOpts.cpp" line="303"/>
         <source>&amp;Cancel</source>
         <translation type="unfinished">Отмена</translation>
     </message>
@@ -263,30 +263,44 @@
     </message>
 </context>
 <context>
+    <name>QObject</name>
+    <message>
+        <location filename="../tmount.cpp" line="63"/>
+        <source>Usage: tmount [-wait &lt;n&gt;]
+  where &lt;n&gt; - time (in sec.) to wait for system tray availability,
+  or 0 to work without systray.  Default is 30 sec.
+</source>
+        <translation type="unfinished">Использование: tmount [-wait &lt;n&gt;]
+  где &lt;n&gt; - время (в сек.) ожидания доступности системного лотка,
+  или 0 для работы без показа в лотке.  По умолчанию 30 сек.
+</translation>
+    </message>
+</context>
+<context>
     <name>TrayIcon</name>
     <message>
-        <location filename="../TrayIcon.cpp" line="21"/>
-        <location filename="../TrayIcon.cpp" line="63"/>
+        <location filename="../TrayIcon.cpp" line="18"/>
+        <location filename="../TrayIcon.cpp" line="65"/>
         <source>About</source>
         <translation type="unfinished">О программе</translation>
     </message>
     <message>
-        <location filename="../TrayIcon.cpp" line="23"/>
+        <location filename="../TrayIcon.cpp" line="20"/>
         <source>Settings</source>
         <translation type="unfinished">Настройки</translation>
     </message>
     <message>
-        <location filename="../TrayIcon.cpp" line="26"/>
+        <location filename="../TrayIcon.cpp" line="23"/>
         <source>Add image</source>
         <translation type="unfinished">Открыть образ</translation>
     </message>
     <message>
-        <location filename="../TrayIcon.cpp" line="29"/>
+        <location filename="../TrayIcon.cpp" line="26"/>
         <source>Quit</source>
         <translation type="unfinished">Выход</translation>
     </message>
     <message>
-        <location filename="../TrayIcon.cpp" line="33"/>
+        <location filename="../TrayIcon.cpp" line="29"/>
         <source>Removable devices and media.</source>
         <translation type="unfinished">Сменные устройства и носители.</translation>
     </message>
@@ -296,12 +310,12 @@
         <translation type="unfinished">Устройства не найдены.</translation>
     </message>
     <message>
-        <location filename="../TrayIcon.cpp" line="66"/>
+        <location filename="../TrayIcon.cpp" line="68"/>
         <source> - block devices mounter/unmounter&lt;br/&gt;</source>
         <translation type="unfinished"> - монтировщик/размонтировщик блочных устройств&lt;br/&gt;</translation>
     </message>
     <message>
-        <location filename="../TrayIcon.cpp" line="67"/>
+        <location filename="../TrayIcon.cpp" line="69"/>
         <source>&lt;br/&gt;License: </source>
         <translation type="unfinished">&lt;br/&gt;Лицензия: </translation>
     </message>
