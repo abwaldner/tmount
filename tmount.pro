@@ -1,12 +1,12 @@
 
 VERSION = "0.0.6"
 
-TARGET = tmount
 TEMPLATE = app
-SOURCES += tmount.cpp LOpts.cpp Listener.cpp QUdev.cpp QMounts.cpp TrayIcon.cpp QUnixApp.cpp
+SOURCES += tmount.cpp QUnixApp.cpp
+SOURCES += Listener.cpp LOpts.cpp TrayIcon.cpp
+SOURCES += QUdev.cpp QMounts.cpp
 HEADERS += defs.h LOpts.h Listener.h QUdev.h QMounts.h TrayIcon.h QUnixApp.h
 LIBS += -ludev
-# CONFIG += debug warn_on
 CONFIG += release
 RESOURCES += tmount.qrc
 TRANSLATIONS = translations/tmount_ru.ts
@@ -14,6 +14,7 @@ QT += gui core widgets
 DEFINES += VERSION=\\\"$$VERSION\\\"
 
 unix {
+  INCLUDEPATH += /usr/include
   PREFIX = $$(PREFIX)
   isEmpty( PREFIX ):PREFIX = /usr
   target.path = $$PREFIX/bin/
