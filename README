@@ -85,6 +85,9 @@
   is equivalent to starting with "-wait 30".  When running with
   parameter "-wait 0" the program works without show an icon in
   the system tray and can be controlled only by signals (see above).
+  Also switching the "tray/background" modes is possible using
+  the context menu items "Hide icon/Show in tray" (if the system tray is
+  available).
       Return codes: 0 - normal termination, 1 - wrong parameter, 128+ -
   signal is caught (128+SIGALRM=142 - timeout exceeded).
 

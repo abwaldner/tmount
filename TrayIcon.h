@@ -14,10 +14,13 @@
 class TrayIcon : public QSystemTrayIcon { Q_OBJECT
   public : explicit TrayIcon ( Listener * parent ) ; virtual ~TrayIcon ( ) ;
   private slots :
-   void Activated  ( QSystemTrayIcon :: ActivationReason reason ) ;
-   void USigCaught ( int Sig ) ;
-   void About  ( ) ;
-  private : Listener * Lstnr ; QMenu CMenu ; QDesktopWidget * Desk ;
+    void Activated  ( QSystemTrayIcon :: ActivationReason reason ) ;
+    void USigCaught ( int Sig ) ;
+    void Toggle ( ) ;
+    void About  ( ) ;
+  private :
+    Listener * Lstnr ;
+    QMenu CMenu ; ActPtr ToggleAct ; QDesktopWidget * Desk ;
 } ; // TrayIcon
 
 inline bool TrayAvail ( ) {

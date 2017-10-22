@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="ru_RU">
+<TS version="2.0" language="ru_RU">
 <context>
     <name>LOpts</name>
     <message>
@@ -279,43 +279,53 @@
 <context>
     <name>TrayIcon</name>
     <message>
-        <location filename="../TrayIcon.cpp" line="18"/>
-        <location filename="../TrayIcon.cpp" line="65"/>
+        <location filename="../TrayIcon.cpp" line="19"/>
+        <location filename="../TrayIcon.cpp" line="71"/>
         <source>About</source>
         <translation type="unfinished">О программе</translation>
     </message>
     <message>
-        <location filename="../TrayIcon.cpp" line="20"/>
+        <location filename="../TrayIcon.cpp" line="21"/>
         <source>Settings</source>
         <translation type="unfinished">Настройки</translation>
     </message>
     <message>
-        <location filename="../TrayIcon.cpp" line="23"/>
+        <location filename="../TrayIcon.cpp" line="24"/>
         <source>Add image</source>
         <translation type="unfinished">Открыть образ</translation>
     </message>
     <message>
-        <location filename="../TrayIcon.cpp" line="26"/>
+        <location filename="../TrayIcon.cpp" line="28"/>
         <source>Quit</source>
         <translation type="unfinished">Выход</translation>
     </message>
     <message>
-        <location filename="../TrayIcon.cpp" line="29"/>
+        <location filename="../TrayIcon.cpp" line="31"/>
         <source>Removable devices and media.</source>
         <translation type="unfinished">Сменные устройства и носители.</translation>
     </message>
     <message>
-        <location filename="../TrayIcon.cpp" line="46"/>
+        <location filename="../TrayIcon.cpp" line="47"/>
         <source>Devices not found.</source>
         <translation type="unfinished">Устройства не найдены.</translation>
     </message>
     <message>
-        <location filename="../TrayIcon.cpp" line="68"/>
+        <location filename="../TrayIcon.cpp" line="52"/>
+        <source>Hide icon</source>
+        <translation type="unfinished">Скрыть иконку</translation>
+    </message>
+    <message>
+        <location filename="../TrayIcon.cpp" line="52"/>
+        <source>Show in tray</source>
+        <translation type="unfinished">Показать в лотке</translation>
+    </message>
+    <message>
+        <location filename="../TrayIcon.cpp" line="74"/>
         <source> - block devices mounter/unmounter&lt;br/&gt;</source>
         <translation type="unfinished"> - монтировщик/размонтировщик блочных устройств&lt;br/&gt;</translation>
     </message>
     <message>
-        <location filename="../TrayIcon.cpp" line="69"/>
+        <location filename="../TrayIcon.cpp" line="75"/>
         <source>&lt;br/&gt;License: </source>
         <translation type="unfinished">&lt;br/&gt;Лицензия: </translation>
     </message>
