@@ -28,8 +28,10 @@
   "cryptsetup", if will be entitled to its execution without entering
   a password.  However, this does not require any modification of the
   scripts.  In addition, when using terminal emulators or tools like
-  "ktsuss" lost the return code and the stderr output of the called
-  program.
+  "ktsuss" (http://github.com/nomius/ktsuss, the graphical version of
+  "su") lost the return code and the stderr output of the called
+  program.  Therefore, the use of these variants is not recommended.
+  To work with "su", it is preferable to use the "expect" script.
       Currently, all unlock scripts accept an additional parameter
   specifying the way to enter the LUKS password: "-k" - request the key
   file name, "-i" - interactive input, "-a" or the absence of the
@@ -47,4 +49,5 @@
   programs are output too much of garbage in stderr.  Therefore, the use
   of such programs as "ssh-askpass-fullscreen", "x11-ssh-askpass",
   "gtkdialog", "xdialog" (and even "zenity") etc. is possible, but much
-  less convenient.
+  less convenient.  You can, in particular, use 'zenity 2> /dev/null'
+  instead of 'qarma'.

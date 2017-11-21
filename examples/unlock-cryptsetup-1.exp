@@ -1,0 +1,64 @@
+#!/usr/bin/env expect
+
+  proc Dlg { Res args } {
+    upvar $Res R
+    set L { --title tmount --window-icon /usr/share/pixmaps/tmount.png }
+    set R [
+      if { ! [ set C [ catch { exec qarma {*}$L {*}$args } S ] ] } { set S
+      } else { puts stderr [ regsub {^child .*abnormally$} $S {Cancelled} ]
+      };#fi
+    ]
+    return $C
+  };# Dlg
+
+  set RetC 1 ; set SN [ info script ]
+  set Dev  [ lindex $argv end ] ; set Map "luks-[ file tail ${Dev} ]"
+  set Cmd  "/sbin/cryptsetup open \"${Dev}\" \"${Map}\" "
+  set Mode [
+    set M [ lindex $argv 0 ]
+    if { $argc == 2 && $M in { -k -i -a } } { string range $M 1 1
+    } elseif { $argc == 1 } { expr {{a}}
+    };#fi
+  ]
+
+  if { $Mode == {} } {
+    puts stderr [
+      format {Usage: %s [-k|-i|-a] {device|file}} [ file tail $SN ]
+    ]
+  };#fi
+
+  if { $Mode == {a} &&
+       ! [ Dlg Mode --forms --text {LUKS passphrase input method:} \
+               --add-combo Select --combo-values {Interactive|Key File} ] } {
+    set Mode [ string tolower [ string range $Mode 0 0 ] ]
+  };#fi
+
+  if { $Mode == {k} } {
+    if [ Dlg F --file-selection --title {tmount - Select a key file} ] {
+      set Mode {} } else { append Cmd " -d \"${F}\""
+    };#fi
+  };#fi
+
+  if { $Mode != {} } {
+    set timeout -1 ; log_user 0 ; set env(LC_ALL) {C} ; set Err {}
+    spawn su -c "${Cmd}"
+    expect {
+      {^Password: } {
+        Dlg P --entry --hide-text --text {su: Enter root password}
+        send "${P}\n" ; exp_continue
+      }
+      {Enter passphrase for *: } {
+        Dlg P --entry --hide-text --text "Enter LUKS passphrase for ${Dev}"
+        send "${P}\n" ; exp_continue
+      }
+      full_buffer { append Err $expect_out(buffer) ; exp_continue }
+      eof { append Err $expect_out(buffer) }
+    }
+    set RetC [ lrange [ wait ] 3 3 ]
+    if { $RetC } { puts stderr $Err } else { puts "${Dev} mapped to ${Map}"
+    };#fi
+  };#fi
+
+exit $RetC
+
+#eof

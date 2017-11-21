@@ -20,7 +20,7 @@ static const int StartTO = 2000 ; // 2 s for start of external program.
 typedef const char * const CPtr ;
 
 typedef QAction * ActPtr ;
-typedef class QList < ActPtr  > ActList ;
+typedef class QList < ActPtr > ActList ;
 
 class Listener : public QMenu { Q_OBJECT
 
@@ -54,6 +54,7 @@ class Listener : public QMenu { Q_OBJECT
     QStringList Parts      ( const UdevDev & Dev ) const ; // Partitions of.
     QStringList Holders    ( const UdevDev & Dev ) const ;
     QStringList DM_Maps    ( const UdevDev & Dev ) const ; // Maps for cont.
+    QStringList Slaves     ( const UdevDev & Dev ) const ;
     static bool Ejectable  ( const UdevDev & Dev ) ;
     static bool isLUKS     ( const UdevDev & Dev ) ; // It's container.
     static bool isPart     ( const UdevDev & Dev ) ; // It's partition.

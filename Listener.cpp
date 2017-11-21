@@ -28,8 +28,9 @@ static const QString // UEvent actions.
   ACT_add = "add" , ACT_remove = "remove" , ACT_change = "change" ;
 
 static CPtr // These constants are defined by "sysfs".
-  Subsys_Block = "block"  , SA_Rem  = "removable" ,
-  SA_Events    = "events" , SA_Size = "size"      ,
+  Subsys_Block = "block"    , SA_Rem  = "removable" ,
+  SA_Events    = "events"   , SA_Size = "size"      ,
+  SD_Holders   = "/holders" , SD_Slaves = "/slaves" ,
   Events_Eject = "eject_request" ;
 
 static const int NoTimeout = -1 ;
@@ -255,6 +256,12 @@ bool Listener :: AddDevice (
 
     SetActions ( Dev ) ;
 
+    if ( ! Dev . Property ( DM_NAME ) . isEmpty ( ) ) {
+      foreach ( const QString P , Slaves ( Dev ) ) {
+        SetActions ( UdevDev ( UdevContext , P ) ) ;
+      }//done
+    }//fi
+
   }//fi
 
   return Targ ;
@@ -271,6 +278,7 @@ void Listener :: RemoveDevice ( const UdevDev & Dev ) {
   }//done
 
   // Desperate attempt.
+  MInfo . RefreshMountInfo ( ) ; // to prevent the misoperation.
   foreach ( const QString M , MPoints  ( Dev ) ) {
     ExecCmd ( Opt . toStr ( kUnmntCmd  ) ,
               Mounts :: DecodeIFS ( sect ( M , 0 ) ) ,
@@ -388,8 +396,12 @@ int Listener :: ExecCmd ( const QString & Cmd ,
 
       QStringList Msg = QTextCodec :: codecForLocale ( ) ->
                           toUnicode ( Proc . readAllStandardError ( ) ) .
-                            split ( '\n' , SEP ) ;
+                            split ( '\n' , SEP ) .
+                              filter ( QRegExp ( "\\S" ) ) ;
       Msg . removeDuplicates ( ) ;
+      if ( Msg . isEmpty ( ) ) {
+        Msg << "'" + C + tr ( "' returns " ) + QString :: number ( RC ) ;
+      }//fi
       QMessageBox :: warning ( this , TPref + tr ( "Warning" ) ,
                                       Msg . join ( "\n" ) ) ;
 
@@ -397,7 +409,8 @@ int Listener :: ExecCmd ( const QString & Cmd ,
 
       QStringList Msg = QTextCodec :: codecForLocale ( ) ->
                           toUnicode ( Proc . readAllStandardOutput ( ) ) .
-                            split ( '\n' , SEP ) ;
+                            split ( '\n' , SEP ) .
+                              filter ( QRegExp ( "\\S" ) ) ;
       Msg . removeDuplicates ( ) ;
       if ( Msg . isEmpty ( ) ) {
         Msg << "'" + C + tr ( "' - successful completion." ) ;
@@ -435,7 +448,7 @@ QStringList Listener :: MPoints ( const UdevDev & Dev ) const {
 QStringList Listener :: DM_Maps ( const UdevDev & Dev ) const {
   QStringList ML ;
   foreach ( const QString H , Holders ( Dev ) ) {
-    QString M = sect ( H , 1 ) ;
+    const QString M = sect ( H , 1 ) ;
     if ( ! M . isEmpty ( ) ) { ML << M + ' ' + sect ( H , 0 ) ; }//fi
   }//done
   return ML ;
@@ -444,14 +457,24 @@ QStringList Listener :: DM_Maps ( const UdevDev & Dev ) const {
 QStringList Listener :: Holders ( const UdevDev & Dev ) const {
   QStringList SL ;
   foreach ( const QFileInfo I ,
-            QDir ( Dev . SysPath ( ) + "/holders" ) .
+            QDir ( Dev . SysPath ( ) + SD_Holders ) .
               entryInfoList ( QDir :: Dirs | QDir :: NoDotAndDotDot ) ) {
-    UdevDev D ( UdevContext , I . readLink ( ) ) ;
+    UdevDev D ( UdevContext , I . symLinkTarget ( ) ) ;
     SL << Mounts :: EncodeIFS ( D . DevNode  ( ) ) + ' ' +
           Mounts :: EncodeIFS ( D . Property ( DM_NAME ) ) ;
   }//done
   return SL ;
 }// Listener :: Holders
+
+QStringList Listener :: Slaves ( const UdevDev & Dev ) const {
+  QStringList SL ;
+  foreach ( const QFileInfo I ,
+            QDir ( Dev . SysPath ( ) + SD_Slaves ) .
+              entryInfoList ( QDir :: Dirs | QDir :: NoDotAndDotDot ) ) {
+    SL << I . symLinkTarget ( ) ;
+  }//done
+  return SL ;
+}// Listener :: Slaves
 
 QStringList Listener :: Parts ( const UdevDev & Dev ) const {
   QStringList L ; UdevEnum En ( UdevContext ) ; En . MatchParent ( Dev ) ;

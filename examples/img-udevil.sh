@@ -5,7 +5,7 @@
     if [ "${P}" ] ; then exec ${P} "${1}"
     else ! echo "Disabled by configuration." >&2
     fi
-  else udevil mount "${1}"
+  else exec udevil mount "${1}"
   fi
 
 #eof

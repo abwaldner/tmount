@@ -1,6 +1,8 @@
 v. 0.0.7 -
   1) Added "Hide/Show" feature.
-   ) Updated documentation in accordance with paragraph 1.
+  2) Examples of using expect-scripts with "su" and "sudo" are added.
+   ) Updated documentation in accordance with paragraphs 1-.
+   ) Refactoring, small enhancement, and noncritical errors fixes.
 
 v. 0.0.6 -
   1) Added Unix signal handling and correct termination on TERM, HUP,

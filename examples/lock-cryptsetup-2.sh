@@ -1,22 +1,21 @@
 #!/bin/sh
 
 # ---------------------------------------------------------------------------
-
-  alias myterm='exec 2>/dev/null xfce4-terminal \
-    --disable-server --geometry=40x10 --hide-menubar --hide-toolbar \
-    --show-borders --icon /usr/share/pixmaps/tmount.png --title tmount -x'
-
+  MyTerm () {
+    exec 2>/dev/null xfce4-terminal --disable-server --hide-menubar \
+      --hide-toolbar --show-borders --icon /usr/share/pixmaps/tmount.png \
+      --geometry=40x10 --title tmount -x "${@}"
+  } # MyTerm
 # ---------------------------------------------------------------------------
-
-#  alias myterm='exec 2>/dev/null qterminal \
-#          --geometry 400x100 --title tmount -e'
-
+#  MyTerm () {
+#    exec 2>/dev/null qterminal --geometry 400x100 --title tmount -e "${@}"
+#  } # MyTerm
 # ---------------------------------------------------------------------------
 
   if tty >/dev/null ; then
     su -c "/sbin/cryptsetup close \"${1}\"" ||
-    { echo ; echo 'Press Enter to continue...' ; read ; }
-  else myterm "${0}" "${@}"
+    { echo ; echo 'Press Enter to continue...' ; read G ; }
+  else MyTerm "${0}" "${@}"
   fi
 
 #eof

@@ -1,5 +1,5 @@
 #!/bin/sh
 
-  exec pumount "/dev/mapper/${1}"
+  pumount "/dev/mapper/${1}" && echo "${1} released."
 
 #eof
