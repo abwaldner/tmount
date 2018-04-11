@@ -4,22 +4,25 @@
     upvar $Res R
     set L { --title tmount --window-icon /usr/share/pixmaps/tmount.png }
     set R [
-      if { ! [ set C [ catch { exec qarma {*}$L {*}$args } S ] ] } { set S
-      } else { puts stderr [ regsub {^child .*abnormally$} $S {Cancelled} ]
+      if [ set C [ catch { exec qarma 2>/dev/null {*}$L {*}$args } S ] ] {
+        puts stderr [ regsub {^child .*abnormally$} $S Cancelled. ]
+      } else { set S
       };#fi
     ]
     return $C
   };# Dlg
 
-  set Map  [ lindex $argv 0 ]
-  set Cmd  "/sbin/cryptsetup close \"${Map}\" " ; set RC 1
+  proc Psw { Prompt } {
+    if [ Dlg P --entry --hide-text --text $Prompt ] { set P "\004" };#fi
+    return "${P}\n"
+  };# Psw
 
-  set timeout -1 ; log_user 0 ; set env(LC_ALL) {C} ; set Err {}
+  set Map [ lindex $argv 0 ] ; set Cmd "/sbin/cryptsetup close \"${Map}\" "
+  set timeout -1 ; log_user 0 ; set env(LC_ALL) {C} ; set Err {} ; set RC 1
   spawn su -c "${Cmd}"
   expect {
     {^Password: } {
-      Dlg P --entry --hide-text --text {su: Enter root password}
-      send "${P}\n" ; exp_continue
+      exp_send [ Psw {su: Enter root password} ] ; exp_continue
     }
     full_buffer { append Err $expect_out(buffer) ; exp_continue }
     eof { append Err $expect_out(buffer) }
@@ -28,5 +31,3 @@
   if { $RC } { puts stderr $Err } else { puts "${Map} released." };#fi
 
 exit $RC
-
-#eof

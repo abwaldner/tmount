@@ -4,12 +4,29 @@
     upvar $Res R
     set L { --title tmount --window-icon /usr/share/pixmaps/tmount.png }
     set R [
-      if { ! [ set C [ catch { exec qarma {*}$L {*}$args } S ] ] } { set S
-      } else { puts stderr [ regsub {^child .*abnormally$} $S {Cancelled} ]
+      if [ set C [ catch { exec qarma 2>/dev/null {*}$L {*}$args } S ] ] {
+        puts stderr [ regsub {^child .*abnormally$} $S Cancelled. ]
+      } else { set S
       };#fi
     ]
     return $C
   };# Dlg
+
+  proc Mode {} {
+    Dlg M --forms --text {LUKS passphrase input method:} \
+          --add-combo Select --combo-values {Interactive|Key File}
+    return [ string tolower [ string range $M 0 0 ] ]
+  };# Mode
+
+  proc Psw { Prompt } {
+    if [ Dlg P --entry --hide-text --text $Prompt ] { set P "\004" };#fi
+    return "${P}\n"
+  };# Psw
+
+  proc FSel {} {
+    Dlg F --file-selection --title {tmount - Select a key file}
+    return $F
+  };# FSel
 
   set RetC 1 ; set SN [ info script ]
   set Dev  [ lindex $argv end ] ; set Map "luks-[ file tail ${Dev} ]"
@@ -27,38 +44,32 @@
     ]
   };#fi
 
-  if { $Mode == {a} &&
-       ! [ Dlg Mode --forms --text {LUKS passphrase input method:} \
-               --add-combo Select --combo-values {Interactive|Key File} ] } {
-    set Mode [ string tolower [ string range $Mode 0 0 ] ]
-  };#fi
+  if { $Mode == {a} } { set Mode [ Mode ] };#fi
 
-  if { $Mode == {k} } {
-    if [ Dlg F --file-selection --title {tmount - Select a key file} ] {
-      set Mode {} } else { append Cmd " -d \"${F}\""
-    };#fi
-  };#fi
+  if { $Mode == {k} } { set Mode [ FSel ] ; append Cmd " -d \"${Mode}\"" };#fi
 
   if { $Mode != {} } {
     set timeout -1 ; log_user 0 ; set env(LC_ALL) {C} ; set Err {}
     spawn su -c "${Cmd}"
     expect {
       {^Password: } {
-        Dlg P --entry --hide-text --text {su: Enter root password}
-        send "${P}\n" ; exp_continue
+        exp_send [ Psw {su: Enter root password} ] ; exp_continue
       }
       {Enter passphrase for *: } {
-        Dlg P --entry --hide-text --text "Enter LUKS passphrase for ${Dev}"
-        send "${P}\n" ; exp_continue
+        exp_send [ Psw "Enter LUKS passphrase for ${Dev}" ] ; exp_continue
       }
       full_buffer { append Err $expect_out(buffer) ; exp_continue }
       eof { append Err $expect_out(buffer) }
     }
     set RetC [ lrange [ wait ] 3 3 ]
-    if { $RetC } { puts stderr $Err } else { puts "${Dev} mapped to ${Map}"
+    if { $RetC } { puts stderr $Err
+    } else {
+      set F {} ; set S {} ; set L {(no label)} ;
+      set N "/dev/mapper/${Map}" ; set R [ exec realpath $N ]
+      set X "Device %s mapped to %s.\n%s -> %s\n%s (%s, \[%s], %s)\n"
+      scan [ exec lsblk -plno FSTYPE,SIZE,LABEL $N ] {%s%s%s} F S L
+      puts [ format $X $Dev $Map $N $R [ file tail $R ] $F $L $S ]
     };#fi
   };#fi
 
 exit $RetC
-
-#eof

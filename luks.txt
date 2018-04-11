@@ -45,9 +45,8 @@
       Implementation notes:
       Use in the examples of the "qarma" program
   (http://github.com/luebking/qarma) and own wrapper for setting of
-  the SUDO_ASKPASS variable is caused by the fact that GTK-based
-  programs are output too much of garbage in stderr.  Therefore, the use
-  of such programs as "ssh-askpass-fullscreen", "x11-ssh-askpass",
-  "gtkdialog", "xdialog" (and even "zenity") etc. is possible, but much
-  less convenient.  You can, in particular, use 'zenity 2> /dev/null'
-  instead of 'qarma'.
+  the SUDO_ASKPASS evironment variable provides a view that resembles
+  the application as much as possible.  You can also use the programs
+  "zenity", "Xdialog" or "gtkdialog", the corresponding functions are
+  listed in the files "dialogs.sh" and "dialogs.tcl".  Also you can use
+  "Expect+Tk" (*.expk) scripts.

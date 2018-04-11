@@ -1,0 +1,87 @@
+#!/usr/bin/env wish
+
+  package require Expect
+
+  proc Dlg {} {
+   global RetC
+   set x [ expr { [ winfo screenwidth   . ] - [ winfo reqwidth  . ] } ]
+   set x [ expr { $x / 2 - [ winfo vrootx . ] } ]
+   set y [ expr { [ winfo screenheight  . ] - [ winfo reqheight . ] } ]
+   set y [ expr { $y / 2 - [ winfo vrooty . ] } ]
+   wm geom . +$x+$y ; wm deiconify . ; focus .ent ; tkwait var RetC
+   catch { wm withdraw . } ; if { $RetC } { puts stderr Cancelled. };#fi
+   return $RetC
+  };# Dlg
+
+  set RetC 1 ; set EOF "\004" ; set SN [ info script ]
+  set Dev  [ lindex $argv end ] ; set Map "luks-[ file tail ${Dev} ]"
+  set Cmd  "/sbin/cryptsetup open \"${Dev}\" \"${Map}\" "
+  set Mode [
+    set M [ lindex $argv 0 ]
+    if { $argc == 2 && $M in { -k -i -a } } { string range $M 1 1
+    } elseif { $argc == 1 } { expr {{a}}
+    };#fi
+  ]
+
+  if { $Mode == {} } {
+    puts stderr [
+      format {Usage: %s [-k|-i|-a] {device|file}} [ file tail $SN ]
+    ]
+  } else {
+    wm withdraw . ; wm title . tmount ; label .lbl ; frame .btn
+    wm iconphoto . [ image create photo -file /usr/share/pixmaps/tmount.png ]
+    bind . <Escape> { set RetC 1 } ; bind . <Destroy> { set RetC 1 }
+    button .ok  -text OK     -command { set RetC 0 }
+    button .esc -text Cancel -command { set RetC 1 }
+    bind   .ok  <Return> { set RetC 0 } ; bind .esc <Return> { set RetC 1 }
+    pack   .esc .ok -side right -in .btn
+    pack   .btn -fill x -side bottom -padx 2 ; pack .lbl -fill x -padx 2
+  };#fi
+
+  if { $Mode == {a} } {
+    .lbl configure -text {LUKS passphrase input method:}
+    frame .ent ; bind .ent <Return> { set RetC 0 }
+    radiobutton .ent.i -var Mode -val i -text Interactive
+    radiobutton .ent.k -var Mode -val k -text {Key File}
+    pack .ent.i .ent.k -side left ; .ent.i select ; pack .ent -fill x -padx 2
+    if [ Dlg ] { set Mode {} };#fi
+    catch { destroy .ent }
+  };#fi
+
+  if { $Mode == {k} } {
+    set Mode [ tk_getOpenFile -title {tmount - Select a key file} ]
+    append Cmd " -d \"${Mode}\""
+    if { $Mode == {} } { set RetC 1 ; puts stderr Cancelled. };#fi
+  };#fi
+
+  if { $Mode != {} } {
+    entry .ent -show {*} -textvar Psw ; bind .ent <Return> { set RetC 0 }
+    .lbl  configure -text {su: Enter root password}
+    pack  .ent -fill x -padx 2
+    set timeout -1 ; log_user 0 ; set env(LC_ALL) {C} ; set Err {}
+    spawn su -c "${Cmd}"
+    expect {
+      {^Password: } {
+        if [ Dlg ] { set Psw $EOF };#fi
+        catch { .lbl configure -text "Enter LUKS passphrase for ${Dev}" }
+        exp_send "${Psw}\n" ; exp_continue
+      }
+      {Enter passphrase for *: } {
+        set Psw {} ; if [ Dlg ] { set Psw $EOF };#fi
+        exp_send "${Psw}\n" ; exp_continue
+      }
+      full_buffer { append Err $expect_out(buffer) ; exp_continue }
+      eof { append Err $expect_out(buffer) }
+    }
+    set RetC [ lrange [ wait ] 3 3 ]
+    if { $RetC } { puts stderr $Err
+    } else {
+      set F {} ; set S {} ; set L {(no label)} ;
+      set N "/dev/mapper/${Map}" ; set R [ exec realpath $N ]
+      set X "Device %s mapped to %s.\n%s -> %s\n%s (%s, \[%s], %s)\n"
+      scan [ exec lsblk -plno FSTYPE,SIZE,LABEL $N ] {%s%s%s} F S L
+      puts [ format $X $Dev $Map $N $R [ file tail $R ] $F $L $S ]
+    };#fi
+  };#fi
+
+exit $RetC

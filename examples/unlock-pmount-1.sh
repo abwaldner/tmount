@@ -1,26 +1,42 @@
 #!/bin/sh
 
   Dlg () {
-    qarma --window-icon /usr/share/pixmaps/tmount.png --title tmount "${@}" ||
-    ! echo "Cancelled." >&2
+    qarma 2>/dev/null --title tmount \
+      --window-icon /usr/share/pixmaps/tmount.png "${@}" ||
+    ! echo Cancelled. >&2
   } # Dlg
+
+  Mode () {
+    case $( Dlg --forms --add-combo 'Select' \
+                --text 'LUKS passphrase input method:' \
+                --combo-values 'Interactive|Key File'  ) in
+      I* ) echo -i ;; K* ) echo -k ;; * ) ! :
+    esac
+  } # Mode
+
+  Psw  () { Dlg --entry --hide-text --text "${1}" ; } # Psw
+
+  FSel () { Dlg --file-selection --title 'tmount - Select a key file'
+  } # FSel
 
   case "${1}" in -k|-i|-a ) M="${1}" ;; * ) M='' ;; esac
   case  ${#}  in 1 ) M='-a' ;; 2 ) shift ;; * ) M='' ;; esac
   [ "${M}" ] || echo "Usage: ${0##*/} [-k|-i|-a] {device|file}" >&2
 
-  [ "${M}" = '-a' ] && {
-    M=$( Dlg --forms --text 'LUKS passphrase input method:' \
-             --add-combo 'Select' --combo-values 'Interactive|Key File' )
-    case "${M}" in 'Interactive' ) M='-i' ;; 'Key File' ) M='-k' ;; esac
-  }
+  [ "${M}" = '-a' ] && M=$( Mode )
 
-  F='-' L=
+  F='-' L=''
   [ "${M}" ] &&
-  if [ '-i' = "${M}" ] ; then
-    L=$( Dlg --entry --hide-text --text "Enter LUKS passphrase for ${1}" )
-  else F=$( Dlg --file-selection --title 'tmount - Select a key file' )
+  if [ '-k' = "${M}" ] ; then F=$( FSel )
+  else  L=$( Psw "Enter LUKS passphrase for ${1}" )
   fi &&
-  printf '%s' "${L}" | pmount -p "${F}" "${1}"
+  printf '%s' "${L}" | pmount -p "${F}" "${1}" &&
+  lsblk -plno NAME,FSTYPE,SIZE,MOUNTPOINT,LABEL "${1}" | {
+    read N ; read N F S M L ; R=$( realpath "${N}" )
+    X='Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n'
+    X="${X}"'mounted on %s\n'
+    printf "${X}" "${1}" "${N##*/}" "${N}" "${R}" \
+                  "${R##*/}" "${F}" "${L:-(no label)}" "${S}" "${M}"
+  }
 
 #eof

@@ -1,6 +1,8 @@
 v. 0.0.7 -
   1) Added "Hide/Show" feature.
-  2) Examples of using expect-scripts with "su" and "sudo" are added.
+  2) The scripting examples are substantially revised. Added "Expect"
+     and "Expect+Tk" scripts, as well as examples of using "gtkdialog"
+     or "Xdialog" instead of "qarma"/"zenity".
    ) Updated documentation in accordance with paragraphs 1-.
    ) Refactoring, small enhancement, and noncritical errors fixes.
 

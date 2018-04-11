@@ -1,10 +1,13 @@
 #!/bin/sh
 
   Dlg () {
-    qarma --window-icon /usr/share/pixmaps/tmount.png --title tmount "${@}" ||
-    ! echo "Cancelled." >&2
+    qarma 2>/dev/null --title tmount \
+      --window-icon /usr/share/pixmaps/tmount.png "${@}" ||
+    ! echo Cancelled. >&2
   } # Dlg
 
-  Dlg --entry --hide-text --text 'sudo: Enter your password'
+  Psw () { Dlg --entry --hide-text --text "${1}" ; } # Psw
+
+  Psw 'sudo: Enter your password'
 
 #eof

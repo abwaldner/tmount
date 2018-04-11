@@ -62,8 +62,8 @@
       All options can be also installed by editing of the configuration
   file ~/.config/tmount/tmount.conf, which is created when you first
   start "tmount".  For running programs or scripts, set environment
-  variables of the form "TMOUNT_ <name> = <value>", where <name> is
-  the key from this file.
+  variables of the form "TMOUNT_<name>=<value>", where <name> is the key
+  from this file.
 
       The program sees all the mountpoints created by the outside
   (by automounter, filemanager or manually), on the real or virtual

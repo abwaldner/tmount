@@ -20,7 +20,7 @@
   if ! tty >/dev/null ; then MyTerm "${0}" "${M}" "${@}"
   else
 
-    P="luks-${1##*/}"
+    P="luks-${1##*/}" N="/dev/mapper/${P}"
 
     [ "${M}" = '-a' ] && {
       echo 'Enter' ; echo '  "k" for key file selection,'
@@ -35,8 +35,17 @@
         echo 'Enter key file name' ; echo '  or empty string to cancel...'
         IFS='' read -r F && [ "${F}" ] &&
         sudo /sbin/cryptsetup open "${1}" "${P}" -d "${F}" ;;
-      -i ) sudo /sbin/cryptsetup open "${1}" "${P}" ;;
-    esac || { echo ; echo 'Press Enter to continue...' ; read G ; }
+      -i )
+        echo 'sudo - enter your password'
+        sudo /sbin/cryptsetup open "${1}" "${P}" ;;
+    esac &&
+    lsblk -plno FSTYPE,SIZE,LABEL "${N}" | {
+      read F S L ; R=$( realpath "${N}" )
+      X='Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n'
+      printf "${X}" "${1}" "${P}" "${N}" "${R}" \
+                    "${R##*/}" "${F}" "${L:-(no label)}" "${S}"
+      sleep 2
+    } || { echo ; echo 'Press Enter to continue...' ; read G ; }
 
   fi
 

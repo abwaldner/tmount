@@ -33,7 +33,15 @@
         echo 'Enter key file name' ; echo '  or empty string to cancel...'
         IFS='' read -r F && [ "${F}" ] && pmount -p "${F}" "${1}" ;;
       -i ) pmount "${1}" ;;
-    esac || { echo ; echo 'Press Enter to continue...' ; read G ; }
+    esac &&
+    lsblk -plno NAME,FSTYPE,SIZE,MOUNTPOINT,LABEL "${1}" | {
+      read N ; read N F S M L ; R=$( realpath "${N}" )
+      X='Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n'
+      X="${X}"'mounted on %s\n'
+      printf "${X}" "${1}" "${N##*/}" "${N}" "${R}" \
+                    "${R##*/}" "${F}" "${L:-(no label)}" "${S}" "${M}"
+      sleep 2
+    } || { echo ; echo 'Press Enter to continue...' ; read G ; }
 
   fi
 
