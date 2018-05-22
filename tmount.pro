@@ -5,7 +5,9 @@ TEMPLATE = app
 SOURCES += tmount.cpp QUnixApp.cpp
 SOURCES += Listener.cpp LOpts.cpp TrayIcon.cpp
 SOURCES += QUdev.cpp QMounts.cpp
-HEADERS += defs.h LOpts.h Listener.h QUdev.h QMounts.h TrayIcon.h QUnixApp.h
+HEADERS += defs.h QUnixApp.h
+HEADERS += Listener.h LOpts.h TrayIcon.h
+HEADERS += QUdev.h QMounts.h PTName.h
 LIBS += -ludev
 CONFIG += release
 RESOURCES += tmount.qrc
@@ -14,7 +16,8 @@ QT += gui core widgets
 DEFINES += VERSION=\\\"$$VERSION\\\"
 
 unix {
-  INCLUDEPATH += /usr/include
+#  INCLUDEPATH *= /usr/include
+#    Qt 5.9
   PREFIX = $$(PREFIX)
   isEmpty( PREFIX ):PREFIX = /usr
   target.path = $$PREFIX/bin/

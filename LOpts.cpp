@@ -1,7 +1,7 @@
 
 //   This file is a part of code of "tmount" program.
 // See COPYING file for terms of usage.
-// Alexander B. Waldner, 2016-2017.
+// Alexander B. Waldner, 2016-2018.
 
 #include <QGridLayout>
 #include <QPushButton>
@@ -19,15 +19,15 @@ static const QString // ".conf" file items.
   EjectTOItm    = "Eject_timeout"   , RemoveTOItm   = "Remove_timeout"   ,
   UnlockTOItm   = "Unlock_timeout"  , LockTOItm     = "Lock_timeout"     ,
   AddImgTOItm   = "Add_Img_timeout" ,
-  HideDevsItm   = "Hidden_devices"  ,
+  HideDevsItm   = "Hidden_devices"  , ForceDevsItm  = "Forced_devices"   ,
   MntNewItm     = "Mount_new"       , MntMediaItm   = "Mount_media"      ,
-  MntStartItm   = "Mount_on_start"  , AutoEjectItm  = "Auto_eject"       ,
+  AutoEjectItm  = "Auto_eject"      , MntStartItm   = "Mount_on_start"   ,
   MountShowItm  = "Mount_show"      , UnmntShowItm  = "Unmount_show"     ,
   EjectShowItm  = "Eject_show"      , RemoveShowItm = "Remove_show"      ,
   UnlockShowItm = "Unlock_show"     , LockShowItm   = "Lock_show"        ,
   AddImgShowItm = "Add_Img_show"    ,
   NewShowItm    = "Mount_new_show"  , MediaShowItm  = "Mount_media_show" ,
-                                      AutoEjShowItm = "Auto_eject_show"  ;
+  AutoEjShowItm = "Auto_eject_show" , StartShowItm  = "Mount_start_show" ;
 
 // Defaults.
 
@@ -40,12 +40,12 @@ static const QString
   RDfl = "sh -c \"echo You can remove ${0}\"" ;
 
 static const QString // Icons.
-  MountP = ":/icons/mount.png"   , UnmntP  = ":/icons/unmount.png" ,
-  EjectP = ":/icons/eject.png"   , RemoveP = ":/icons/remove.png"  ,
+  MountP  = ":/icons/mount.png"  , UnmntP  = ":/icons/unmount.png" ,
+  EjectP  = ":/icons/eject.png"  , RemoveP = ":/icons/remove.png"  ,
   UnlockP = ":/icons/unlock.png" , LockP   = ":/icons/lock.png"    ,
-  AddImgP = ":/icons/fsimg.png"  , ExitP   = ":/icons/exit.png"    ,
-  ConfigP = ":/icons/config.png" , AboutP  = ":/icons/info.png"    ,
-  TMntP   = ":/icons/tmount.png" ;
+  UnrecP  = ":/icons/unrec.png"  , AddImgP = ":/icons/fsimg.png"   ,
+  ExitP   = ":/icons/exit.png"   , ConfigP = ":/icons/config.png"  ,
+  AboutP  = ":/icons/info.png"   , TMntP   = ":/icons/tmount.png"  ;
 
 static CPtr // Tooltips.
   TtpStyle  = "<p style='white-space:pre'>" ,
@@ -85,8 +85,11 @@ static CPtr // Tooltips.
     "    The mapping name will be appended to<br/>"
     "the end of given command line." ) ,
   HideTtp   = QT_TRANSLATE_NOOP ( "LOpts" ,
-    "    Type here a space-separated list of regexps,<br/>"
-    "b.e. '/dev/sd[ab].*  /dev/sdc1' (restart required)." ) ,
+    "    Type here a extended regexp,<br/>"
+    "b.e. '/dev/sd([ab].*|c1)' (restart required)." ) ,
+  ForceTtp  = QT_TRANSLATE_NOOP ( "LOpts" ,
+    "    Type here a extended regexp,<br/>"
+    "b.e. '/dev/sr[01]' (restart required)." ) ,
   AddImgTtp = QT_TRANSLATE_NOOP ( "LOpts" ,
     "    This command is available from the context<br/>"
     "menu of the tray icon.<br/>"
@@ -108,10 +111,11 @@ static CPtr // Labels.
   LockLbl      = QT_TRANSLATE_NOOP ( "LOpts" , "&Lock"      ) ,
   AddImgLbl    = QT_TRANSLATE_NOOP ( "LOpts" , "Add &Image" ) ,
   HideLbl      = QT_TRANSLATE_NOOP ( "LOpts" , "&Hidden devices"       ) ,
+  ForceLbl     = QT_TRANSLATE_NOOP ( "LOpts" , "Show &anyway"          ) ,
   MntNewLbl    = QT_TRANSLATE_NOOP ( "LOpts" , "Mount &new devices"    ) ,
   MntMediaLbl  = QT_TRANSLATE_NOOP ( "LOpts" , "Mount inser&ted media" ) ,
-  MntStartLbl  = QT_TRANSLATE_NOOP ( "LOpts" , "Mount on &start"       ) ,
-  AutoEjectLbl = QT_TRANSLATE_NOOP ( "LOpts" , "Autoe&ject media"      ) ;
+  AutoEjectLbl = QT_TRANSLATE_NOOP ( "LOpts" , "Autoe&ject media"      ) ,
+  MntStartLbl  = QT_TRANSLATE_NOOP ( "LOpts" , "Mount on &start"       ) ;
 
 inline QFrame * HLine ( ) {
   QFrame * F = new QFrame ; F -> setFrameShape ( QFrame :: HLine ) ;
@@ -161,20 +165,23 @@ LOpts :: Item LOpts :: ITbl [ ] = {
     kNoKey        , kNoKey } ,
   { HideDevsItm   , ""     , HideLbl      , HideTtp   , NULL , kNoKey ,
     kNoKey        , kNoKey } ,
+  { ForceDevsItm  , ""     , ForceLbl     , ForceTtp  , NULL , kNoKey ,
+    kNoKey        , kNoKey } ,
   { MntNewItm     , false  , MntNewLbl    , NULL      , NULL , kNoKey ,
     kNoKey        , kNewShow    } ,
   { MntMediaItm   , false  , MntMediaLbl  , NULL      , NULL , kNoKey ,
     kNoKey        , kMediaShow  } ,
-  { MntStartItm   , false  , MntStartLbl  , NULL      , NULL , kNoKey ,
-    kNoKey        , kNoKey } ,
   { AutoEjectItm  , true   , AutoEjectLbl , NULL      , NULL , kNoKey ,
     kNoKey        , kAutoEjShow } ,
+  { MntStartItm   , false  , MntStartLbl  , NULL      , NULL , kNoKey ,
+    kNoKey        , kStartShow  } ,
   { "" , MountP   , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey } ,
   { "" , UnmntP   , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey } ,
   { "" , EjectP   , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey } ,
   { "" , RemoveP  , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey } ,
   { "" , UnlockP  , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey } ,
   { "" , LockP    , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey } ,
+  { "" , UnrecP   , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey } ,
   { "" , AddImgP  , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey } ,
   { "" , ExitP    , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey } ,
   { "" , ConfigP  , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey } ,
@@ -199,6 +206,8 @@ LOpts :: Item LOpts :: ITbl [ ] = {
   { MediaShowItm  , false  , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
     kNoKey } ,
   { AutoEjShowItm , false  , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
+    kNoKey } ,
+  { StartShowItm  , false  , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
     kNoKey } ,
 } ;
 
@@ -286,11 +295,19 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
   C = & ITbl [ kAutoEject ] ;
   Lay -> addWidget ( C -> Editor , R , 2 ) ;
   Lay -> addWidget ( ITbl [ C -> ShowLnk ] . Editor , R ++ , 4 , HC ) ;
-  Lay -> addWidget ( ITbl [ kMntStart    ] . Editor , R ++ , 2 ) ;
+  C = & ITbl [ kMntStart ] ;
+  Lay -> addWidget ( C -> Editor , R , 2 ) ;
+  Lay -> addWidget ( ITbl [ C -> ShowLnk ] . Editor , R ++ , 4 , HC ) ;
 
   Lay -> addWidget ( HLine ( ) , R ++ , 0 , 1 , -1 ) ;
 
   C = & ITbl [ kHideDevs ] ;
+  Lbl =  new QLabel ( tr ( C -> Label ) ) ;
+  Lbl -> setBuddy   ( C -> Editor ) ;
+  Lbl -> setToolTip ( TtpStyle + tr ( C -> ToolTip ) ) ;
+  Lay -> addWidget  ( Lbl , R  , 1 ) ;
+  Lay -> addWidget  ( C -> Editor  , R ++ , 2 ) ;
+  C = & ITbl [ kForceDevs ] ;
   Lbl =  new QLabel ( tr ( C -> Label ) ) ;
   Lbl -> setBuddy   ( C -> Editor ) ;
   Lbl -> setToolTip ( TtpStyle + tr ( C -> ToolTip ) ) ;
@@ -346,7 +363,8 @@ LOpts :: ~LOpts ( ) {
 }// ~LOpts
 
 QString LOpts :: toStr ( loKey K ) const {
-  return K && K < ITblSize ? ITbl [ K ] . Val . toString ( ) : "" ;
+  return K && K < ITblSize ? ITbl [ K ] . Val . toString ( ) .
+                                                trimmed  ( ) : "" ;
 }// LOpts :: toStr
 
 int LOpts :: toInt ( loKey K ) const {

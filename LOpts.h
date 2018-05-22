@@ -1,7 +1,7 @@
 
 //   This file is a part of code of "tmount" program.
 // See COPYING file for terms of usage.
-// Alexander B. Waldner, 2016-2017.
+// Alexander B. Waldner, 2016-2018.
 
 #ifndef LOPTS_H
 #define LOPTS_H
@@ -18,14 +18,14 @@ enum loKey {
   kUnlockCmd  , kLockCmd   , kAddImgCmd  ,
   kMountTO    , kUnmntTO   , kEjectTO    , kRemoveTO   ,
   kUnlockTO   , kLockTO    , kAddImgTO   ,
-  kHideDevs   ,
-  kMntNew     , kMntMedia  , kMntStart   , kAutoEject  ,
+  kHideDevs   , kForceDevs ,
+  kMntNew     , kMntMedia  , kAutoEject  , kMntStart   ,
   kMountPix   , kUnmntPix  , kEjectPix   , kRemovePix  ,
-  kUnlockPix  , kLockPix   , kAddImgPix  ,
+  kUnlockPix  , kLockPix   , kUnrecPix   , kAddImgPix  ,
   kExitPix    , kConfPix   , kAboutPix   , kTMntPix    ,
   kMountShow  , kUnmntShow , kEjectShow  , kRemoveShow ,
   kUnlockShow , kLockShow  , kAddImgShow ,
-  kNewShow    , kMediaShow , kAutoEjShow
+  kNewShow    , kMediaShow , kAutoEjShow , kStartShow
 } ;
 
 typedef struct QPair < QString , QString > OptPair ;

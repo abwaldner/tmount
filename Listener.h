@@ -1,7 +1,7 @@
 
 //   This file is a part of code of "tmount" program.
 // See COPYING file for terms of usage.
-// Alexander B. Waldner, 2016-2017.
+// Alexander B. Waldner, 2016-2018.
 
 #ifndef LISTENER_H
 #define LISTENER_H
@@ -56,6 +56,7 @@ class Listener : public QMenu { Q_OBJECT
     QStringList DM_Maps    ( const UdevDev & Dev ) const ; // Maps for cont.
     QStringList Slaves     ( const UdevDev & Dev ) const ;
     static bool Ejectable  ( const UdevDev & Dev ) ;
+    static bool hasFS      ( const UdevDev & Dev ) ; // Filesystem recognized.
     static bool isLUKS     ( const UdevDev & Dev ) ; // It's container.
     static bool isPart     ( const UdevDev & Dev ) ; // It's partition.
     static UdevDev & WDisk ( const UdevDev & Dev ) ; // Whole disk for dev.
@@ -65,10 +66,11 @@ class Listener : public QMenu { Q_OBJECT
 
     Udev UdevContext ; UdevMon UMonitor ;
       // Don't reorder, the monitor constructs from context.
+    QRegExp HDevs , FDevs ;
     Mounts  MInfo ;
     QString CurrDev ; ActReq Suppl ;
     QProcessEnvironment Env ;
-    QIcon MIcon , UIcon , EIcon , RIcon , DIcon , LIcon , TIcon ;
+    QIcon MIcon , UIcon , EIcon , RIcon , DIcon , LIcon , CIcon , TIcon ;
     QString TPref ; // Window title prefix from Opt.
 
 } ; // Listener

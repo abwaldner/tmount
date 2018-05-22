@@ -2,7 +2,7 @@
       tmount - block devices mounter/unmounter
                for system tray (and not only) on Linux.
 
-      Alexander B. Waldner, 2016,2017.
+      Alexander B. Waldner, 2016-2018.
   See COPYING file for terms of usage.
 
       "tmount" is an application, that starts in system tray (aka
@@ -55,10 +55,14 @@
   the "remove.txt" file for details.
       By default "tmount" shows all block devices and partitions
   containing the filesystem or LUKS container.  To hide some of them,
-  for example the root filesystem, type a space-separated list of
-  regular expressions, matches these devices (b.e.
-  "/dev/sd[ab].* /dev/sdc1") to the "Hidden devices" field and restart
-  the application. (Note: these are regexps, not shell globs.)
+  for example the root filesystem, type a extended regular expression,
+  matches these devices (b.e. "/dev/sd([ab].*|c1)") to the "Hidden
+  devices" field and restart the application.  You can also specify
+  devices that will always be shown, regardless of the presence of
+  the filesystem, the container, or even the media.  To do this, enter
+  the appropriate regular expression (b.e. "/dev/sr[01]") in the "Show
+  anyway" field.  This item also requires a restart.  (Note: these are
+  PCRE's, not shell globs.)
       All options can be also installed by editing of the configuration
   file ~/.config/tmount/tmount.conf, which is created when you first
   start "tmount".  For running programs or scripts, set environment
@@ -78,7 +82,8 @@
   correctly terminated.  Receiving SIGUSR1 calls up the devices menu,
   and SIGUSR2 - the additional menu.  This can be used for pure keyboard
   control of the program, for example, using the hotkeys of your
-  favorite WM or DE.
+  favorite WM or DE.  The example of "pipe-menu" for Openbox is in the
+  "openbox.txt" file.
       If the program is started with the command line option "-wait N",
   it waits for the system tray to be available up to N seconds, then
   silently ends, if it remains inaccessible.  Running without parameters
@@ -93,8 +98,8 @@
 
       "tmount" use only "udev", "procfs" and "sysfs" functionality and
   require only libudev and Qt libraries.  This is Linux-specific
-  program.  Current version tested on qt-4.8.7, qt-5.7.1 and
-  eudev 3.1.5.
+  program.  Current version tested on qt-4.8.7, qt-5.9.4 and
+  eudev 3.2.5.
 
       Installation:
       -------------
@@ -115,6 +120,6 @@
 
       Users of Gentoo or its derived distributions can place
   "tmount.ebuild" into your local overlay, renaming it according to
-  the latest release (b.e., in "tmount-0.0.2.ebuild") or to
+  the latest release (b.e., in "tmount-0.0.6.ebuild") or to
   "tmount-9999.ebuild" for install the current version, run
   "ebuild ... digest" and emerge it.

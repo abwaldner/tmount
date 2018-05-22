@@ -1,12 +1,15 @@
+
 v. 0.0.7 -
-  1) Added "Hide/Show" feature.
+  1) Added "Hide icon/Show in tray" feature.
   2) The scripting examples are substantially revised. Added "Expect"
      and "Expect+Tk" scripts, as well as examples of using "gtkdialog"
      or "Xdialog" instead of "qarma"/"zenity".
-   ) Updated documentation in accordance with paragraphs 1-.
-   ) Refactoring, small enhancement, and noncritical errors fixes.
+  3) Added "Show anyway" feature. Changed "Settings" dialog.
+  4) Modified format of "Hidden devices" field in "Settings" dialog.
+  5) Updated documentation in accordance with paragraphs 1-4.
+  6) Refactoring, small enhancement, and noncritical errors fixes.
 
-v. 0.0.6 -
+v. 0.0.6 - 2017.10.13
   1) Added Unix signal handling and correct termination on TERM, HUP,
      INT, QUIT signals.
   2) Added control (show menus) by SIGUSR1 and SIGUSR2 signals.

@@ -1,0 +1,43 @@
+
+Pipe-menu script:
+
+$ cat ~/bin/obm-tmount.sh
+#!/bin/sh
+
+  if P=$( pidof -s tmount ) ; then
+    L1='Devices'    R1="kill -USR1 ${P}" L0='tmount:'
+    L2='Additional' R2="kill -USR2 ${P}"
+  else
+    L1='Start'      R1='tmount -wait 0'  L0='tmount not running:'
+    L2='Cancel'     R2='true'
+  fi
+
+  cat <<EOF
+<?xml version="1.0" encoding="utf-8"?>
+  <openbox_pipe_menu>
+    <separator label="${L0}"/>
+    <item label="${L1}">
+      <action name="Execute"><command>${R1}</command></action>
+    </item>
+    <item label="${L2}">
+      <action name="Execute"><command>${R2}</command></action>
+    </item>
+  </openbox_pipe_menu>
+EOF
+
+#eof obm-tmount.sh
+
+In ~/.config/openbox/menu.xml file:
+
+  <menu id="tmount" label="tmount" execute="~/bin/obm-tmount.sh"/>
+
+In ~/.config/openbox/rc.xml file:
+
+  <keyboard>
+    <!-- ... -->
+    <keybind key="W-t">
+      <action name="ShowMenu"><menu>tmount</menu></action>
+    </keybind>
+  </keyboard>
+
+#eof openbox.txt

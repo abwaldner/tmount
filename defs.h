@@ -1,7 +1,7 @@
 
 //   This file is a part of code of "tmount" program.
 // See COPYING file for terms of usage.
-// Alexander B. Waldner, 2016-2017.
+// Alexander B. Waldner, 2016-2018.
 
 #ifndef DEFS_H
 #define DEFS_H
@@ -18,7 +18,7 @@
 
   #define LICENSE "GPLv3"
 
-  #define COPYRYGHT "(C) 2016,2017 Alexander B. Waldner."
+  #define COPYRYGHT "(C) 2016-2018 Alexander B. Waldner."
 
   #ifndef APP_TRANSLATIONS
 
