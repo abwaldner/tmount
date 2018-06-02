@@ -30,6 +30,14 @@
   /dev/sdc[1-9] and /dev/sr0 for /dev/sr0) will be appended for eject
   and remove commands.  If you leave the "Eject" and "Remove" fields
   empty, the corresponding menu items will just become unavailable.
+      Before running the "Remove" or "Eject" command, the application
+  checks if there are mounted filesystems or mapped containers on
+  the specified device, and if the device or any of its partitions is in
+  use by another programs.  However, the application can not detect
+  programs launched by another user, such as (g)parted, *fdisk, mkfs.*
+  by root, or cd/dvd-recorder or mediaplayer by another user of
+  the "cdrom" group.  In addition, in general, the program can't lock
+  the device before starting the test.
       The context menu "Add image" item allows you to choose
   the filesystem image file in the dialog box and passes its pathname to
   the command given in the "Add image" field of the settings dialog,

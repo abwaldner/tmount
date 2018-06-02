@@ -48,6 +48,8 @@ static QKeyEvent
 
 static const QString :: SplitBehavior SEP = QString :: SkipEmptyParts ;
 
+static const QDir :: Filters Drs = QDir :: Dirs | QDir :: NoDotAndDotDot ;
+
 inline QString sect ( const QString & S , int K ) {
   return S . section ( ' ' , K , K ) ;
 }// sect
@@ -146,17 +148,28 @@ void Listener :: exec ( const QPoint & Loc ) {
     if ( RC ) { SetActions ( Dev ) ; // workaround for setChecked ()
     } else if ( Suppl ) {
 
-      QStringList Msg ; MInfo . RefreshMountInfo ( ) ;
+      QStringList Msg , NL ; MInfo . RefreshMountInfo ( ) ;
       Node = WD . DevNode ( ) ;
 
       foreach ( const QString P ,
-                  QStringList ( Dev . SysPath ( ) ) << Parts ( WD ) ) {
-        UdevDev D ( UdevContext , P ) ; QString N = D . DevNode ( ) ;
+                  QStringList ( WD . SysPath ( ) ) << Parts ( WD ) ) {
+        UdevDev D ( UdevContext , P ) ;
+        const QString N = D . DevNode ( ) ; NL += N ;
         foreach ( const QString M , MPoints ( D ) ) {
           Msg << N + tr ( " mounted on " ) + sect ( M , 0 ) ;
         }//done
         foreach ( const QString M , Holders ( D ) ) {
           Msg << N + tr ( " mapped on "  ) + M ;
+        }//done
+      }//done
+
+      const QStringList F ( "[1-9]*" ) ;
+      foreach ( const QString P , QDir ( "/proc" ) . entryList ( F , Drs ) ) {
+        const QDir D ( "/proc/" + P + "/fd" ) ;
+        foreach ( const QFileInfo I , D . entryInfoList ( QDir :: Files ) ) {
+          const QString N = I . symLinkTarget ( ) ;
+          if ( NL . contains ( N ) ) { Msg << N + tr ( " used by PId " ) + P ;
+          }//fi
         }//done
       }//done
 
@@ -479,34 +492,30 @@ QStringList Listener :: MPoints ( const UdevDev & Dev ) const {
 }// Listener :: MPoints
 
 QStringList Listener :: DM_Maps ( const UdevDev & Dev ) const {
-  QStringList ML ;
+  QStringList L ;
   foreach ( const QString H , Holders ( Dev ) ) {
     const QString M = sect ( H , 1 ) ;
-    if ( ! M . isEmpty ( ) ) { ML << M + ' ' + sect ( H , 0 ) ; }//fi
+    if ( ! M . isEmpty ( ) ) { L << M + ' ' + sect ( H , 0 ) ; }//fi
   }//done
-  return ML ;
+  return L ;
 }// Listener :: DM_Maps
 
 QStringList Listener :: Holders ( const UdevDev & Dev ) const {
-  QStringList SL ;
-  foreach ( const QFileInfo I ,
-            QDir ( Dev . SysPath ( ) + SD_Holders ) .
-              entryInfoList ( QDir :: Dirs | QDir :: NoDotAndDotDot ) ) {
+  QStringList L ; const QDir SD ( Dev . SysPath ( ) + SD_Holders ) ;
+  foreach ( const QFileInfo I , SD . entryInfoList ( Drs ) ) {
     UdevDev D ( UdevContext , I . symLinkTarget ( ) ) ;
-    SL << Mounts :: EncodeIFS ( D . DevNode  ( ) ) + ' ' +
-          Mounts :: EncodeIFS ( D . Property ( DM_NAME ) ) ;
+    L << Mounts :: EncodeIFS ( D . DevNode  ( ) ) + ' ' +
+         Mounts :: EncodeIFS ( D . Property ( DM_NAME ) ) ;
   }//done
-  return SL ;
+  return L ;
 }// Listener :: Holders
 
 QStringList Listener :: Slaves ( const UdevDev & Dev ) const {
-  QStringList SL ;
-  foreach ( const QFileInfo I ,
-            QDir ( Dev . SysPath ( ) + SD_Slaves ) .
-              entryInfoList ( QDir :: Dirs | QDir :: NoDotAndDotDot ) ) {
-    SL << I . symLinkTarget ( ) ;
+  QStringList L ; const QDir SD ( Dev . SysPath ( ) + SD_Slaves ) ;
+  foreach ( const QFileInfo I , SD . entryInfoList ( Drs ) ) {
+    L << I . symLinkTarget ( ) ;
   }//done
-  return SL ;
+  return L ;
 }// Listener :: Slaves
 
 QStringList Listener :: Parts ( const UdevDev & Dev ) const {

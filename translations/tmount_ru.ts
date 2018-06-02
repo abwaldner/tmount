@@ -167,117 +167,122 @@
 <context>
     <name>Listener</name>
     <message>
-        <location filename="../Listener.cpp" line="364"/>
+        <location filename="../Listener.cpp" line="377"/>
         <source> on </source>
         <translation type="unfinished"> на </translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="166"/>
-        <location filename="../Listener.cpp" line="397"/>
-        <location filename="../Listener.cpp" line="419"/>
-        <location filename="../Listener.cpp" line="425"/>
-        <location filename="../Listener.cpp" line="464"/>
+        <location filename="../Listener.cpp" line="179"/>
+        <location filename="../Listener.cpp" line="410"/>
+        <location filename="../Listener.cpp" line="432"/>
+        <location filename="../Listener.cpp" line="438"/>
+        <location filename="../Listener.cpp" line="477"/>
         <source>Error</source>
         <translation type="unfinished">Ошибка</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="156"/>
+        <location filename="../Listener.cpp" line="159"/>
         <source> mounted on </source>
         <translation type="unfinished"> смонтировано на </translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="159"/>
+        <location filename="../Listener.cpp" line="162"/>
         <source> mapped on </source>
         <translation type="unfinished"> отображено на </translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="167"/>
+        <location filename="../Listener.cpp" line="171"/>
+        <source> used by PId </source>
+        <translation type="unfinished"> используется процессом </translation>
+    </message>
+    <message>
+        <location filename="../Listener.cpp" line="180"/>
         <source>Device </source>
         <translation type="unfinished">Устройство </translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="168"/>
+        <location filename="../Listener.cpp" line="181"/>
         <source> in use:</source>
         <translation type="unfinished"> используется:</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="356"/>
+        <location filename="../Listener.cpp" line="369"/>
         <source>,(no label)</source>
         <translation type="unfinished">,(без метки)</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="358"/>
+        <location filename="../Listener.cpp" line="371"/>
         <source>(no media)</source>
         <translation type="unfinished">(нет носителя)</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="398"/>
-        <location filename="../Listener.cpp" line="465"/>
+        <location filename="../Listener.cpp" line="411"/>
+        <location filename="../Listener.cpp" line="478"/>
         <source>Action disabled by configuration.</source>
         <translation type="unfinished">Действие запрещено конфигурацией.</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="436"/>
+        <location filename="../Listener.cpp" line="449"/>
         <source>&apos; returns </source>
         <translation type="unfinished">&apos; вернул </translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="438"/>
+        <location filename="../Listener.cpp" line="451"/>
         <source>Warning</source>
         <translation type="unfinished">Предупреждение</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="449"/>
+        <location filename="../Listener.cpp" line="462"/>
         <source>&apos; - successful completion.</source>
         <translation type="unfinished">&apos; - успешное завершение.</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="468"/>
+        <location filename="../Listener.cpp" line="481"/>
         <source>Select filesystem image</source>
         <translation type="unfinished">Выберите файл образа</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="469"/>
+        <location filename="../Listener.cpp" line="482"/>
         <source>Images (*.img *.iso);;All files (*)</source>
         <translation type="unfinished">Файлы образов (*.img *.iso);;Все файлы (*)</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="557"/>
+        <location filename="../Listener.cpp" line="566"/>
         <source>Unlock</source>
         <translation type="unfinished">Разблокировать</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="557"/>
+        <location filename="../Listener.cpp" line="566"/>
         <source>Mount</source>
         <translation type="unfinished">Монтировать</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="571"/>
+        <location filename="../Listener.cpp" line="580"/>
         <source>Remove</source>
         <translation type="unfinished">Отключить</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="556"/>
+        <location filename="../Listener.cpp" line="565"/>
         <source>Lock</source>
         <translation type="unfinished">Блокировать</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="420"/>
+        <location filename="../Listener.cpp" line="433"/>
         <source>Can&apos;t execute &apos;</source>
         <translation type="unfinished">Невозможно выполнить &apos;</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="426"/>
+        <location filename="../Listener.cpp" line="439"/>
         <source>&apos; crashed.</source>
         <translation type="unfinished">&apos; аварийно завершился.</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="556"/>
+        <location filename="../Listener.cpp" line="565"/>
         <source>Unmount</source>
         <translation type="unfinished">Отмонтировать</translation>
     </message>
     <message>
-        <location filename="../Listener.cpp" line="565"/>
+        <location filename="../Listener.cpp" line="574"/>
         <source>Eject</source>
         <translation type="unfinished">Извлечь</translation>
     </message>

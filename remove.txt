@@ -1,8 +1,8 @@
 
     Before running the "Remove" command, the application checks if
-there are mounted or mapped partitions on the specified device.
-The default command does nothing, and is called only to perform this
-test and display its result.  This is almost always enough.
+the specified device is in use.  The default command does nothing, and
+is called only to perform this test and display its result.  This is
+almost always enough (see, however, the note in the README file).
     However, you can configure "remove" by using the "eject" program
 from the "util-linux" package.  Take the script "remove1.sh" from
 the directory /usr/share/tmount/doc/, place it at any place available
