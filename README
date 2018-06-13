@@ -113,21 +113,20 @@
       -------------
 
   1)  Make sure that the packages "qtcore", "qtgui" and "linguist-tools"
-      (in case of use of Qt5 and if you need to install the translation)
-      are installed.  In some distributions you may need "developers
-      packages" - "-devel", "-tools" or similar.
+      are installed.  The last package is necessary in case of use of
+      Qt5 and if you need to install the translations (currently only
+      Russian translation present).  In some distributions you may need
+      "developers packages" - "-devel", "-tools" or similar.
   2)  Extract project directory from archive and "cd" to it.
-  3)  Enter "lrelease tmount.pro" if you want to install
-      the translations.  Currently only Russian translation present.
-  4)  Type "qmake" to configure the program.  If you would like to
+  3)  Type "qmake" to configure the program.  If you would like to
       install the program somewhere other than /usr, pass a new value
       for PREFIX variable during configuration, for example:
       "qmake PREFIX=/usr/local".
-  5)  Enter "make" to build the application.
-  6)  Type "sudo make install" (or "su -c 'make install'").
+  4)  Enter "make" to build the application.
+  5)  Type "sudo make install" (or "su -c 'make install'").
 
       Users of Gentoo or its derived distributions can place
   "tmount.ebuild" into your local overlay, renaming it according to
-  the latest release (b.e., in "tmount-0.0.6.ebuild") or to
+  the latest release (b.e., in "tmount-0.0.7.ebuild") or to
   "tmount-9999.ebuild" for install the current version, run
   "ebuild ... digest" and emerge it.

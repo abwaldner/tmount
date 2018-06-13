@@ -9,7 +9,7 @@ DESCRIPTION="block devices mounter/unmounter for system tray"
 HOMEPAGE="https://github.com/abwaldner/tmount"
 LICENSE="GPL-3"
 SLOT="0"
-IUSE="qt5"
+IUSE="nls qt5"
 
 if [ "${PV}" = "9999" ] ; then
   EGIT_REPO_URI="
@@ -38,15 +38,10 @@ RDEPEND="
 "
 
 DEPEND="${RDEPEND}
-  qt5? ( dev-qt/linguist-tools )
+  qt5? ( nls? ( dev-qt/linguist-tools ) )
 "
 
 src_configure () {
-
-  local bd
-
-  if use qt5 ; then bd=$(qt5_get_bindir) ; else bd=$(qt4_get_bindir) ; fi
-  "${bd}/lrelease" "${PN}.pro" || die "lrelease failed"
 
   if use qt5 ; then eqmake5 ; else eqmake4 ; fi || die "qmake failed"
 
