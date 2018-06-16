@@ -25,7 +25,7 @@ unix : !mac {
   DEFINES += APP_TRANSLATIONS=\\\"$$APP_TRANSLATIONS\\\"
   LRELEASE = $$[QT_INSTALL_BINS]/lrelease
   locale.path   = $$APP_TRANSLATIONS
-  locale.files  = translations/*.qm
+  locale.files  = $$replace( TRANSLATIONS , ".ts" , ".qm" )
   locale.CONFIG = no_check_exist
   exists( $$LRELEASE ) : locale.commands = $$LRELEASE $$_PRO_FILE_
   icon.files = icons/tmount.png
