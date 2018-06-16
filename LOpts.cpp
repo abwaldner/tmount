@@ -219,32 +219,29 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
   static const Qt :: Alignment HC = Qt :: AlignHCenter  ;
   static const Qt :: Alignment VC = Qt :: AlignVCenter ;
 
-  Item * C ;
-
   for ( int I = 1 ; I < ITblSize ; ++ I ) {
-    C = & ITbl [ I ] ; const QString K = C -> CFKey ;
+    Item & C = ITbl [ I ] ; const QString K = C . CFKey ;
     if ( ! K . isEmpty ( ) ) {
-      QVariant :: Type T = C -> Val . type ( ) ;
+      QVariant :: Type T = C . Val . type ( ) ;
       if ( Conf . contains ( K ) ) {
-        C -> Val = Conf . value ( K ) ; C -> Val . convert ( T ) ;
+        C . Val = Conf . value ( K ) ; C . Val . convert ( T ) ;
       }//fi
       if ( T == QVariant :: String ) {
-        C -> Editor = new QLineEdit ( C -> Val . toString ( ) ) ;
+        C . Editor = new QLineEdit ( C . Val . toString ( ) ) ;
       } else if ( T == QVariant :: Int ) {
         QSpinBox * S = new QSpinBox ; S -> setMaximum ( MaxTO ) ;
-        C -> Editor = S ; S -> setValue ( C -> Val . toInt ( ) ) ;
+        C . Editor = S ; S -> setValue ( C . Val . toInt ( ) ) ;
       } else if ( T == QVariant :: Bool ) {
-        QCheckBox * B = new QCheckBox ( tr ( C -> Label ) ) ;
-        C -> Editor = B ; B -> setChecked ( C -> Val . toBool ( ) ) ;
+        QCheckBox * B = new QCheckBox ( tr ( C . Label ) ) ;
+        C . Editor = B ; B -> setChecked ( C . Val . toBool ( ) ) ;
       }//fi
-      if ( C -> Editor && C -> ToolTip ) {
-        C -> Editor -> setToolTip ( TtpStyle + tr ( C -> ToolTip ) ) ;
+      if ( C . Editor && C . ToolTip ) {
+        C . Editor -> setToolTip ( TtpStyle + tr ( C . ToolTip ) ) ;
       }//fi
     }//fi
   }//done
 
-  QGridLayout * Lay = new QGridLayout ;
-  QLabel * Lbl ; QString Ttp ; QPixmap P ; int H , R = 0 ;
+  QGridLayout * Lay = new QGridLayout ; QPixmap P ; int H , R = 0 ;
 
   { const QString L ( 24 , 'M' ) ; // 24 is arbitrary.
     H = QLineEdit ( L ) . sizeHint ( ) . height ( ) ;
@@ -263,20 +260,20 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
   Lay -> addWidget ( HLine ( ) , R ++ , 4 ) ;
 
   for ( int I = 1 ; I < ITblSize ; ++ I ) {
-    C = & ITbl [ I ] ;
-    if ( C -> TOLnk ) {
-      Ttp = tr ( C -> ToolTip ) ;
-      P . load ( toStr  ( C -> Pix ) ) ;
-      Lbl =  new QLabel ( ) ; Lbl -> setPixmap ( P . scaled ( H , H ) ) ;
-      Lbl -> setToolTip ( TtpStyle  + Ttp ) ;
+    const Item & C = ITbl [ I ] ;
+    if ( C . TOLnk ) {
+      const QString Ttp = tr ( C . ToolTip ) ;
+      QLabel * Lbl = new QLabel ( ) ; P . load ( toStr ( C . Pix ) ) ;
+      Lbl -> setPixmap  ( P . scaled ( H , H ) ) ;
+      Lbl -> setToolTip ( TtpStyle + Ttp ) ;
       Lay -> addWidget  ( Lbl , R , 0 ) ;
-      Lbl =  new QLabel ( tr ( C -> Label ) ) ;
-      Lbl -> setBuddy   ( C -> Editor ) ;
-      Lbl -> setToolTip ( TtpStyle  + Ttp ) ;
+      Lbl =  new QLabel ( tr ( C . Label ) ) ;
+      Lbl -> setBuddy   ( C . Editor ) ;
+      Lbl -> setToolTip ( TtpStyle + Ttp ) ;
       Lay -> addWidget  ( Lbl , R , 1 ) ;
-      Lay -> addWidget  ( C -> Editor , R , 2 ) ;
-      Lay -> addWidget  ( ITbl [ C -> TOLnk   ] . Editor , R    , 3 ) ;
-      Lay -> addWidget  ( ITbl [ C -> ShowLnk ] . Editor , R ++ , 4 , HC ) ;
+      Lay -> addWidget  ( C . Editor , R , 2 ) ;
+      Lay -> addWidget  ( ITbl [ C . TOLnk   ] . Editor , R    , 3 ) ;
+      Lay -> addWidget  ( ITbl [ C . ShowLnk ] . Editor , R ++ , 4 , HC ) ;
     }//fi
   }//done
 
@@ -286,33 +283,26 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
   Lay -> addWidget (
            new QLabel ( tr ( "Handling:" ) ) , R , 1 , 4 , 1 , VC ) ;
 
-  C = & ITbl [ kMntNew    ] ;
-  Lay -> addWidget ( C -> Editor , R , 2 ) ;
-  Lay -> addWidget ( ITbl [ C -> ShowLnk ] . Editor , R ++ , 4 , HC ) ;
-  C = & ITbl [ kMntMedia  ] ;
-  Lay -> addWidget ( C -> Editor , R , 2 ) ;
-  Lay -> addWidget ( ITbl [ C -> ShowLnk ] . Editor , R ++ , 4 , HC ) ;
-  C = & ITbl [ kAutoEject ] ;
-  Lay -> addWidget ( C -> Editor , R , 2 ) ;
-  Lay -> addWidget ( ITbl [ C -> ShowLnk ] . Editor , R ++ , 4 , HC ) ;
-  C = & ITbl [ kMntStart ] ;
-  Lay -> addWidget ( C -> Editor , R , 2 ) ;
-  Lay -> addWidget ( ITbl [ C -> ShowLnk ] . Editor , R ++ , 4 , HC ) ;
+  for ( int I = 1 ; I < ITblSize ; ++ I ) {
+    const Item & C = ITbl [ I ] ;
+    if ( C . ShowLnk && ! C . TOLnk ) {
+      Lay -> addWidget ( C . Editor , R , 2 ) ;
+      Lay -> addWidget ( ITbl [ C . ShowLnk ] . Editor , R ++ , 4 , HC ) ;
+    }//fi
+  }//done
 
   Lay -> addWidget ( HLine ( ) , R ++ , 0 , 1 , -1 ) ;
 
-  C = & ITbl [ kHideDevs ] ;
-  Lbl =  new QLabel ( tr ( C -> Label ) ) ;
-  Lbl -> setBuddy   ( C -> Editor ) ;
-  Lbl -> setToolTip ( TtpStyle + tr ( C -> ToolTip ) ) ;
-  Lay -> addWidget  ( Lbl , R  , 1 ) ;
-  Lay -> addWidget  ( C -> Editor  , R ++ , 2 ) ;
-  C = & ITbl [ kForceDevs ] ;
-  Lbl =  new QLabel ( tr ( C -> Label ) ) ;
-  Lbl -> setBuddy   ( C -> Editor ) ;
-  Lbl -> setToolTip ( TtpStyle + tr ( C -> ToolTip ) ) ;
-  Lay -> addWidget  ( Lbl , R  , 1 ) ;
-  Lay -> addWidget  ( C -> Editor  , R ++ , 2 ) ;
+  for ( int I = 1 ; I < ITblSize ; ++ I ) {
+    const Item & C = ITbl [ I ] ;
+    if ( C . Label && ! C . ShowLnk && ! C . TOLnk ) {
+      QLabel * Lbl = new QLabel ( tr ( C . Label ) ) ;
+      Lbl -> setBuddy   ( C . Editor ) ;
+      Lbl -> setToolTip ( TtpStyle + tr ( C . ToolTip ) ) ;
+      Lay -> addWidget  ( Lbl , R  , 1 ) ;
+      Lay -> addWidget  ( C . Editor  , R ++ , 2 ) ;
+    }//fi
+  }//done
 
   Lay -> addWidget ( HLine ( ) , R ++ , 0 , 1 , -1 ) ;
 
@@ -331,23 +321,23 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
 int LOpts :: exec ( ) {
   int R = QDialog :: exec ( ) ; const bool A = R == QDialog :: Accepted ;
   for ( int I = 1 ; I < ITblSize ; ++ I ) {
-    Item * C = & ITbl [ I ] ;
-    if ( C -> Editor ) {
-      QVariant :: Type T = C -> Val . type ( ) ;
+    Item & C = ITbl [ I ] ;
+    if ( C . Editor ) {
+      QVariant :: Type T = C . Val . type ( ) ;
       if ( T == QVariant :: String ) {
-        QLineEdit * L = qobject_cast < QLineEdit * > ( C -> Editor ) ;
-        if ( A ) { C -> Val = L -> text ( ) ;
-        } else { L -> setText ( C -> Val . toString ( ) ) ;
+        QLineEdit * L = qobject_cast < QLineEdit * > ( C . Editor ) ;
+        if ( A ) { C . Val = L -> text ( ) ;
+        } else { L -> setText ( C . Val . toString ( ) ) ;
         }//fi
       } else if ( T == QVariant :: Int ) {
-        QSpinBox * S = qobject_cast < QSpinBox * > ( C -> Editor ) ;
-        if ( A ) { C -> Val = S -> value ( ) ;
-        } else { S -> setValue ( C -> Val . toInt ( ) ) ;
+        QSpinBox * S = qobject_cast < QSpinBox * > ( C . Editor ) ;
+        if ( A ) { C . Val = S -> value ( ) ;
+        } else { S -> setValue ( C . Val . toInt ( ) ) ;
         }//fi
       } else if ( T == QVariant :: Bool ) {
-        QCheckBox * B = qobject_cast < QCheckBox * > ( C -> Editor ) ;
-        if ( A ) { C -> Val = B -> isChecked ( ) ;
-        } else { B -> setChecked ( C -> Val . toBool ( ) ) ;
+        QCheckBox * B = qobject_cast < QCheckBox * > ( C . Editor ) ;
+        if ( A ) { C . Val = B -> isChecked ( ) ;
+        } else { B -> setChecked ( C . Val . toBool ( ) ) ;
         }//fi
       }//fi
     }//fi
@@ -357,8 +347,8 @@ int LOpts :: exec ( ) {
 
 LOpts :: ~LOpts ( ) {
   for ( int I = 1 ; I < ITblSize ; ++ I ) {
-    Item * C = & ITbl [ I ] ; const QString K = C -> CFKey ;
-    if ( ! K . isEmpty ( ) ) { Conf . setValue ( K , C -> Val ) ; }//fi
+    const Item & C = ITbl [ I ] ; const QString K = C . CFKey ;
+    if ( ! K . isEmpty ( ) ) { Conf . setValue ( K , C . Val ) ; }//fi
   }//done
 }// ~LOpts
 
@@ -378,8 +368,8 @@ bool LOpts :: toBool ( loKey K ) const {
 OptList LOpts :: GetAll ( ) const {
   OptList L ;
   for ( int I = 1 ; I < ITblSize ; ++ I ) {
-    Item * C = & ITbl [ I ] ; const QString K = C -> CFKey ;
-    if ( ! K . isEmpty ( ) ) { L << OptPair ( K , C -> Val . toString ( ) ) ;
+    const Item & C = ITbl [ I ] ; const QString K = C . CFKey ;
+    if ( ! K . isEmpty ( ) ) { L << OptPair ( K , C . Val . toString ( ) ) ;
     }//fi
   }//done
   return L ;
