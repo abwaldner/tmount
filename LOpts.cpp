@@ -222,10 +222,12 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
   for ( int I = 1 ; I < ITblSize ; ++ I ) {
     Item & C = ITbl [ I ] ; const QString K = C . CFKey ;
     if ( ! K . isEmpty ( ) ) {
-      QVariant :: Type T = C . Val . type ( ) ;
+      const QVariant :: Type T = C . Val . type ( ) ;
       if ( Conf . contains ( K ) ) {
-        C . Val = Conf . value ( K ) ; C . Val . convert ( T ) ;
+        QVariant NV = Conf . value ( K ) ;
+        if ( NV . convert ( T ) ) { C . Val = NV ; }//fi
       }//fi
+      Conf . setValue ( K , C . Val ) ;
       if ( T == QVariant :: String ) {
         C . Editor = new QLineEdit ( C . Val . toString ( ) ) ;
       } else if ( T == QVariant :: Int ) {
@@ -323,7 +325,7 @@ int LOpts :: exec ( ) {
   for ( int I = 1 ; I < ITblSize ; ++ I ) {
     Item & C = ITbl [ I ] ;
     if ( C . Editor ) {
-      QVariant :: Type T = C . Val . type ( ) ;
+      const QVariant :: Type T = C . Val . type ( ) ;
       if ( T == QVariant :: String ) {
         QLineEdit * L = qobject_cast < QLineEdit * > ( C . Editor ) ;
         if ( A ) { C . Val = L -> text ( ) ;
@@ -340,17 +342,13 @@ int LOpts :: exec ( ) {
         } else { B -> setChecked ( C . Val . toBool ( ) ) ;
         }//fi
       }//fi
+      if ( A ) { Conf . setValue ( C . CFKey , C . Val ) ; }//fi
     }//fi
   }//done
   return R ;
 }// LOpts :: exec
 
-LOpts :: ~LOpts ( ) {
-  for ( int I = 1 ; I < ITblSize ; ++ I ) {
-    const Item & C = ITbl [ I ] ; const QString K = C . CFKey ;
-    if ( ! K . isEmpty ( ) ) { Conf . setValue ( K , C . Val ) ; }//fi
-  }//done
-}// ~LOpts
+LOpts :: ~LOpts ( ) { }// ~LOpts
 
 QString LOpts :: toStr ( loKey K ) const {
   return K && K < ITblSize ? ITbl [ K ] . Val . toString ( ) .
@@ -367,10 +365,8 @@ bool LOpts :: toBool ( loKey K ) const {
 
 OptList LOpts :: GetAll ( ) const {
   OptList L ;
-  for ( int I = 1 ; I < ITblSize ; ++ I ) {
-    const Item & C = ITbl [ I ] ; const QString K = C . CFKey ;
-    if ( ! K . isEmpty ( ) ) { L << OptPair ( K , C . Val . toString ( ) ) ;
-    }//fi
+  foreach ( const QString K , Conf . allKeys ( ) ) {
+    L << OptPair ( K , Conf . value ( K ) . toString ( ) ) ;
   }//done
   return L ;
 }// LOpts :: GetAll

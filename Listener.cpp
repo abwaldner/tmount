@@ -314,7 +314,7 @@ void Listener :: RemoveDevice ( const UdevDev & Dev ) {
 
 }// Listener :: RemoveDevice
 
-ActList Listener :: FindActs ( const QString & Key ) {
+ActList Listener :: FindActs ( const QString & Key ) const {
   QRegExp RE ( '^' + QRegExp :: escape ( Key ) + "( |$)" ) ;
   return findChildren < ActPtr > ( RE ) ;
 }// Listener :: FindActs

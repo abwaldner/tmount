@@ -45,7 +45,7 @@ class Listener : public QMenu { Q_OBJECT
     bool AddDevice         ( const UdevDev & Dev ,
                                      bool TryMount , bool Show ) ;
     void SetActions        ( const UdevDev & Dev ) ; // Reset menu items for.
-    ActList FindActs       ( const QString & Key ) ;
+    ActList FindActs       ( const QString & Key ) const ;
       // Find items for device in the devices menu.
     int  ExecCmd           ( const QString & Cmd ,
                              const QString & Arg ,
