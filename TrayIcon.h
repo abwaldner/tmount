@@ -17,7 +17,7 @@ class TrayIcon : public QSystemTrayIcon { Q_OBJECT
     void Activated  ( QSystemTrayIcon :: ActivationReason reason ) ;
     void USigCaught ( int Sig ) ;
     void Toggle ( ) ;
-    void About  ( ) ;
+    void About  ( ) const ;
   private :
     Listener * Lstnr ;
     QMenu CMenu ; ActPtr ToggleAct ; QDesktopWidget * Desk ;

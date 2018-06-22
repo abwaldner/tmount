@@ -44,7 +44,10 @@ void TrayIcon :: Activated ( ActivationReason reason ) {
     geometry ( ) . center ( ) : Desk -> availableGeometry ( ) . center ( ) ;
   if ( reason == Trigger ) {
     if ( Lstnr -> DevList ( ) . isEmpty ( ) ) {
-      QMessageBox :: about ( Lstnr , NULL , tr ( "Devices not found." ) ) ;
+      const QString Msg = tr ( "Devices not found." ) ;
+      if ( Vis ) { showMessage ( Msg , "" ) ;
+      } else { QMessageBox :: about ( Lstnr , NULL , Msg ) ;
+      }//fi
     } else { Lstnr -> exec ( Loc ) ;
     }//fi
   } else if ( reason == Context ) {
@@ -67,7 +70,7 @@ void TrayIcon :: USigCaught ( int Sig ) {
 void TrayIcon :: Toggle ( ) { setVisible ( ! isVisible ( ) ) ;
 }// TrayIcon :: Toggle
 
-void TrayIcon :: About ( ) {
+void TrayIcon :: About ( ) const {
   QMessageBox :: about ( Lstnr , tr ( "About" ) ,
                          "<center>" + qApp -> applicationName    ( ) +
                          " v. "     + qApp -> applicationVersion ( ) +
