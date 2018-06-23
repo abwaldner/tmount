@@ -35,7 +35,7 @@ QUnixApp :: ~QUnixApp ( ) {
   :: close ( SockPair [ 0 ] ) ; :: close ( SockPair [ 1 ] ) ;
 }// ~QUnixApp
 
-int QUnixApp :: AddSig ( int Sig ) {
+int QUnixApp :: AddSig ( int Sig ) const {
   struct sigaction SA ;
   SA . sa_handler = USHandler ; SA . sa_flags = SA_RESTART ;
   :: sigemptyset ( & SA . sa_mask ) ;

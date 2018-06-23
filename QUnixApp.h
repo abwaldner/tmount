@@ -11,7 +11,7 @@
 class QUnixApp : public QApplication { Q_OBJECT
   public :
     explicit QUnixApp ( int ArgC , char * ArgV [ ] ) ; virtual ~QUnixApp ( ) ;
-    int AddSig ( int Sig ) ; // 0 on success, -1 on error
+    int AddSig ( int Sig ) const ; // 0 on success, -1 on error
     static const int
       SigHUP , SigINT , SigQUIT , SigTERM , SigUSR1 , SigUSR2 , SigALRM ;
     static unsigned sleep ( unsigned T ) ;

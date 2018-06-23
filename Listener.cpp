@@ -292,9 +292,7 @@ void Listener :: RemoveDevice ( const UdevDev & Dev ) {
   const QString SP = Dev . SysPath ( ) ,
                 DN = Mounts :: EncodeIFS ( Dev . Property ( DM_NAME ) ) ;
 
-  foreach ( const ActPtr Act , FindActs ( SP ) ) {
-    removeAction ( Act ) ; delete Act ;
-  }//done
+  foreach ( const ActPtr Act , FindActs ( SP ) ) { delete Act ; }//done
 
   // Desperate attempt.
   MInfo . RefreshMountInfo ( ) ; // to prevent the misoperation.
@@ -380,10 +378,8 @@ void Listener :: SetActions ( const UdevDev & Dev ) {
 
   ActList AL = FindActs ( SPth ) ; const int Sz = MPts . size ( ) ;
 
-  while ( AL . size ( ) > Sz ) { // Remove redundant items.
-    const ActPtr Act = AL . takeLast ( ) ;
-    removeAction ( Act ) ; delete Act ;
-  }//done
+  while ( AL . size ( ) > Sz ) { delete AL . takeLast ( ) ; }//done
+    // Remove redundant items.
   while ( AL . size ( ) < Sz ) { // Add laking items.
     const ActPtr Act = addAction ( "" ) ;
     AL += Act ; Act -> setCheckable ( true ) ;
