@@ -246,7 +246,7 @@ void Listener :: MountAction ( ) {
 
 QStringList Listener :: DevList ( ) const {
   QStringList L ;
-  foreach ( const ActPtr A , findChildren < ActPtr > ( QRegExp ( "^." ) ) ) {
+  foreach ( const ActPtr A , actions ( ) ) {
     L << sect ( A -> objectName ( ) , 0 ) ;
   }//fi
   L . removeDuplicates ( ) ;
@@ -579,8 +579,9 @@ void Listener :: contextMenuEvent ( QContextMenuEvent * event ) {
 
   SA = SMn . exec ( event -> globalPos ( ) ) ;
 
-  if ( SA && findChildren < ActPtr > ( ) . contains ( Act ) ) {
-    // "findchildren" is insufficient, but better than nothing.
+  if ( SA && actions ( ) . contains ( Act ) ) {
+    //   In case of device already removed or manually ejected,
+    // this check is insufficient, but is better than nothing.
     Suppl  = ( ActReq ) ( SA -> data ( ) . toUInt ( ) ) ;
     setActiveAction ( Act ) ;
     keyPressEvent ( & EntrPrs ) ; keyPressEvent ( & EntrRls ) ;
