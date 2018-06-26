@@ -43,12 +43,16 @@ void TrayIcon :: Activated ( ActivationReason reason ) {
   const QPoint Loc = Vis && TAv ?
     geometry ( ) . center ( ) : Desk -> availableGeometry ( ) . center ( ) ;
   if ( reason == Trigger ) {
-    if ( Lstnr -> DevList ( ) . isEmpty ( ) ) {
+    bool H = false ;
+    foreach ( const ActPtr A , Lstnr -> actions ( ) ) {
+      H = H || A -> isVisible ( ) ;
+    }//done
+    if ( H ) { Lstnr -> exec ( Loc ) ;
+    } else {
       const QString Msg = tr ( "Devices not found." ) ;
       if ( Vis ) { showMessage ( Msg , "" ) ;
       } else { QMessageBox :: about ( Lstnr , NULL , Msg ) ;
       }//fi
-    } else { Lstnr -> exec ( Loc ) ;
     }//fi
   } else if ( reason == Context ) {
     ToggleAct ->

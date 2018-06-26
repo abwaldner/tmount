@@ -85,11 +85,13 @@ Listener :: Listener ( QWidget * parent ) :
   connect ( & MInfo    , SIGNAL ( Changed      ( ) ) ,
             this       , SLOT   ( MountAction  ( ) ) ) ;
 
+  connect ( & Opt      , SIGNAL ( Changed      ( ) ) ,
+            this       , SLOT   ( OptChanged   ( ) ) ) ;
+
   UdevEnum En ( UdevContext ) ;
   En . MatchSubsys ( Subsys_Block ) ; En . ScanDevs ( ) ;
-  foreach ( const UdevPair  P , En . GetList ( ) ) {
-    UdevDev Dev ( UdevContext , P  . first ) ;
-    AddDevice ( Dev , TryMount , Show ) ;
+  foreach ( const UdevPair P , En . GetList ( ) ) {
+    SetupDevice ( UdevDev ( UdevContext , P . first ) , TryMount , Show ) ;
   }//done
 
 }// Listener
@@ -108,7 +110,7 @@ void Listener :: exec ( const QPoint & Loc ) {
 
     const QString AN = Act -> objectName ( ) ; // Primary key.
     CurrDev = sect ( AN , 0 ) ; // SysPath.
-    UdevDev Dev ( UdevContext , CurrDev ) ;
+    const UdevDev Dev ( UdevContext , CurrDev ) ;
     QString Node = Dev . DevNode ( ) ;
     const QString MP = Mounts :: DecodeIFS ( sect ( AN , 1 ) ) ;
       // Mountpoint/dm-name if any.
@@ -134,7 +136,7 @@ void Listener :: exec ( const QPoint & Loc ) {
 
     }//fi
 
-    UdevDev WD ( WDisk ( Dev ) ) ; // whole disk.
+    const UdevDev WD ( WDisk ( Dev ) ) ; // whole disk.
     bool Show = Opt . toBool ( kEjectShow ) ;
 
     { const bool A =
@@ -153,7 +155,7 @@ void Listener :: exec ( const QPoint & Loc ) {
 
       foreach ( const QString P ,
                   QStringList ( WD . SysPath ( ) ) << Parts ( WD ) ) {
-        UdevDev D ( UdevContext , P ) ;
+        const UdevDev D ( UdevContext , P ) ;
         const QString N = D . DevNode ( ) ; NL += N ;
         foreach ( const QString M , MPoints ( D ) ) {
           Msg << N + tr ( " mounted on " ) + sect ( M , 0 ) ;
@@ -207,16 +209,16 @@ void Listener :: exec ( const QPoint & Loc ) {
 
 void Listener :: DeviceAction ( ) {
 
-  UdevDev Dev ( UMonitor ) ;
+  const UdevDev Dev ( UMonitor ) ;
   const QString DAct = Dev . Action ( ) ;
 
-  if ( DAct == ACT_add ) {
+  if ( DAct == ACT_remove ) { RemoveDevice ( Dev ) ;
+
+  } else if ( DAct == ACT_add ) {
 
     const bool M = Opt . toBool ( kMntNew  ) ,
                S = Opt . toBool ( kNewShow ) ;
-    AddDevice ( Dev , M , S ) ;
-
-  } else if ( DAct == ACT_remove ) { RemoveDevice ( Dev ) ;
+    SetupDevice ( Dev , M , S ) ;
 
   } else if ( DAct == ACT_change ) {
 
@@ -226,8 +228,7 @@ void Listener :: DeviceAction ( ) {
       //   The test of "removable" attribute prevent attempt to mount of
       // cryptsetup's dm-* devices.
 
-    if ( ! AddDevice ( Dev , M , S ) ) { RemoveDevice ( Dev ) ; }//fi
-      // The extracted media looks like an non-target device.
+    SetupDevice ( Dev , M , S ) ;
 
   }//fi
 
@@ -237,55 +238,59 @@ void Listener :: MountAction ( ) {
 
   MInfo . RefreshMountInfo ( ) ;
 
-  foreach ( const QString P , DevList ( ) ) {
-    UdevDev Dev ( UdevContext , P ) ;
+  QStringList L ;
+  foreach ( const ActPtr A , actions ( ) ) {
+    L << sect ( A -> objectName ( ) , 0 ) ;
+  }//done
+  L . removeDuplicates ( ) ;
+  foreach ( const QString P , L ) {
+    const UdevDev Dev ( UdevContext , P ) ;
     if ( hasFS ( Dev ) ) { SetActions ( Dev ) ; }//fi
   }//done
 
 }// Listener :: MountAction
 
-QStringList Listener :: DevList ( ) const {
-  QStringList L ;
+void Listener :: OptChanged ( ) {
+
+  HDevs = QRegExp ( Opt . toStr ( kHideDevs  ) ) ;
+  FDevs = QRegExp ( Opt . toStr ( kForceDevs ) ) ;
+
   foreach ( const ActPtr A , actions ( ) ) {
-    L << sect ( A -> objectName ( ) , 0 ) ;
-  }//fi
-  L . removeDuplicates ( ) ;
-  return L ;
-}// Listener :: DevList
+    const UdevDev Dev ( UdevContext , sect ( A -> objectName ( ) , 0 ) ) ;
+    A -> setVisible ( isTarget ( Dev ) ) ;
+  }//done
 
-bool Listener :: AddDevice (
-                   const UdevDev & Dev , bool TryMount , bool Show ) {
+}// Listener :: OptChanged
 
+bool Listener :: isTarget ( const UdevDev & Dev ) const {
   const QString Node = Dev . DevNode ( ) ;
   const bool Hide  = HDevs . exactMatch ( Node ) ,
-             Force = FDevs . exactMatch ( Node ) ,
-             FSys  = hasFS ( Dev ) ,
-             Targ  = ( ( FSys || isLUKS ( Dev ) ) && ! Hide ) || Force ;
+             Force = FDevs . exactMatch ( Node ) ;
+  return ( ( hasFS ( Dev ) || isLUKS ( Dev ) ) && ! Hide ) || Force ;
+}// Listener :: isTarget
 
-  if ( Targ ) { // is target device
+void Listener :: SetupDevice (
+                   const UdevDev & Dev , bool TryMount , bool Show ) {
 
-    CurrDev = Dev . SysPath ( ) ;
+  CurrDev = Dev . SysPath ( ) ;
 
-    if ( FSys && TryMount && MPoints ( Dev ) . isEmpty ( ) ) {
+  if ( isTarget ( Dev ) && TryMount &&
+       hasFS    ( Dev ) && MPoints ( Dev ) . isEmpty ( ) ) {
 
-      ExecCmd ( Opt . toStr ( kMountCmd ) , Node ,
-                Opt . toInt ( kMountTO  ) , Show ) ;
+    ExecCmd ( Opt . toStr ( kMountCmd ) , Dev . DevNode ( ) ,
+              Opt . toInt ( kMountTO  ) , Show ) ;
 
-    }//fi // LUKS containers are never automatically unlocked.
+  }//fi // LUKS containers are never automatically unlocked.
 
-    SetActions ( Dev ) ;
+  SetActions ( Dev ) ;
 
-    if ( ! Dev . Property ( DM_NAME ) . isEmpty ( ) ) {
-      foreach ( const QString P , Slaves ( Dev ) ) {
-        SetActions ( UdevDev ( UdevContext , P ) ) ;
-      }//done
-    }//fi
-
+  if ( ! Dev . Property ( DM_NAME ) . isEmpty ( ) ) {
+    foreach ( const QString P , Slaves ( Dev ) ) {
+      SetActions ( UdevDev ( UdevContext , P ) ) ;
+    }//done
   }//fi
 
-  return Targ ;
-
-}// Listener :: AddDevice
+}// Listener :: SetupDevice
 
 void Listener :: RemoveDevice ( const UdevDev & Dev ) {
 
@@ -303,9 +308,9 @@ void Listener :: RemoveDevice ( const UdevDev & Dev ) {
   }//done
 
   if ( ! DN . isEmpty ( ) ) {
-    QRegExp RE ( "^[^ ]+ " + QRegExp :: escape ( DN ) + '$' ) ;
+    const QRegExp RE ( "^[^ ]+ " + QRegExp :: escape ( DN ) + '$' ) ;
     foreach ( const ActPtr Act , findChildren < ActPtr > ( RE ) ) {
-      UdevDev UD ( UdevContext , sect ( Act -> objectName ( ) , 0 ) ) ;
+      const UdevDev UD ( UdevContext , sect ( Act -> objectName ( ) , 0 ) ) ;
       SetActions ( UD ) ;
     }//done
   }//fi
@@ -313,7 +318,7 @@ void Listener :: RemoveDevice ( const UdevDev & Dev ) {
 }// Listener :: RemoveDevice
 
 ActList Listener :: FindActs ( const QString & Key ) const {
-  QRegExp RE ( '^' + QRegExp :: escape ( Key ) + "( |$)" ) ;
+  const QRegExp RE ( '^' + QRegExp :: escape ( Key ) + "( |$)" ) ;
   return findChildren < ActPtr > ( RE ) ;
 }// Listener :: FindActs
 
@@ -332,7 +337,8 @@ QString Listener :: ToHum ( qulonglong KB ) {
 void Listener :: SetActions ( const UdevDev & Dev ) {
 
   const QString DTp = Dev . DevType ( ) , SPth = Dev . SysPath ( ) ;
-  const bool Cont = isLUKS ( Dev ) , FSys = hasFS ( Dev ) ;
+  const bool
+    Cont = isLUKS ( Dev ) , FSys = hasFS ( Dev ) , Targ = isTarget ( Dev ) ;
   qulonglong Cap = Dev . SysAttr ( SA_Size ) . toULongLong ( ) / 2 ;
     // Capacity in KiB, sysfs uses 512-bytes units.
 
@@ -372,8 +378,11 @@ void Listener :: SetActions ( const UdevDev & Dev ) {
   const  bool MoM  = ! MPts . isEmpty ( ) ; // It's mounted or mapped.
 
   QIcon * Ico ;
-  if  ( MoM ) { Ico = Cont ? & LIcon : & UIcon ; Lbl  += tr ( " on " ) ;
-  } else { Ico = Cont ? & DIcon : ( FSys ? & MIcon : & CIcon ) ; MPts << "" ;
+  if ( MoM ) {
+    Ico = Cont ? & LIcon : & UIcon ; Lbl  += tr ( " on " ) ;
+  } else {
+    MPts << "" ; // see below.
+    Ico = Cont ? & DIcon : ( FSys ? & MIcon : & CIcon ) ;
   }//fi
 
   ActList AL = FindActs ( SPth ) ; const int Sz = MPts . size ( ) ;
@@ -391,7 +400,7 @@ void Listener :: SetActions ( const UdevDev & Dev ) {
     Act -> setObjectName ( ( SPth + ' ' + M ) . trimmed ( ) ) ;
     Act -> setIcon ( * Ico ) ; Act -> setChecked ( MoM ) ;
     M += Cont && MoM ? " (" + sect ( MP , 1 ) + ")" : "" ;
-    Act -> setText ( Lbl + M ) ;
+    Act -> setText ( Lbl + M ) ; Act -> setVisible ( Targ ) ;
   }//done
 
 }// Listener :: SetActions
@@ -499,7 +508,7 @@ QStringList Listener :: DM_Maps ( const UdevDev & Dev ) const {
 QStringList Listener :: Holders ( const UdevDev & Dev ) const {
   QStringList L ; const QDir SD ( Dev . SysPath ( ) + SD_Holders ) ;
   foreach ( const QFileInfo I , SD . entryInfoList ( Drs ) ) {
-    UdevDev D ( UdevContext , I . symLinkTarget ( ) ) ;
+    const UdevDev D ( UdevContext , I . symLinkTarget ( ) ) ;
     L << Mounts :: EncodeIFS ( D . DevNode  ( ) ) + ' ' +
          Mounts :: EncodeIFS ( D . Property ( DM_NAME ) ) ;
   }//done
@@ -549,8 +558,8 @@ void Listener :: contextMenuEvent ( QContextMenuEvent * event ) {
   const ActPtr Act = activeAction ( ) ;
   const QString AN = Act -> objectName ( ) ; // Primary key.
 
-  UdevDev Dev ( UdevContext , sect ( AN , 0 ) ) ;
-  UdevDev WD  ( WDisk ( Dev ) ) ; // Whole disk.
+  const UdevDev Dev ( UdevContext , sect ( AN , 0 ) ) ;
+  const UdevDev WD  ( WDisk ( Dev ) ) ; // Whole disk.
 
   const bool MoM  = ! sect ( AN  , 1 ) . isEmpty ( ) ; // Mounted or mapped.
   const bool Cont = isLUKS ( Dev ) ;                   // It's container.

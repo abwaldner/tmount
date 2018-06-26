@@ -85,11 +85,11 @@ static CPtr // Tooltips.
     "    The mapping name will be appended to<br/>"
     "the end of given command line." ) ,
   HideTtp   = QT_TRANSLATE_NOOP ( "LOpts" ,
-    "    Type here a extended regexp,<br/>"
-    "b.e. '/dev/sd([ab].*|c1)' (restart required)." ) ,
+    "    Type here the extended regexp,<br/>"
+    "b.e. '/dev/sd([ab].*|c1)'." ) ,
   ForceTtp  = QT_TRANSLATE_NOOP ( "LOpts" ,
-    "    Type here a extended regexp,<br/>"
-    "b.e. '/dev/sr[01]' (restart required)." ) ,
+    "    Type here the extended regexp,<br/>"
+    "b.e. '/dev/sr[01]'." ) ,
   AddImgTtp = QT_TRANSLATE_NOOP ( "LOpts" ,
     "    This command is available from the context<br/>"
     "menu of the tray icon.<br/>"
@@ -345,6 +345,7 @@ int LOpts :: exec ( ) {
       if ( A ) { Conf . setValue ( C . CFKey , C . Val ) ; }//fi
     }//fi
   }//done
+  if ( A ) { emit Changed ( ) ; }//fi
   return R ;
 }// LOpts :: exec
 

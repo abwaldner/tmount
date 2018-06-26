@@ -28,7 +28,6 @@ class Listener : public QMenu { Q_OBJECT
 
     explicit Listener ( QWidget * parent = 0 ) ; virtual ~Listener ( ) ;
     LOpts Opt ;
-    QStringList DevList  ( ) const ;
     void exec ( const QPoint & Loc ) ;
 
   protected : virtual void contextMenuEvent ( QContextMenuEvent * event ) ;
@@ -38,13 +37,16 @@ class Listener : public QMenu { Q_OBJECT
     void DeviceAction ( ) ; // Handle udev events.
     void MountAction  ( ) ; // Handle mount/unmount events.
     void AddImage     ( ) ;
+    void OptChanged   ( ) ;
 
   private :
 
     void RemoveDevice      ( const UdevDev & Dev ) ;
-    bool AddDevice         ( const UdevDev & Dev ,
-                                     bool TryMount , bool Show ) ;
+    void SetupDevice       ( const UdevDev & Dev ,
+                                   bool TryMount , bool Show ) ;
     void SetActions        ( const UdevDev & Dev ) ; // Reset menu items for.
+    bool isTarget          ( const UdevDev & Dev ) const ;
+      // Should be visible.
     ActList FindActs       ( const QString & Key ) const ;
       // Find items for device in the devices menu.
     int  ExecCmd           ( const QString & Cmd ,

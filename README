@@ -63,13 +63,12 @@
   the "remove.txt" file for details.
       By default "tmount" shows all block devices and partitions
   containing the filesystem or LUKS container.  To hide some of them,
-  for example the root filesystem, type a extended regular expression,
+  for example the root filesystem, type an extended regular expression,
   matches these devices (b.e. "/dev/sd([ab].*|c1)") to the "Hidden
-  devices" field and restart the application.  You can also specify
-  devices that will always be shown, regardless of the presence of
-  the filesystem, the container, or even the media.  To do this, enter
-  the appropriate regular expression (b.e. "/dev/sr[01]") in the "Show
-  anyway" field.  This item also requires a restart.  (Note: these are
+  devices" field.  You can also specify devices that will always be
+  shown, regardless of the presence of the filesystem, the container, or
+  even the media.  To do this, enter the appropriate regular expression
+  (b.e. "/dev/sr[01]") in the "Show anyway" field. (Note: these are
   PCRE's, not shell globs.)
       All options can be also installed by editing of the configuration
   file ~/.config/tmount/tmount.conf, which is created when you first

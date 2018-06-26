@@ -43,6 +43,7 @@ class LOpts : public QDialog { Q_OBJECT
   private :
     struct Item ; static Item ITbl [ ] ; static const int ITblSize ;
     QSettings Conf ;
+  signals : void Changed ( ) ;
 } ; // LOpts
 
 #endif // LOPTS_H
