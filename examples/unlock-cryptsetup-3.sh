@@ -10,7 +10,7 @@
     case $( Dlg --forms --add-combo 'Select' \
                 --text 'LUKS passphrase input method:' \
                 --combo-values 'Interactive|Key File'  ) in
-      I* ) echo -i ;; K* ) echo -k ;; * ) ! :
+      I* ) printf '%s' -i ;; K* ) printf '%s' -k ;; * ) ! : ;;
     esac
   } # Mode
 
@@ -19,7 +19,7 @@
   FSel () { Dlg --file-selection --title 'tmount - Select a key file'
   } # FSel
 
-  export SUDO_ASKPASS="$( dirname "${0}" )/tmount-askpass.sh"
+  SUDO_ASKPASS="$( dirname "${0}" )/tmount-askpass.sh" ; export SUDO_ASKPASS
 
   case "${1}" in -k|-i|-a ) M="${1}" ;; * ) M='' ;; esac
   case  ${#}  in 1 ) M='-a' ;; 2 ) shift ;; * ) M='' ;; esac
@@ -35,10 +35,9 @@
   printf '%s' "${L}" |
     sudo -A /sbin/cryptsetup open "${1}" "${P}" -d "${F}" &&
   lsblk -plno FSTYPE,SIZE,LABEL "${N}" | {
-    read F S L ; R=$( realpath "${N}" )
-    X='Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n'
-    printf "${X}" "${1}" "${P}" "${N}" "${R}" \
-                  "${R##*/}" "${F}" "${L:-(no label)}" "${S}"
+    read -r F S L ; R=$( realpath "${N}" ) L="${L:-(no label)}"
+    printf 'Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n' \
+      "${1}" "${P}" "${N}" "${R}" "${R##*/}" "${F}" "${L}" "${S}"
   }
 
 #eof

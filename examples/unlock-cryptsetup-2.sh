@@ -26,26 +26,29 @@
       echo 'Enter' ; echo '  "k" for key file selection,'
       echo '  "i" for password interactive input,'
       echo 'or any to cancel...'
-      read M
+      read -r M
       case "${M}" in K|k ) M='-k' ;; I|i ) M='-i' ;; * ) M='' ;; esac
     }
 
     case "${M}" in
       -k )
         echo 'Enter key file name' ; echo '  or empty string to cancel...'
-        IFS='' read -r F && [ "${F}" ] &&
-        su -c "/sbin/cryptsetup open \"${1}\" \"${P}\" -d \"${F}\"" ;;
+        if IFS='' read -r F && [ "${F}" ]
+        then su -c "/sbin/cryptsetup open \"${1}\" \"${P}\" -d \"${F}\""
+        else ! echo Cancelled.
+        fi ;;
       -i )
         echo 'su - enter root password'
         su -c "/sbin/cryptsetup open \"${1}\" \"${P}\"" ;;
+       * ) ! echo Cancelled. ;;
     esac &&
     lsblk -plno FSTYPE,SIZE,LABEL "${N}" | {
-      read F S L ; R=$( realpath "${N}" )
-      X='Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n'
-      printf "${X}" "${1}" "${P}" "${N}" "${R}" \
-                  "${R##*/}" "${F}" "${L:-(no label)}" "${S}"
-      sleep 2
-    } || { echo ; echo 'Press Enter to continue...' ; read G ; }
+      read -r F S L ; R=$( realpath "${N}" ) L="${L:-(no label)}"
+      printf 'Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n' \
+        "${1}" "${P}" "${N}" "${R}" "${R##*/}" "${F}" "${L}" "${S}"
+    }
+
+    echo ; echo 'Press Enter to continue...' ; read -r M
 
   fi
 

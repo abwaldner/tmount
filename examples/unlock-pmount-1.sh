@@ -10,7 +10,7 @@
     case $( Dlg --forms --add-combo 'Select' \
                 --text 'LUKS passphrase input method:' \
                 --combo-values 'Interactive|Key File'  ) in
-      I* ) echo -i ;; K* ) echo -k ;; * ) ! :
+      I* ) printf '%s' -i ;; K* ) printf '%s' -k ;; * ) ! : ;;
     esac
   } # Mode
 
@@ -32,11 +32,11 @@
   fi &&
   printf '%s' "${L}" | pmount -p "${F}" "${1}" &&
   lsblk -plno NAME,FSTYPE,SIZE,MOUNTPOINT,LABEL "${1}" | {
-    read N ; read N F S M L ; R=$( realpath "${N}" )
-    X='Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n'
-    X="${X}"'mounted on %s\n'
-    printf "${X}" "${1}" "${N##*/}" "${N}" "${R}" \
-                  "${R##*/}" "${F}" "${L:-(no label)}" "${S}" "${M}"
+    read -r N ; read -r N F S M L
+    R=$( realpath "${N}" ) L="${L:-(no label)}"
+    printf 'Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n' \
+      "${1}" "${N##*/}" "${N}" "${R}" "${R##*/}" "${F}" "${L}" "${S}"
+    printf 'mounted on %s\n' "${M}"
   }
 
 #eof

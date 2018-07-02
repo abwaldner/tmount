@@ -14,9 +14,10 @@
 
   if tty >/dev/null ; then
     echo 'su - enter root password'
-    su -c "/sbin/cryptsetup close \"${1}\"" &&
-    { echo "${1} released." ; sleep 1 ; } ||
-    { echo ; echo 'Press Enter to continue...' ; read G ; }
+    if su -c "/sbin/cryptsetup close \"${1}\""
+    then echo "${1} released." ; sleep 1
+    else echo ; echo 'Press Enter to continue...' ; read -r G ; G=${G}
+    fi
   else MyTerm "${0}" "${@}"
   fi
 

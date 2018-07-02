@@ -24,24 +24,27 @@
       echo 'Enter' ; echo '  "k" for key file selection,'
       echo '  "i" for password interactive input,'
       echo 'or any to cancel...'
-      read M
+      read -r M
       case "${M}" in K|k ) M='-k' ;; I|i ) M='-i' ;; * ) M='' ;; esac
     }
 
     case "${M}" in
       -k )
         echo 'Enter key file name' ; echo '  or empty string to cancel...'
-        IFS='' read -r F && [ "${F}" ] && pmount -p "${F}" "${1}" ;;
-      -i ) pmount "${1}" ;;
+        if IFS='' read -r F && [ "${F}" ]
+        then pmount -p "${F}" "${1}" ; else ! echo Cancelled.
+        fi ;;
+      -i ) pmount "${1}" ;; * ) ! echo Cancelled. ;;
     esac &&
     lsblk -plno NAME,FSTYPE,SIZE,MOUNTPOINT,LABEL "${1}" | {
-      read N ; read N F S M L ; R=$( realpath "${N}" )
-      X='Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n'
-      X="${X}"'mounted on %s\n'
-      printf "${X}" "${1}" "${N##*/}" "${N}" "${R}" \
-                    "${R##*/}" "${F}" "${L:-(no label)}" "${S}" "${M}"
-      sleep 2
-    } || { echo ; echo 'Press Enter to continue...' ; read G ; }
+      read -r N ; read -r N F S M L
+      R=$( realpath "${N}" ) L="${L:-(no label)}"
+      printf 'Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n' \
+        "${1}" "${N##*/}" "${N}" "${R}" "${R##*/}" "${F}" "${L}" "${S}"
+      printf 'mounted on %s\n' "${M}"
+    }
+
+    echo ; echo 'Press Enter to continue...' ; read -r M
 
   fi
 
