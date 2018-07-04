@@ -13,10 +13,10 @@
    return $RetC
   };# Dlg
 
-  set Ask {tmount-askpass.tk}
-  set RetC 1 ; set EOF "\004" ; set SN [ info script ]
+  set Ask tmount-askpass.tk
+  set RetC 1 ; set SN [ info script ] ; set EOF "\004"
   set Dev  [ lindex $argv end ] ; set Map "luks-[ file tail ${Dev} ]"
-  set Cmd  "/sbin/cryptsetup open \"${Dev}\" \"${Map}\" "
+  set Cmd  "/sbin/cryptsetup open \"${Dev}\" \"${Map}\""
   set Mode [
     set M [ lindex $argv 0 ]
     if { $argc == 2 && $M in { -k -i -a } } { string range $M 1 1
@@ -61,7 +61,7 @@
     pack  .ent -fill x -padx 2
     set env(SUDO_ASKPASS) [ file join [ file dirname $SN ] $Ask ]
     set timeout -1 ; log_user 0 ; set env(LC_ALL) {C} ; set Err {}
-    spawn sudo -A {*}${Cmd}
+    spawn sudo -A {*}$Cmd
     expect {
       {Enter passphrase for *: } {
         set Psw {} ; if [ Dlg ] { set Psw $EOF };#fi
@@ -76,7 +76,7 @@
       set F {} ; set S {} ; set L {(no label)} ;
       set N "/dev/mapper/${Map}" ; set R [ exec realpath $N ]
       set X "Device %s mapped to %s.\n%s -> %s\n%s (%s, \[%s], %s)\n"
-      scan [ exec lsblk -plno FSTYPE,SIZE,LABEL $N ] {%s%s%s} F S L
+      scan [ exec lsblk -no FSTYPE,SIZE,LABEL $N ] {%s%s%s} F S L
       puts [ format $X $Dev $Map $N $R [ file tail $R ] $F $L $S ]
     };#fi
   };#fi

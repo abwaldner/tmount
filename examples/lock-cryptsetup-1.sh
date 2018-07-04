@@ -10,6 +10,12 @@
 
   MySu () { exec 2>/dev/null ktsuss -u root -- "${@}" ; } # MySu
 
+  if M=$( lsblk -no MOUNTPOINT "/dev/mapper/${1}" ) ; [ "${M}" ] ; then
+    C=${TMOUNT_Unmount_command:-}
+    if [ "${C}" ] ; then eval "${C}" "${M}"
+    else ! echo "${1} mounted on ${M} and unmount disabled by config." >&2
+    fi
+  fi &&
   if [ "$( id -u )" != 0 ] ; then MySu "${0}" "${@}"
   elif E=$( /sbin/cryptsetup close "${1}" 2>&1 )
   then echo "${1} released." ; sleep 1

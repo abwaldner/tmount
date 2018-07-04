@@ -32,11 +32,11 @@
       -k )
         echo 'Enter key file name' ; echo '  or empty string to cancel...'
         if IFS='' read -r F && [ "${F}" ]
-        then pmount -p "${F}" "${1}" ; else ! echo Cancelled.
+        then pmount -p "${F}" "${1}" ; else ! echo Cancelled. >&2
         fi ;;
-      -i ) pmount "${1}" ;; * ) ! echo Cancelled. ;;
+      -i ) pmount "${1}" ;; * ) ! echo Cancelled. >&2 ;;
     esac &&
-    lsblk -plno NAME,FSTYPE,SIZE,MOUNTPOINT,LABEL "${1}" | {
+    lsblk -pno NAME,FSTYPE,SIZE,MOUNTPOINT,LABEL "${1}" | {
       read -r N ; read -r N F S M L
       R=$( realpath "${N}" ) L="${L:-(no label)}"
       printf 'Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n' \

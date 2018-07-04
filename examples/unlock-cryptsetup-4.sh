@@ -35,14 +35,14 @@
         echo 'Enter key file name' ; echo '  or empty string to cancel...'
         if IFS='' read -r F && [ "${F}" ]
         then sudo /sbin/cryptsetup open "${1}" "${P}" -d "${F}"
-        else ! echo Cancelled.
+        else ! echo Cancelled. >&2
         fi ;;
       -i )
         echo 'sudo - enter your password'
         sudo /sbin/cryptsetup open "${1}" "${P}" ;;
-       * ) ! echo Cancelled. ;;
+       * ) ! echo Cancelled. >&2 ;;
     esac &&
-    lsblk -plno FSTYPE,SIZE,LABEL "${N}" | {
+    lsblk -no FSTYPE,SIZE,LABEL "${N}" | {
       read -r F S L ; R=$( realpath "${N}" ) L="${L:-(no label)}"
       printf 'Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n' \
         "${1}" "${P}" "${N}" "${R}" "${R##*/}" "${F}" "${L}" "${S}"

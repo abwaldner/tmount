@@ -13,29 +13,44 @@
    return $RetC
   };# Dlg
 
-  set RetC 1 ; set EOF "\004" ; set Map [ lindex $argv 0 ]
-  set Cmd "/sbin/cryptsetup close \"${Map}\" "
-  wm withdraw . ; wm title . tmount ; label .lbl ; frame .btn
-  wm iconphoto . [ image create photo -file /usr/share/pixmaps/tmount.png ]
-  bind . <Escape> { set RetC 1 } ; bind . <Destroy> { set RetC 1 }
-  button .ok  -text OK     -command { set RetC 0 }
-  button .esc -text Cancel -command { set RetC 1 }
-  bind   .ok  <Return> { set RetC 0 } ; bind .esc <Return> { set RetC 1 }
-  pack   .esc .ok -side right -in .btn
-  entry  .ent -show {*} -textvar Psw  ; bind .ent <Return> { set RetC 0 }
-  .lbl   configure -text {su: Enter root password}
-  pack   .lbl .ent .btn -fill x -padx 2
-  set timeout -1 ; log_user 0 ; set env(LC_ALL) {C} ; set Err {}
-  spawn su -c "${Cmd}"
-  expect {
-    {^Password: } {
-      if [ Dlg ] { set Psw $EOF };#fi
-      exp_send "${Psw}\n" ; exp_continue
+  set RetC 0 ; set Map [ lindex $argv 0 ] ; set EOF "\004"
+  set M [ scan [ exec lsblk -no MOUNTPOINT "/dev/mapper/${Map}" ] {%s} ]
+
+  if { $M ne {} } {
+    set U TMOUNT_Unmount_command
+    if [ info exist env($U) ] { set Cmd $env($U) } else { set Cmd {} };#fi
+    if { $Cmd eq {} } {
+      puts stderr "${Map} mounted on ${M} and unmount disabled by config."
+      set RetC 1
+    } elseif { ! [ set RetC [ catch { exec -ignorestderr -- {*}$Cmd $M } M ] ]
+    } then { puts $M
+    };#fi
+  };#fi
+
+  if { ! $RetC } {
+    set Cmd "/sbin/cryptsetup close \"${Map}\""
+    wm withdraw . ; wm title . tmount ; label .lbl ; frame .btn
+    wm iconphoto . [ image create photo -file /usr/share/pixmaps/tmount.png ]
+    bind . <Escape> { set RetC 1 } ; bind . <Destroy> { set RetC 1 }
+    button .ok  -text OK     -command { set RetC 0 }
+    button .esc -text Cancel -command { set RetC 1 }
+    bind   .ok  <Return> { set RetC 0 } ; bind .esc <Return> { set RetC 1 }
+    pack   .esc .ok -side right -in .btn
+    entry  .ent -show {*} -textvar Psw  ; bind .ent <Return> { set RetC 0 }
+    .lbl   configure -text {su: Enter root password}
+    pack   .lbl .ent .btn -fill x -padx 2
+    set timeout -1 ; log_user 0 ; set env(LC_ALL) {C} ; set Err {}
+    spawn su -c $Cmd
+    expect {
+      {^Password: } {
+        if [ Dlg ] { set Psw $EOF };#fi
+        exp_send "${Psw}\n" ; exp_continue
+      }
+      full_buffer { append Err $expect_out(buffer) ; exp_continue }
+      eof { append Err $expect_out(buffer) }
     }
-    full_buffer { append Err $expect_out(buffer) ; exp_continue }
-    eof { append Err $expect_out(buffer) }
-  }
-  set RetC [ lrange [ wait ] 3 3 ]
-  if { $RetC } { puts stderr $Err } else { puts "${Map} released." };#fi
+    set RetC [ lrange [ wait ] 3 3 ]
+    if { $RetC } { puts stderr $Err } else { puts "${Map} released." };#fi
+  };#fi
 
 exit $RetC

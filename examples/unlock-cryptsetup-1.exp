@@ -30,7 +30,7 @@
 
   set RetC 1 ; set SN [ info script ]
   set Dev  [ lindex $argv end ] ; set Map "luks-[ file tail ${Dev} ]"
-  set Cmd  "/sbin/cryptsetup open \"${Dev}\" \"${Map}\" "
+  set Cmd  "/sbin/cryptsetup open \"${Dev}\" \"${Map}\""
   set Mode [
     set M [ lindex $argv 0 ]
     if { $argc == 2 && $M in { -k -i -a } } { string range $M 1 1
@@ -38,19 +38,19 @@
     };#fi
   ]
 
-  if { $Mode == {} } {
+  if { $Mode eq {} } {
     puts stderr [
       format {Usage: %s [-k|-i|-a] {device|file}} [ file tail $SN ]
     ]
   };#fi
 
-  if { $Mode == {a} } { set Mode [ Mode ] };#fi
+  if { $Mode eq {a} } { set Mode [ Mode ] };#fi
 
-  if { $Mode == {k} } { set Mode [ FSel ] ; append Cmd " -d \"${Mode}\"" };#fi
+  if { $Mode eq {k} } { set Mode [ FSel ] ; append Cmd " -d \"${Mode}\"" };#fi
 
-  if { $Mode != {} } {
+  if { $Mode ne {} } {
     set timeout -1 ; log_user 0 ; set env(LC_ALL) {C} ; set Err {}
-    spawn su -c "${Cmd}"
+    spawn su -c $Cmd
     expect {
       {^Password: } {
         exp_send [ Psw {su: Enter root password} ] ; exp_continue
@@ -67,7 +67,7 @@
       set F {} ; set S {} ; set L {(no label)} ;
       set N "/dev/mapper/${Map}" ; set R [ exec realpath $N ]
       set X "Device %s mapped to %s.\n%s -> %s\n%s (%s, \[%s], %s)\n"
-      scan [ exec lsblk -plno FSTYPE,SIZE,LABEL $N ] {%s%s%s} F S L
+      scan [ exec lsblk -no FSTYPE,SIZE,LABEL $N ] {%s%s%s} F S L
       puts [ format $X $Dev $Map $N $R [ file tail $R ] $F $L $S ]
     };#fi
   };#fi

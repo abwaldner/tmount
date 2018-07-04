@@ -17,17 +17,33 @@
     return "${P}\n"
   };# Psw
 
-  set Map [ lindex $argv 0 ] ; set Cmd "/sbin/cryptsetup close \"${Map}\" "
-  set timeout -1 ; log_user 0 ; set env(LC_ALL) {C} ; set Err {} ; set RC 1
-  spawn su -c "${Cmd}"
-  expect {
-    {^Password: } {
-      exp_send [ Psw {su: Enter root password} ] ; exp_continue
-    }
-    full_buffer { append Err $expect_out(buffer) ; exp_continue }
-    eof { append Err $expect_out(buffer) }
-  }
-  set RC [ lrange [ wait ] 3 3 ]
-  if { $RC } { puts stderr $Err } else { puts "${Map} released." };#fi
+  set RetC 0 ; set Map [ lindex $argv 0 ]
+  set M [ scan [ exec lsblk -no MOUNTPOINT "/dev/mapper/${Map}" ] {%s} ]
 
-exit $RC
+  if { $M ne {} } {
+    set U TMOUNT_Unmount_command
+    if [ info exist env($U) ] { set Cmd $env($U) } else { set Cmd {} };#fi
+    if { $Cmd eq {} } {
+      puts stderr "${Map} mounted on ${M} and unmount disabled by config."
+      set RetC 1
+    } elseif { ! [ set RetC [ catch { exec -ignorestderr -- {*}$Cmd $M } M ] ]
+    } then { puts $M
+    };#fi
+  };#fi
+
+  if { ! $RetC } {
+    set Cmd "/sbin/cryptsetup close \"${Map}\""
+    set timeout -1 ; log_user 0 ; set env(LC_ALL) {C} ; set Err {}
+    spawn su -c $Cmd
+    expect {
+      {^Password: } {
+        exp_send [ Psw {su: Enter root password} ] ; exp_continue
+      }
+      full_buffer { append Err $expect_out(buffer) ; exp_continue }
+      eof { append Err $expect_out(buffer) }
+    }
+    set RetC [ lrange [ wait ] 3 3 ]
+    if { $RetC } { puts stderr $Err } else { puts "${Map} released." };#fi
+  };#fi
+
+exit $RetC

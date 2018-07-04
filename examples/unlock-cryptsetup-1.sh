@@ -39,7 +39,7 @@
          printf '%s' "${L}" | /sbin/cryptsetup open "${1}" "${P}" -d "${F}"
        } 2>&1 )
   then
-    lsblk -plno FSTYPE,SIZE,LABEL "${N}" | {
+    lsblk -no FSTYPE,SIZE,LABEL "${N}" | {
       read -r F S L ; R=$( realpath "${N}" ) L="${L:-(no label)}"
       printf 'Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n' \
         "${1}" "${P}" "${N}" "${R}" "${R##*/}" "${F}" "${L}" "${S}"
