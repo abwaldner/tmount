@@ -31,7 +31,7 @@
   else  L=$( Psw "Enter LUKS passphrase for ${1}" )
   fi &&
   printf '%s' "${L}" | pmount -p "${F}" "${1}" &&
-  lsblk -pno NAME,FSTYPE,SIZE,MOUNTPOINT,LABEL "${1}" | {
+  lsblk -plno NAME,FSTYPE,SIZE,MOUNTPOINT,LABEL "${1}" | {
     read -r N ; read -r N F S M L
     R=$( realpath "${N}" ) L="${L:-(no label)}"
     printf 'Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n' \

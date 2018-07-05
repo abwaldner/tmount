@@ -36,7 +36,7 @@
         fi ;;
       -i ) pmount "${1}" ;; * ) ! echo Cancelled. >&2 ;;
     esac &&
-    lsblk -pno NAME,FSTYPE,SIZE,MOUNTPOINT,LABEL "${1}" | {
+    lsblk -plno NAME,FSTYPE,SIZE,MOUNTPOINT,LABEL "${1}" | {
       read -r N ; read -r N F S M L
       R=$( realpath "${N}" ) L="${L:-(no label)}"
       printf 'Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n' \
