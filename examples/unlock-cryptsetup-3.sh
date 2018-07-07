@@ -1,12 +1,14 @@
 #!/bin/sh
 
+  Cmd='/sbin/cryptsetup open'
+
   Dlg () {
     qarma 2>/dev/null --title tmount \
       --window-icon /usr/share/pixmaps/tmount.png "${@}" ||
     ! echo Cancelled. >&2
   } # Dlg
 
-  Mode () {
+  Mode () { # preferably for qarma
     case $( Dlg --forms --add-combo 'Select' \
                 --text 'LUKS passphrase input method:' \
                 --combo-values 'Interactive|Key File'  ) in
@@ -18,6 +20,9 @@
 
   FSel () { Dlg --file-selection --title 'tmount - Select a key file'
   } # FSel
+
+  HasFS () { udevadm info "${1}" | grep -Fxq 'E: ID_FS_USAGE=filesystem'
+  } # HasFS
 
   SUDO_ASKPASS="$( dirname "${0}" )/tmount-askpass.sh" ; export SUDO_ASKPASS
 
@@ -32,12 +37,13 @@
   if [ '-k' = "${M}" ] ; then F=$( FSel )
   else  L=$( Psw "Enter LUKS passphrase for ${1}" )
   fi &&
-  printf '%s' "${L}" |
-    sudo -A /sbin/cryptsetup open "${1}" "${P}" -d "${F}" &&
+  printf '%s' "${L}" | eval sudo -A "${Cmd} \"${1}\" \"${P}\" -d \"${F}\"" &&
   lsblk -no FSTYPE,SIZE,LABEL "${N}" | {
     read -r F S L ; R=$( realpath "${N}" ) L="${L:-(no label)}"
     printf 'Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n' \
       "${1}" "${P}" "${N}" "${R}" "${R##*/}" "${F}" "${L}" "${S}"
+    Cmd=${TMOUNT_Mount_command:-}
+    if [ "${Cmd}" ] && HasFS "${R}" ; then eval "${Cmd}" "${R}" ; fi
   }
 
 #eof

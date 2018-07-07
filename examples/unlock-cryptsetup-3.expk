@@ -13,6 +13,11 @@
    return $RetC
   };# Dlg
 
+  proc NoFS { Dev } {
+    set P {E: ID_FS_USAGE=filesystem}
+    return [ catch { exec udevadm info $Dev | grep -Fxq $P } ]
+  };# NoFS
+
   set Ask tmount-askpass.tk
   set RetC 1 ; set SN [ info script ] ; set EOF "\004"
   set Dev  [ lindex $argv end ] ; set Map "luks-[ file tail ${Dev} ]"
@@ -56,11 +61,13 @@
   };#fi
 
   if { $Mode != {} } {
+
     entry .ent -show {*} -textvar Psw ; bind .ent <Return> { set RetC 0 }
     .lbl  configure -text "Enter LUKS passphrase for ${Dev}"
     pack  .ent -fill x -padx 2
     set env(SUDO_ASKPASS) [ file join [ file dirname $SN ] $Ask ]
     set timeout -1 ; log_user 0 ; set env(LC_ALL) {C} ; set Err {}
+
     spawn sudo -A {*}$Cmd
     expect {
       {Enter passphrase for *: } {
@@ -71,14 +78,22 @@
       eof { append Err $expect_out(buffer) }
     }
     set RetC [ lrange [ wait ] 3 3 ]
+
     if { $RetC } { puts stderr $Err
     } else {
-      set F {} ; set S {} ; set L {(no label)} ;
+      set F {} ; set S {} ; set L {(no label)}
       set N "/dev/mapper/${Map}" ; set R [ exec realpath $N ]
       set X "Device %s mapped to %s.\n%s -> %s\n%s (%s, \[%s], %s)\n"
       scan [ exec lsblk -no FSTYPE,SIZE,LABEL $N ] {%s%s%s} F S L
       puts [ format $X $Dev $Map $N $R [ file tail $R ] $F $L $S ]
+      set Cmd TMOUNT_Mount_command
+      set Cmd [ expr { [ info exist env($Cmd) ] ? $env($Cmd) : {} } ]
+      if { ! [ NoFS $R ] && $Cmd ne {} } {
+        set RetC [ catch { exec -ignorestderr -- {*}$Cmd $R } ]
+        puts "mounted on [ exec lsblk -no MOUNTPOINT $R ]"
+      };#fi
     };#fi
+
   };#fi
 
 exit $RetC

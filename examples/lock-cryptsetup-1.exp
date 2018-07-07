@@ -21,13 +21,12 @@
   set M [ scan [ exec lsblk -no MOUNTPOINT "/dev/mapper/${Map}" ] {%s} ]
 
   if { $M ne {} } {
-    set U TMOUNT_Unmount_command
-    if [ info exist env($U) ] { set Cmd $env($U) } else { set Cmd {} };#fi
+    set Cmd TMOUNT_Unmount_command
+    set Cmd [ expr { [ info exist env($Cmd) ] ? $env($Cmd) : {} } ]
     if { $Cmd eq {} } {
       puts stderr "${Map} mounted on ${M} and unmount disabled by config."
       set RetC 1
-    } elseif { ! [ set RetC [ catch { exec -ignorestderr -- {*}$Cmd $M } M ] ]
-    } then { puts $M
+    } else { set RetC [ catch { exec -ignorestderr -- {*}$Cmd $M } ]
     };#fi
   };#fi
 

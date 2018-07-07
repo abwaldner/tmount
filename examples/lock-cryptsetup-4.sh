@@ -13,8 +13,8 @@
 # ---------------------------------------------------------------------------
 
   if M=$( lsblk -no MOUNTPOINT "/dev/mapper/${1}" ) ; [ "${M}" ] ; then
-    C=${TMOUNT_Unmount_command:-}
-    if [ "${C}" ] ; then eval "${C}" "${M}"
+    Cmd=${TMOUNT_Unmount_command:-}
+    if [ "${Cmd}" ] ; then eval "${Cmd}" "${M}"
     else ! echo "${1} mounted on ${M} and unmount disabled by config." >&2
     fi
   fi &&

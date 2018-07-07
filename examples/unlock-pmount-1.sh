@@ -6,7 +6,7 @@
     ! echo Cancelled. >&2
   } # Dlg
 
-  Mode () {
+  Mode () { # preferably for qarma
     case $( Dlg --forms --add-combo 'Select' \
                 --text 'LUKS passphrase input method:' \
                 --combo-values 'Interactive|Key File'  ) in

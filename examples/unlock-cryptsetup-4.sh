@@ -1,5 +1,7 @@
 #!/bin/sh
 
+  Cmd='/sbin/cryptsetup open'
+
 # ---------------------------------------------------------------------------
   MyTerm () {
     exec 2>/dev/null xfce4-terminal --disable-server --hide-menubar \
@@ -11,6 +13,9 @@
 #    exec 2>/dev/null qterminal --geometry 400x100 --title tmount -e "${@}"
 #  } # MyTerm
 # ---------------------------------------------------------------------------
+
+  HasFS () { udevadm info "${1}" | grep -Fxq 'E: ID_FS_USAGE=filesystem'
+  } # HasFS
 
   case "${1}" in -k|-i|-a ) M="${1}" ;; * ) M='' ;; esac
   case  ${#}  in 1 ) M='-a' ;; 2 ) shift ;; * ) M='' ;; esac
@@ -33,19 +38,22 @@
     case "${M}" in
       -k )
         echo 'Enter key file name' ; echo '  or empty string to cancel...'
-        if IFS='' read -r F && [ "${F}" ]
-        then sudo /sbin/cryptsetup open "${1}" "${P}" -d "${F}"
+        if IFS='' read -r F && [ "${F}" ] ; then
+          echo 'sudo - enter your password'
+          eval sudo "${Cmd} \"${1}\" \"${P}\" -d \"${F}\""
         else ! echo Cancelled. >&2
         fi ;;
       -i )
         echo 'sudo - enter your password'
-        sudo /sbin/cryptsetup open "${1}" "${P}" ;;
+        eval sudo "${Cmd} \"${1}\" \"${P}\"" ;;
        * ) ! echo Cancelled. >&2 ;;
     esac &&
     lsblk -no FSTYPE,SIZE,LABEL "${N}" | {
       read -r F S L ; R=$( realpath "${N}" ) L="${L:-(no label)}"
       printf 'Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n' \
         "${1}" "${P}" "${N}" "${R}" "${R##*/}" "${F}" "${L}" "${S}"
+      Cmd=${TMOUNT_Mount_command:-}
+      if [ "${Cmd}" ] && HasFS "${R}" ; then eval "${Cmd}" "${R}" ; fi
     }
 
     echo ; echo 'Press Enter to continue...' ; read -r M
