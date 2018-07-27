@@ -13,8 +13,11 @@
    return $RetC
   };# Dlg
 
+  proc ShLit { S } { return "'[ regsub -all {'+} $S {'"&"'} ]'"
+  };# ShLit - substitutes a literal in 'su -c' (or 'sh -c') argument
+
   set RetC 0 ; set Map [ lindex $argv 0 ] ; set EOF "\004"
-  set M [ scan [ exec lsblk -no MOUNTPOINT "/dev/mapper/${Map}" ] {%s} ]
+  set M [ exec lsblk -no MOUNTPOINT "/dev/mapper/${Map}" ]
 
   if { $M ne {} } {
     set Cmd TMOUNT_Unmount_command
@@ -27,7 +30,7 @@
   };#fi
 
   if { ! $RetC } {
-    set Cmd "/sbin/cryptsetup close \"${Map}\""
+    set Cmd "/sbin/cryptsetup close [ ShLit ${Map} ]"
     wm withdraw . ; wm title . tmount ; label .lbl ; frame .btn
     wm iconphoto . [ image create photo -file /usr/share/pixmaps/tmount.png ]
     bind . <Escape> { set RetC 1 } ; bind . <Destroy> { set RetC 1 }

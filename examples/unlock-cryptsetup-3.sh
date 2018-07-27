@@ -21,10 +21,13 @@
   FSel () { Dlg --file-selection --title 'tmount - Select a key file'
   } # FSel
 
+  SUDO_ASKPASS="$( dirname "${0}" )/tmount-askpass.sh" ; export SUDO_ASKPASS
+
   HasFS () { udevadm info "${1}" | grep -Fxq 'E: ID_FS_USAGE=filesystem'
   } # HasFS
 
-  SUDO_ASKPASS="$( dirname "${0}" )/tmount-askpass.sh" ; export SUDO_ASKPASS
+  l () { printf 'b%se' "${1}" | sed "s/''*/'\"&\"'/g ; 1 s/^b/'/ ; $ s/e$/'/"
+  } # l - substitutes a literal in 'eval' or 'su -c' arguments
 
   case "${1}" in -k|-i|-a ) M="${1}" ;; * ) M='' ;; esac
   case  ${#}  in 1 ) M='-a' ;; 2 ) shift ;; * ) M='' ;; esac
@@ -37,13 +40,14 @@
   if [ '-k' = "${M}" ] ; then F=$( FSel )
   else  L=$( Psw "Enter LUKS passphrase for ${1}" )
   fi &&
-  printf '%s' "${L}" | eval sudo -A "${Cmd} \"${1}\" \"${P}\" -d \"${F}\"" &&
+  printf '%s' "${L}" |
+    eval sudo -A "${Cmd} $( l "${1}" ) $( l "${P}" ) -d $( l "${F}" )" &&
   lsblk -no FSTYPE,SIZE,LABEL "${N}" | {
     read -r F S L ; R=$( realpath "${N}" ) L="${L:-(no label)}"
     printf 'Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n' \
       "${1}" "${P}" "${N}" "${R}" "${R##*/}" "${F}" "${L}" "${S}"
     Cmd=${TMOUNT_Mount_command:-}
-    if [ "${Cmd}" ] && HasFS "${R}" ; then eval "${Cmd}" "${R}" ; fi
+    if [ "${Cmd}" ] && HasFS "${R}" ; then eval " ${Cmd} $( l "${R}" )" ; fi
   }
 
 #eof

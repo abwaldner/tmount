@@ -12,18 +12,19 @@
 #  } # MyTerm
 # ---------------------------------------------------------------------------
 
+  l () { printf 'b%se' "${1}" | sed "s/''*/'\"&\"'/g ; 1 s/^b/'/ ; $ s/e$/'/"
+  } # l - substitutes a literal in 'eval' or 'su -c' arguments
+
   if M=$( lsblk -no MOUNTPOINT "/dev/mapper/${1}" ) ; [ "${M}" ] ; then
     Cmd=${TMOUNT_Unmount_command:-}
-    if [ "${Cmd}" ] ; then eval "${Cmd}" "${M}"
+    if [ "${Cmd}" ] ; then eval " ${Cmd} $( l "${M}" )"
     else ! echo "${1} mounted on ${M} and unmount disabled by config." >&2
     fi
   fi &&
   if tty >/dev/null ; then
     echo 'su - enter root password'
-    if su -c "/sbin/cryptsetup close \"${1}\""
-    then echo "${1} released." ; sleep 1
-    else echo ; echo 'Press Enter to continue...' ; read -r M
-    fi
+    su -c "/sbin/cryptsetup close $( l "${1}")" && echo "${1} released."
+    echo ; echo 'Press Enter to continue...' ; read -r M
   else MyTerm "${0}" "${@}"
   fi
 

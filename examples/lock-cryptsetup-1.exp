@@ -17,8 +17,11 @@
     return "${P}\n"
   };# Psw
 
+  proc ShLit { S } { return "'[ regsub -all {'+} $S {'"&"'} ]'"
+  };# ShLit - substitutes a literal in 'su -c' (or 'sh -c') argument
+
   set RetC 0 ; set Map [ lindex $argv 0 ]
-  set M [ scan [ exec lsblk -no MOUNTPOINT "/dev/mapper/${Map}" ] {%s} ]
+  set M [ exec lsblk -no MOUNTPOINT "/dev/mapper/${Map}" ]
 
   if { $M ne {} } {
     set Cmd TMOUNT_Unmount_command
@@ -31,7 +34,7 @@
   };#fi
 
   if { ! $RetC } {
-    set Cmd "/sbin/cryptsetup close \"${Map}\""
+    set Cmd "/sbin/cryptsetup close [ ShLit ${Map} ]"
     set timeout -1 ; log_user 0 ; set env(LC_ALL) {C} ; set Err {}
     spawn su -c $Cmd
     expect {

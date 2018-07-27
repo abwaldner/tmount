@@ -10,9 +10,12 @@
 
   MySu () { exec 2>/dev/null ktsuss -u root -- "${@}" ; } # MySu
 
+  l () { printf 'b%se' "${1}" | sed "s/''*/'\"&\"'/g ; 1 s/^b/'/ ; $ s/e$/'/"
+  } # l - substitutes a literal in 'eval' or 'su -c' arguments
+
   if M=$( lsblk -no MOUNTPOINT "/dev/mapper/${1}" ) ; [ "${M}" ] ; then
     Cmd=${TMOUNT_Unmount_command:-}
-    if [ "${Cmd}" ] ; then eval "${Cmd}" "${M}"
+    if [ "${Cmd}" ] ; then eval " ${Cmd} $( l "${M}" )"
     else ! echo "${1} mounted on ${M} and unmount disabled by config." >&2
     fi
   fi &&

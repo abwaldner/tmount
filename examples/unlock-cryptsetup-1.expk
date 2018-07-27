@@ -18,9 +18,12 @@
     return [ catch { exec udevadm info $Dev | grep -Fxq $P } ]
   };# NoFS
 
+  proc ShLit { S } { return "'[ regsub -all {'+} $S {'"&"'} ]'"
+  };# ShLit - substitutes a literal in 'su -c' (or 'sh -c') argument
+
   set RetC 1 ; set SN [ info script ] ; set EOF "\004"
-  set Dev  [ lindex $argv end ] ; set Map "luks-[ file tail ${Dev} ]"
-  set Cmd  "/sbin/cryptsetup open \"${Dev}\" \"${Map}\""
+  set Dev [ lindex $argv end ] ; set Map "luks-[ file tail ${Dev} ]"
+  set Cmd "/sbin/cryptsetup open [ ShLit ${Dev} ] [ ShLit ${Map} ]"
   set Mode [
     set M [ lindex $argv 0 ]
     if { $argc == 2 && $M in { -k -i -a } } { string range $M 1 1
@@ -55,7 +58,7 @@
 
   if { $Mode eq {k} } {
     set Mode [ tk_getOpenFile -title {tmount - Select a key file} ]
-    append Cmd " -d \"${Mode}\""
+    append Cmd " -d [ ShLit ${Mode} ]"
     if { $Mode eq {} } { set RetC 1 ; puts stderr Cancelled. };#fi
   };#fi
 

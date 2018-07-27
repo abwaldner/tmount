@@ -35,8 +35,8 @@
 
   set Ask tmount-askpass.sh
   set RetC 1 ; set SN [ info script ]
-  set Dev  [ lindex $argv end ] ; set Map "luks-[ file tail ${Dev} ]"
-  set Cmd  "/sbin/cryptsetup open \"${Dev}\" \"${Map}\""
+  set Dev [ lindex $argv end ] ; set Map "luks-[ file tail ${Dev} ]"
+  set Cmd {sudo -A /sbin/cryptsetup open}
   set Mode [
     set M [ lindex $argv 0 ]
     if { $argc == 2 && $M in { -k -i -a } } { string range $M 1 1
@@ -44,22 +44,27 @@
     };#fi
   ]
 
-  if { $Mode == {} } {
+  if { $Mode eq {} } {
     puts stderr [
       format {Usage: %s [-k|-i|-a] {device|file}} [ file tail $SN ]
     ]
   };#fi
 
-  if { $Mode == {a} } { set Mode [ Mode ] };#fi
+  if { $Mode eq {a} } { set Mode [ Mode ] };#fi
 
-  if { $Mode == {k} } { set Mode [ FSel ] ; append Cmd " -d \"${Mode}\"" };#fi
+  if { $Mode eq {k} } {
+    set KeyF [ FSel ]
+    if { $KeyF eq {} } { set Mode {} } else { append Cmd { -d} };#fi
+  };#fi
 
-  if { $Mode != {} } {
+  if { $Mode ne {} } {
 
     set env(SUDO_ASKPASS) [ file join [ file dirname $SN ] $Ask ]
     set timeout -1 ; log_user 0 ; set env(LC_ALL) {C} ; set Err {}
 
-    spawn sudo -A {*}$Cmd
+    if { $Mode eq {k} } {
+      spawn {*}$Cmd $KeyF $Dev $Map } else { spawn {*}$Cmd $Dev $Map
+    };#fi
     expect {
       {Enter passphrase for *: } {
         exp_send [ Psw "Enter LUKS passphrase for ${Dev}" ] ; exp_continue

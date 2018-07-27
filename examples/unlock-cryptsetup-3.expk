@@ -20,8 +20,8 @@
 
   set Ask tmount-askpass.tk
   set RetC 1 ; set SN [ info script ] ; set EOF "\004"
-  set Dev  [ lindex $argv end ] ; set Map "luks-[ file tail ${Dev} ]"
-  set Cmd  "/sbin/cryptsetup open \"${Dev}\" \"${Map}\""
+  set Dev [ lindex $argv end ] ; set Map "luks-[ file tail ${Dev} ]"
+  set Cmd {sudo -A /sbin/cryptsetup open}
   set Mode [
     set M [ lindex $argv 0 ]
     if { $argc == 2 && $M in { -k -i -a } } { string range $M 1 1
@@ -29,7 +29,7 @@
     };#fi
   ]
 
-  if { $Mode == {} } {
+  if { $Mode eq {} } {
     puts stderr [
       format {Usage: %s [-k|-i|-a] {device|file}} [ file tail $SN ]
     ]
@@ -44,7 +44,7 @@
     pack   .btn -fill x -side bottom -padx 2 ; pack .lbl -fill x -padx 2
   };#fi
 
-  if { $Mode == {a} } {
+  if { $Mode eq {a} } {
     .lbl configure -text {LUKS passphrase input method:}
     frame .ent ; bind .ent <Return> { set RetC 0 }
     radiobutton .ent.i -var Mode -val i -text Interactive
@@ -54,13 +54,14 @@
     catch { destroy .ent }
   };#fi
 
-  if { $Mode == {k} } {
-    set Mode [ tk_getOpenFile -title {tmount - Select a key file} ]
-    append Cmd " -d \"${Mode}\""
-    if { $Mode == {} } { set RetC 1 ; puts stderr Cancelled. };#fi
+  if { $Mode eq {k} } {
+    set KeyF [ tk_getOpenFile -title {tmount - Select a key file} ]
+    if { $KeyF ne {} } { append Cmd { -d}
+    } else { set Mode {} ; set RetC 1 ; puts stderr Cancelled.
+    };#fi
   };#fi
 
-  if { $Mode != {} } {
+  if { $Mode ne {} } {
 
     entry .ent -show {*} -textvar Psw ; bind .ent <Return> { set RetC 0 }
     .lbl  configure -text "Enter LUKS passphrase for ${Dev}"
@@ -68,7 +69,9 @@
     set env(SUDO_ASKPASS) [ file join [ file dirname $SN ] $Ask ]
     set timeout -1 ; log_user 0 ; set env(LC_ALL) {C} ; set Err {}
 
-    spawn sudo -A {*}$Cmd
+    if { $Mode eq {k} } {
+      spawn {*}$Cmd $KeyF $Dev $Map } else { spawn {*}$Cmd $Dev $Map
+    };#fi
     expect {
       {Enter passphrase for *: } {
         set Psw {} ; if [ Dlg ] { set Psw $EOF };#fi
