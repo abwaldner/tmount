@@ -1,5 +1,7 @@
 #!/bin/sh
 
+  Cmd='/sbin/cryptsetup'
+
 # ---------------------------------------------------------------------------
   MyTerm () {
     exec 2>/dev/null xfce4-terminal --disable-server --hide-menubar \
@@ -16,14 +18,13 @@
   } # l - substitutes a literal in 'eval' or 'su -c' arguments
 
   if M=$( lsblk -no MOUNTPOINT "/dev/mapper/${1}" ) ; [ "${M}" ] ; then
-    Cmd=${TMOUNT_Unmount_command:-}
-    if [ "${Cmd}" ] ; then eval " ${Cmd} $( l "${M}" )"
+    C=${TMOUNT_Unmount_command:-}
+    if [ "${C}" ] ; then eval " ${C} $( l "${M}" )"
     else ! echo "${1} mounted on ${M} and unmount disabled by config." >&2
     fi
   fi &&
   if tty >/dev/null ; then
-    echo 'su - enter root password'
-    su -c "/sbin/cryptsetup close $( l "${1}")" && echo "${1} released."
+    echo 'su -' ; su -c "${Cmd} close $( l "${1}" )" && echo "${1} released."
     echo ; echo 'Press Enter to continue...' ; read -r M
   else MyTerm "${0}" "${@}"
   fi

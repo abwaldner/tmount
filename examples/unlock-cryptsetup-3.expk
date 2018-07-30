@@ -2,6 +2,9 @@
 
   package require Expect
 
+  set Cmd /sbin/cryptsetup
+  set Ask tmount-askpass.tk ;# should be in the same directory
+
   proc Dlg {} {
    global RetC
    set x [ expr { [ winfo screenwidth   . ] - [ winfo reqwidth  . ] } ]
@@ -18,10 +21,16 @@
     return [ catch { exec udevadm info $Dev | grep -Fxq $P } ]
   };# NoFS
 
-  set Ask tmount-askpass.tk
-  set RetC 1 ; set SN [ info script ] ; set EOF "\004"
-  set Dev [ lindex $argv end ] ; set Map "luks-[ file tail ${Dev} ]"
-  set Cmd {sudo -A /sbin/cryptsetup open}
+  proc GenMN { Dev } { ;# generate cryptsetups map name
+    set M [ file tail $Dev ]
+    set M [ regsub -all {[^[:alnum:]#+-.:=@]|[^[:ascii:]]} $M {_} ]
+    return [ exec mktemp -u -p /dev/mapper "${M}-XXX" ]
+  };# GenMN
+
+  set RetC 1 ; set SN [ info script ]
+  set Dev [ lindex $argv end ]
+  set Lnk [ GenMN $Dev ] ; set Map [ file tail $Lnk ]
+  set Cmd "sudo -A ${Cmd} open"
   set Mode [
     set M [ lindex $argv 0 ]
     if { $argc == 2 && $M in { -k -i -a } } { string range $M 1 1
@@ -84,15 +93,14 @@
 
     if { $RetC } { puts stderr $Err
     } else {
-      set F {} ; set S {} ; set L {(no label)}
-      set N "/dev/mapper/${Map}" ; set R [ exec realpath $N ]
+      set F {} ; set S {} ; set L {(no label)} ; set R [ exec realpath $Lnk ]
       set X "Device %s mapped to %s.\n%s -> %s\n%s (%s, \[%s], %s)\n"
-      scan [ exec lsblk -no FSTYPE,SIZE,LABEL $N ] {%s%s%s} F S L
-      puts [ format $X $Dev $Map $N $R [ file tail $R ] $F $L $S ]
-      set Cmd TMOUNT_Mount_command
-      set Cmd [ expr { [ info exist env($Cmd) ] ? $env($Cmd) : {} } ]
-      if { ! [ NoFS $R ] && $Cmd ne {} } {
-        set RetC [ catch { exec -ignorestderr -- {*}$Cmd $R } ]
+      scan [ exec lsblk -no FSTYPE,SIZE,LABEL $Lnk ] {%s%s%s} F S L
+      puts [ format $X $Dev $Map $Lnk $R [ file tail $R ] $F $L $S ]
+      set C TMOUNT_Mount_command
+      set C [ expr { [ info exist env($C) ] ? $env($C) : {} } ]
+      if { ! [ NoFS $R ] && $C ne {} } {
+        set RetC [ catch { exec -ignorestderr -- {*}$C $R } ]
         puts "mounted on [ exec lsblk -no MOUNTPOINT $R ]"
       };#fi
     };#fi

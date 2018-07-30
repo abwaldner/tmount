@@ -26,6 +26,7 @@
   [ "${M}" = '-a' ] && M=$( Mode )
 
   F='-' L=''
+
   [ "${M}" ] &&
   if [ '-k' = "${M}" ] ; then F=$( FSel )
   else  L=$( Psw "Enter LUKS passphrase for ${1}" )

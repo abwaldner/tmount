@@ -1,6 +1,8 @@
 #!/bin/sh
 
-  Cmd='/sbin/cryptsetup open'
+  Cmd='/sbin/cryptsetup'
+  Ask='tmount-askpass.sh' # should be in the same directory
+  SUDO_ASKPASS="$( dirname "${0}" )/${Ask}" ; export SUDO_ASKPASS
 
   Dlg () {
     qarma 2>/dev/null --title tmount \
@@ -21,13 +23,16 @@
   FSel () { Dlg --file-selection --title 'tmount - Select a key file'
   } # FSel
 
-  SUDO_ASKPASS="$( dirname "${0}" )/tmount-askpass.sh" ; export SUDO_ASKPASS
+  l () { printf 'b%se' "${1}" | sed "s/''*/'\"&\"'/g ; 1 s/^b/'/ ; $ s/e$/'/"
+  } # l - substitutes a literal in 'eval' or 'su -c' arguments
 
   HasFS () { udevadm info "${1}" | grep -Fxq 'E: ID_FS_USAGE=filesystem'
   } # HasFS
 
-  l () { printf 'b%se' "${1}" | sed "s/''*/'\"&\"'/g ; 1 s/^b/'/ ; $ s/e$/'/"
-  } # l - substitutes a literal in 'eval' or 'su -c' arguments
+  GenMN () { # generate cryptsetups map name
+    mktemp -u -p /dev/mapper \
+      "$( printf '%s' "${1##*/}" | tr -c '[:alnum:]#+-.:=@' '_')-XXX"
+  } # GenMN
 
   case "${1}" in -k|-i|-a ) M="${1}" ;; * ) M='' ;; esac
   case  ${#}  in 1 ) M='-a' ;; 2 ) shift ;; * ) M='' ;; esac
@@ -35,19 +40,20 @@
 
   [ "${M}" = '-a' ] && M=$( Mode )
 
-  F='-' L='' P="luks-${1##*/}" N="/dev/mapper/${P}"
+  F='-' L='' N=$( GenMN "${1}" ) P=${N##*/}
+  Cmd="${Cmd} open $( l "${1}" ) ${P}"
+
   [ "${M}" ] &&
   if [ '-k' = "${M}" ] ; then F=$( FSel )
-  else  L=$( Psw "Enter LUKS passphrase for ${1}" )
+  else L=$( Psw "Enter LUKS passphrase for ${1}" )
   fi &&
-  printf '%s' "${L}" |
-    eval sudo -A "${Cmd} $( l "${1}" ) $( l "${P}" ) -d $( l "${F}" )" &&
+  printf '%s' "${L}" | eval sudo -A "${Cmd} -d $( l "${F}" )" &&
   lsblk -no FSTYPE,SIZE,LABEL "${N}" | {
     read -r F S L ; R=$( realpath "${N}" ) L="${L:-(no label)}"
     printf 'Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n' \
       "${1}" "${P}" "${N}" "${R}" "${R##*/}" "${F}" "${L}" "${S}"
-    Cmd=${TMOUNT_Mount_command:-}
-    if [ "${Cmd}" ] && HasFS "${R}" ; then eval " ${Cmd} $( l "${R}" )" ; fi
+    C=${TMOUNT_Mount_command:-}
+    if [ "${C}" ] && HasFS "${R}" ; then eval " ${C} $( l "${R}" )" ; fi
   }
 
 #eof

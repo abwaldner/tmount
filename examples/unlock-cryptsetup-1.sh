@@ -1,6 +1,6 @@
 #!/bin/sh
 
-  Cmd='/sbin/cryptsetup open'
+  Cmd='/sbin/cryptsetup'
 
   Dlg () {
     qarma 2>/dev/null --title tmount \
@@ -23,37 +23,43 @@
 
   Warn () { Dlg --warning --no-markup --text "${1}" ; } # Warn
 
-  MySu () { exec 2>/dev/null ktsuss -u root -- "${@}" ; } # MySu
+  MySu () { exec 2>/dev/null ktsuss -u root -- "${1}" ; } # MySu
+
+  l () { printf 'b%se' "${1}" | sed "s/''*/'\"&\"'/g ; 1 s/^b/'/ ; $ s/e$/'/"
+  } # l - substitutes a literal in 'eval' or 'su -c' arguments
 
   HasFS () { udevadm info "${1}" | grep -Fxq 'E: ID_FS_USAGE=filesystem'
   } # HasFS
 
-  l () { printf 'b%se' "${1}" | sed "s/''*/'\"&\"'/g ; 1 s/^b/'/ ; $ s/e$/'/"
-  } # l - substitutes a literal in 'eval' or 'su -c' arguments
+  GenMN () { # generate cryptsetups map name
+    mktemp -u -p /dev/mapper \
+      "$( printf '%s' "${1##*/}" | tr -c '[:alnum:]#+-.:=@' '_')-XXX"
+  } # GenMN
 
   case "${1}" in -k|-i|-a ) M="${1}" ;; * ) M='' ;; esac
   case  ${#}  in 1 ) M='-a' ;; 2 ) shift ;; * ) M='' ;; esac
   [ "${M}" ] || echo "Usage: ${0##*/} [-k|-i|-a] {device|file}" >&2
 
   [ "${M}" = '-a' ] && M=$( Mode )
-  F='-' L='' P="luks-${1##*/}" N="/dev/mapper/${P}"
 
   [ "${M}" ] &&
-  if [ "$( id -u )" != 0 ] ; then MySu "${0}" "${M}" "${@}"
-  elif E=$( {
-         if [ '-k' = "${M}" ] ; then F=$( FSel )
-         else L=$( Psw "Enter LUKS passphrase for ${1}" )
-         fi &&
-         printf '%s' "${L}" |
-           eval "${Cmd} $( l "${1}" ) $( l "${P}" ) -d $( l "${F}" )"
-       } 2>&1 )
+  if [ "$( id -u )" != 0 ] ; then MySu "${0} ${M} $( l "${1}" )"
+  elif
+    F='-' L='' N=$( GenMN "${1}" ) P=${N##*/}
+    Cmd="${Cmd} open $( l "${1}" ) ${P}"
+    E=$( {
+      if [ '-k' = "${M}" ] ; then F=$( FSel )
+      else L=$( Psw "Enter LUKS passphrase for ${1}" )
+      fi &&
+      printf '%s' "${L}" | eval "${Cmd} -d $( l "${F}" )"
+    } 2>&1 )
   then
     lsblk -no FSTYPE,SIZE,LABEL "${N}" | {
       read -r F S L ; R=$( realpath "${N}" ) L="${L:-(no label)}"
       printf 'Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n' \
         "${1}" "${P}" "${N}" "${R}" "${R##*/}" "${F}" "${L}" "${S}"
-      Cmd=${TMOUNT_Mount_command:-}
-      if [ "${Cmd}" ] && HasFS "${R}" ; then eval " ${Cmd} $( l "${R}" )" ; fi
+      C=${TMOUNT_Mount_command:-}
+      if [ "${C}" ] && HasFS "${R}" ; then eval " ${C} $( l "${R}" )" ; fi
     }
   elif [ false = "${TMOUNT_Unlock_show:-}" ] ; then Warn "${E}"
   else echo "${E}" ; sleep 1 # sleep is workaround for ktsuss

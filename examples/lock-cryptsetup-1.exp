@@ -1,5 +1,7 @@
 #!/usr/bin/env expect
 
+  set Cmd /sbin/cryptsetup
+
   proc Dlg { Res args } {
     upvar $Res R
     set L { --title tmount --window-icon /usr/share/pixmaps/tmount.png }
@@ -21,21 +23,23 @@
   };# ShLit - substitutes a literal in 'su -c' (or 'sh -c') argument
 
   set RetC 0 ; set Map [ lindex $argv 0 ]
+  set Cmd "${Cmd} close [ ShLit $Map ]"
   set M [ exec lsblk -no MOUNTPOINT "/dev/mapper/${Map}" ]
 
   if { $M ne {} } {
-    set Cmd TMOUNT_Unmount_command
-    set Cmd [ expr { [ info exist env($Cmd) ] ? $env($Cmd) : {} } ]
-    if { $Cmd eq {} } {
+    set C TMOUNT_Unmount_command
+    set C [ expr { [ info exist env($C) ] ? $env($C) : {} } ]
+    if { $C eq {} } {
       puts stderr "${Map} mounted on ${M} and unmount disabled by config."
       set RetC 1
-    } else { set RetC [ catch { exec -ignorestderr -- {*}$Cmd $M } ]
+    } else { set RetC [ catch { exec -ignorestderr -- {*}$C $M } ]
     };#fi
   };#fi
 
   if { ! $RetC } {
-    set Cmd "/sbin/cryptsetup close [ ShLit ${Map} ]"
+
     set timeout -1 ; log_user 0 ; set env(LC_ALL) {C} ; set Err {}
+
     spawn su -c $Cmd
     expect {
       {^Password: } {
@@ -45,7 +49,9 @@
       eof { append Err $expect_out(buffer) }
     }
     set RetC [ lrange [ wait ] 3 3 ]
+
     if { $RetC } { puts stderr $Err } else { puts "${Map} released." };#fi
+
   };#fi
 
 exit $RetC
