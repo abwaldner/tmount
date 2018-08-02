@@ -18,19 +18,21 @@
   proc ShLit { S } { return "'[ regsub -all {'+} $S {'"&"'} ]'"
   };# ShLit - substitutes a literal in 'su -c' (or 'sh -c') argument
 
+  proc Prop { Dev N } { ;# get property for device
+    if [ catch { exec lsblk -no $N $Dev } P ] { set P {} };#fi
+    return [ set P ]
+  }
+
   set RetC 0 ; set Map [ lindex $argv 0 ] ; set EOF "\004"
   set Cmd "${Cmd} close [ ShLit $Map ]"
-  set M [ exec lsblk -no MOUNTPOINT "/dev/mapper/${Map}" ]
+  set Lnk "/dev/mapper/${Map}"
+  set C TMOUNT_Unmount_command
+  set C [ expr { [ info exist env($C) ] ? $env($C) : {} } ]
+  regsub {^$} $C { sh -c "! echo Unmount disabled by config >\&2" } C
 
-  if { $M ne {} } {
-    set C TMOUNT_Unmount_command
-    set C [ expr { [ info exist env($C) ] ? $env($C) : {} } ]
-    if { $C eq {} } {
-      puts stderr "${Map} mounted on ${M} and unmount disabled by config."
-      set RetC 1
-    } else { set RetC [ catch { exec -ignorestderr -- {*}$C $M } ]
-    };#fi
-  };#fi
+  while { ! $RetC && [ set M [ Prop $Lnk MOUNTPOINT ] ] ne {} } {
+    set RetC [ catch { exec -ignorestderr -- {*}$C $M } ]
+  }
 
   if { ! $RetC } {
 

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+  # Don't use this with regular files!
+
   Dlg () {
     qarma 2>/dev/null --title tmount \
       --window-icon /usr/share/pixmaps/tmount.png "${@}" ||
@@ -19,6 +21,8 @@
   FSel () { Dlg --file-selection --title 'tmount - Select a key file'
   } # FSel
 
+  GP () { lsblk -plno "${2}" "${1}" ; } # GP - get property for device
+
   case "${1}" in -k|-i|-a ) M="${1}" ;; * ) M='' ;; esac
   case  ${#}  in 1 ) M='-a' ;; 2 ) shift ;; * ) M='' ;; esac
   [ "${M}" ] || echo "Usage: ${0##*/} [-k|-i|-a] {device|file}" >&2
@@ -29,15 +33,15 @@
 
   [ "${M}" ] &&
   if [ '-k' = "${M}" ] ; then F=$( FSel )
-  else  L=$( Psw "Enter LUKS passphrase for ${1}" )
+  else L=$( Psw "Enter LUKS passphrase for ${1}" )
   fi &&
   printf '%s' "${L}" | pmount -p "${F}" "${1}" &&
-  lsblk -plno NAME,FSTYPE,SIZE,MOUNTPOINT,LABEL "${1}" | {
-    read -r N ; read -r N F S M L
-    R=$( realpath "${N}" ) L="${L:-(no label)}"
+  { N=$( GP "${1}" NAME | tail -n 1 )
+    F=$( GP "${N}" FSTYPE ) L=$( GP "${N}" LABEL ) S=$( GP "${N}" SIZE )
+    R=$( realpath "${N}" ) F=${F:-(no FS)} L=${L:-(no label)}
     printf 'Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n' \
       "${1}" "${N##*/}" "${N}" "${R}" "${R##*/}" "${F}" "${L}" "${S}"
-    printf 'mounted on %s\n' "${M}"
+    printf 'mounted on %s\n' "$( GP "${N}" MOUNTPOINT )"
   }
 
 #eof

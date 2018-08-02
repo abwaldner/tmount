@@ -17,12 +17,16 @@
   l () { printf 'b%se' "${1}" | sed "s/''*/'\"&\"'/g ; 1 s/^b/'/ ; $ s/e$/'/"
   } # l - substitutes a literal in 'eval' or 'su -c' arguments
 
-  if M=$( lsblk -no MOUNTPOINT "/dev/mapper/${1}" ) ; [ "${M}" ] ; then
-    C=${TMOUNT_Unmount_command:-}
-    if [ "${C}" ] ; then eval " ${C} $( l "${M}" )"
-    else ! echo "${1} mounted on ${M} and unmount disabled by config." >&2
-    fi
-  fi &&
+  GP () { lsblk -plno "${2}" "${1}" ; } # GP - get property for device
+
+  N="/dev/mapper/${1}"
+  C=${TMOUNT_Unmount_command:-'! echo Unmount disabled by config. >&2 '}
+
+  while
+    M=$( GP "${N}" MOUNTPOINT ) ; [ "${M}" ] && eval " ${C} $( l "${M}" )"
+  do : ; done
+
+  ! [ "$( GP "${N}" MOUNTPOINT )" ] &&
   if tty >/dev/null ; then
     echo 'su -' ; su -c "${Cmd} close $( l "${1}" )" && echo "${1} released."
     echo ; echo 'Press Enter to continue...' ; read -r M

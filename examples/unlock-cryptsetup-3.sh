@@ -26,6 +26,8 @@
   l () { printf 'b%se' "${1}" | sed "s/''*/'\"&\"'/g ; 1 s/^b/'/ ; $ s/e$/'/"
   } # l - substitutes a literal in 'eval' or 'su -c' arguments
 
+  GP () { lsblk -plno "${2}" "${1}" ; } # GP - get property for device
+
   HasFS () { udevadm info "${1}" | grep -Fxq 'E: ID_FS_USAGE=filesystem'
   } # HasFS
 
@@ -48,12 +50,12 @@
   else L=$( Psw "Enter LUKS passphrase for ${1}" )
   fi &&
   printf '%s' "${L}" | eval sudo -A "${Cmd} -d $( l "${F}" )" &&
-  lsblk -no FSTYPE,SIZE,LABEL "${N}" | {
-    read -r F S L ; R=$( realpath "${N}" ) L="${L:-(no label)}"
+  { F=$( GP "${N}" FSTYPE ) L=$( GP "${N}" LABEL ) S=$( GP "${N}" SIZE )
+    R=$( realpath "${N}" ) F=${F:-(no FS)} L=${L:-(no label)}
     printf 'Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n' \
       "${1}" "${P}" "${N}" "${R}" "${R##*/}" "${F}" "${L}" "${S}"
-    C=${TMOUNT_Mount_command:-}
-    if [ "${C}" ] && HasFS "${R}" ; then eval " ${C} $( l "${R}" )" ; fi
+    if HasFS "${R}" ; then eval " ${TMOUNT_Mount_command:-:} $( l "${R}" )"
+    fi
   }
 
 #eof

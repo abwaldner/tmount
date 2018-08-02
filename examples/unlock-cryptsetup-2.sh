@@ -17,6 +17,8 @@
   l () { printf 'b%se' "${1}" | sed "s/''*/'\"&\"'/g ; 1 s/^b/'/ ; $ s/e$/'/"
   } # l - substitutes a literal in 'eval' or 'su -c' arguments
 
+  GP () { lsblk -plno "${2}" "${1}" ; } # GP - get property for device
+
   HasFS () { udevadm info "${1}" | grep -Fxq 'E: ID_FS_USAGE=filesystem'
   } # HasFS
 
@@ -45,22 +47,22 @@
       case "${M}" in K|k ) M='-k' ;; I|i ) M='-i' ;; * ) M='' ;; esac
     }
 
-    if [ "${M}" = '-k' ] ; then
+    [ "${M}" = '-k' ] && {
       echo 'Enter key file name' ; echo '  or empty string to cancel...'
       if IFS='' read -r F && [ "${F}" ]
       then Cmd="${Cmd} -d $( l "${F}" )" ; else M=''
       fi
-    fi
+    }
 
-    if ! [ "${M}" ] ; then ! echo Cancelled.
-    else echo 'su - ' ; su -c "${Cmd}"
+    if [ "${M}" ] ; then echo 'su - ' ; su -c "${Cmd}"
+    else ! echo Cancelled.
     fi &&
-    lsblk -no FSTYPE,SIZE,LABEL "${N}" | {
-      read -r F S L ; R=$( realpath "${N}" ) L="${L:-(no label)}"
+    { F=$( GP "${N}" FSTYPE ) L=$( GP "${N}" LABEL ) S=$( GP "${N}" SIZE )
+      R=$( realpath "${N}" ) F=${F:-(no FS)} L=${L:-(no label)}
       printf 'Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n' \
         "${1}" "${P}" "${N}" "${R}" "${R##*/}" "${F}" "${L}" "${S}"
-      C=${TMOUNT_Mount_command:-}
-      if [ "${C}" ] && HasFS "${R}" ; then eval " ${C} $( l "${R}" )" ; fi
+      if HasFS "${R}" ; then eval " ${TMOUNT_Mount_command:-:} $( l "${R}" )"
+      fi
     }
 
     echo ; echo 'Press Enter to continue...' ; read -r M

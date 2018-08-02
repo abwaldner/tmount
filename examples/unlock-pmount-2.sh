@@ -1,5 +1,7 @@
 #!/bin/sh
 
+  # Don't use this with regular files!
+
 # ---------------------------------------------------------------------------
   MyTerm () {
     exec 2>/dev/null xfce4-terminal --disable-server --hide-menubar \
@@ -11,6 +13,8 @@
 #    exec 2>/dev/null qterminal --geometry 400x100 --title tmount -e "${@}"
 #  } # MyTerm
 # ---------------------------------------------------------------------------
+
+  GP () { lsblk -plno "${2}" "${1}" ; } # GP - get property for device
 
   case "${1}" in -k|-i|-a ) M="${1}" ;; * ) M='' ;; esac
   case  ${#}  in 1 ) M='-a' ;; 2 ) shift ;; * ) M='' ;; esac
@@ -28,20 +32,21 @@
       case "${M}" in K|k ) M='-k' ;; I|i ) M='-i' ;; * ) M='' ;; esac
     }
 
+    [ "${M}" = '-k' ] && {
+      echo 'Enter key file name' ; echo '  or empty string to cancel...'
+      { IFS='' read -r F && [ "${F}" ] ; } || M=''
+    }
+
     case "${M}" in
-      -k )
-        echo 'Enter key file name' ; echo '  or empty string to cancel...'
-        if IFS='' read -r F && [ "${F}" ]
-        then pmount -p "${F}" "${1}" ; else ! echo Cancelled. >&2
-        fi ;;
-      -i ) pmount "${1}" ;; * ) ! echo Cancelled. >&2 ;;
+      -k ) pmount -p "${F}" "${1}" ;; -i ) pmount "${1}" ;;
+       * ) ! echo Cancelled. >&2   ;;
     esac &&
-    lsblk -plno NAME,FSTYPE,SIZE,MOUNTPOINT,LABEL "${1}" | {
-      read -r N ; read -r N F S M L
-      R=$( realpath "${N}" ) L="${L:-(no label)}"
+    { N=$( GP "${1}" NAME | tail -n 1 )
+      F=$( GP "${N}" FSTYPE ) L=$( GP "${N}" LABEL ) S=$( GP "${N}" SIZE )
+      R=$( realpath "${N}" ) F=${F:-(no FS)} L=${L:-(no label)}
       printf 'Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n' \
         "${1}" "${N##*/}" "${N}" "${R}" "${R##*/}" "${F}" "${L}" "${S}"
-      printf 'mounted on %s\n' "${M}"
+      printf 'mounted on %s\n' "$( GP "${N}" MOUNTPOINT )"
     }
 
     echo ; echo 'Press Enter to continue...' ; read -r M

@@ -28,6 +28,8 @@
   l () { printf 'b%se' "${1}" | sed "s/''*/'\"&\"'/g ; 1 s/^b/'/ ; $ s/e$/'/"
   } # l - substitutes a literal in 'eval' or 'su -c' arguments
 
+  GP () { lsblk -plno "${2}" "${1}" ; } # GP - get property for device
+
   HasFS () { udevadm info "${1}" | grep -Fxq 'E: ID_FS_USAGE=filesystem'
   } # HasFS
 
@@ -54,13 +56,12 @@
       printf '%s' "${L}" | eval "${Cmd} -d $( l "${F}" )"
     } 2>&1 )
   then
-    lsblk -no FSTYPE,SIZE,LABEL "${N}" | {
-      read -r F S L ; R=$( realpath "${N}" ) L="${L:-(no label)}"
-      printf 'Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n' \
-        "${1}" "${P}" "${N}" "${R}" "${R##*/}" "${F}" "${L}" "${S}"
-      C=${TMOUNT_Mount_command:-}
-      if [ "${C}" ] && HasFS "${R}" ; then eval " ${C} $( l "${R}" )" ; fi
-    }
+    F=$( GP "${N}" FSTYPE ) L=$( GP "${N}" LABEL ) S=$( GP "${N}" SIZE )
+    R=$( realpath "${N}" ) F=${F:-(no FS)} L=${L:-(no label)}
+    printf 'Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n' \
+      "${1}" "${P}" "${N}" "${R}" "${R##*/}" "${F}" "${L}" "${S}"
+    if HasFS "${R}" ; then eval " ${TMOUNT_Mount_command:-:} $( l "${R}" )"
+    fi
   elif [ false = "${TMOUNT_Unlock_show:-}" ] ; then Warn "${E}"
   else echo "${E}" ; sleep 1 # sleep is workaround for ktsuss
   fi
