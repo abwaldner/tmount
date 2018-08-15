@@ -297,7 +297,7 @@ void Listener :: RemoveDevice ( const UdevDev & Dev ) {
   const QString SP = Dev . SysPath ( ) ,
                 DN = Mounts :: EncodeIFS ( Dev . Property ( DM_NAME ) ) ;
 
-  foreach ( const ActPtr Act , FindActs ( SP ) ) { delete Act ; }//done
+  foreach ( const ActPtr A , FindActs ( SP ) ) { delete A ; }//done
 
   // Desperate attempt.
   MInfo . RefreshMountInfo ( ) ; // to prevent the misoperation.
@@ -309,8 +309,8 @@ void Listener :: RemoveDevice ( const UdevDev & Dev ) {
 
   if ( ! DN . isEmpty ( ) ) {
     const QRegExp RE ( "^[^ ]+ " + QRegExp :: escape ( DN ) + '$' ) ;
-    foreach ( const ActPtr Act , findChildren < ActPtr > ( RE ) ) {
-      const UdevDev UD ( UdevContext , sect ( Act -> objectName ( ) , 0 ) ) ;
+    foreach ( const ActPtr A , findChildren < ActPtr > ( RE ) ) {
+      const UdevDev UD ( UdevContext , sect ( A -> objectName ( ) , 0 ) ) ;
       SetActions ( UD ) ;
     }//done
   }//fi
@@ -369,8 +369,9 @@ void Listener :: SetActions ( const UdevDev & Dev ) {
   }//fi
 
   if ( FSys ) {
-    const QString FSL = Dev . Property ( FS_LABEL ) ;
-    Lbl += FSL . isEmpty ( ) ? tr ( ",(no label)" ) : ",[" + FSL + ']' ;
+    QString L = Dev . Property ( FS_LABEL ) ;
+    L = QString :: fromLocal8Bit ( L . toLatin1 ( ) ) ;
+    Lbl += L . isEmpty ( ) ? tr ( ",(no label)" ) : ",[" + L + ']' ;
   }//fi
   Lbl += ',' + ( Cap ? ToHum ( Cap ) : tr ( "(no media)" ) ) ;
 
@@ -389,18 +390,30 @@ void Listener :: SetActions ( const UdevDev & Dev ) {
 
   while ( AL . size ( ) > Sz ) { delete AL . takeLast ( ) ; }//done
     // Remove redundant items.
-  while ( AL . size ( ) < Sz ) { // Add laking items.
-    const ActPtr Act = addAction ( "" ) ;
-    AL += Act ; Act -> setCheckable ( true ) ;
-  }//done
 
-  foreach ( const QString MP , MPts ) {
-    QString M = sect ( MP , 0 ) ;
-    ActPtr Act = AL . takeFirst ( ) ;
-    Act -> setObjectName ( ( SPth + ' ' + M ) . trimmed ( ) ) ;
-    Act -> setIcon ( * Ico ) ; Act -> setChecked ( MoM ) ;
-    M += Cont && MoM ? " (" + sect ( MP , 1 ) + ")" : "" ;
-    Act -> setText ( Lbl + M ) ; Act -> setVisible ( Targ ) ;
+  while ( AL . size ( ) < Sz ) { AL += addAction ( "" ) ; }//done
+    // Add laking items.
+
+  ActPtr Aft = NULL ;
+  if ( ! Dev . Property ( DM_NAME ) . isEmpty ( ) && Sz == 1 ) {
+    foreach ( const QString S , Slaves ( Dev ) ) {
+      foreach ( const ActPtr N , FindActs ( S ) ) { Aft = N ; }//done
+    }//done
+  } else { Aft = AL . first ( ) ;
+  }//fi
+
+  foreach ( const QString M , MPts ) {
+    QString P = sect ( M , 0 ) ; ActPtr B = NULL ;
+    const ActPtr A = AL . takeFirst ( ) ; A -> setIcon ( * Ico ) ;
+    A -> setObjectName ( ( SPth + ' ' + P ) . trimmed ( ) ) ;
+    A -> setCheckable ( true ) ; A -> setChecked ( MoM ) ;
+    P += Cont && MoM ? " (" + sect ( M , 1 ) + ")" : "" ;
+    A -> setText ( Lbl + P ) ; A -> setVisible ( Targ ) ;
+    ActList L = actions ( ) ; int I = L . indexOf ( Aft ) ;
+    if ( 0 <= I && I < L . size ( ) - 2 ) { B = L . at ( I + 1 ) ; }//fi
+    if ( B != A && B != NULL ) { removeAction ( A ) ; insertAction ( B , A ) ;
+    }//fi
+    Aft = A ;
   }//done
 
 }// Listener :: SetActions
@@ -526,7 +539,7 @@ QStringList Listener :: Slaves ( const UdevDev & Dev ) const {
 QStringList Listener :: Parts ( const UdevDev & Dev ) const {
   QStringList L ; UdevEnum En ( UdevContext ) ; En . MatchParent ( Dev ) ;
   En . MatchProperty ( DEV_TYPE , TYPE_PART ) ; En . ScanDevs ( ) ;
-  foreach ( UdevPair const P , En . GetList ( ) ) { L << P . first ; }//done
+  foreach ( const UdevPair P , En . GetList ( ) ) { L << P . first ; }//done
   return L ;
 }// Listener :: Parts
 
