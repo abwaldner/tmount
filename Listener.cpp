@@ -299,13 +299,7 @@ void Listener :: RemoveDevice ( const UdevDev & Dev ) {
 
   foreach ( const ActPtr A , FindActs ( SP ) ) { delete A ; }//done
 
-  // Desperate attempt.
-  MInfo . RefreshMountInfo ( ) ; // to prevent the misoperation.
-  foreach ( const QString M , MPoints  ( Dev ) ) {
-    ExecCmd ( Opt . toStr ( kUnmntCmd  ) ,
-              Mounts :: DecodeIFS ( sect ( M , 0 ) ) ,
-              Opt . toInt ( kUnmntTO   ) , false ) ;
-  }//done
+  UnmntAll ( Dev , false ) ; // Desperate attempt.
 
   if ( ! DN . isEmpty ( ) ) {
     const QRegExp RE ( "^[^ ]+ " + QRegExp :: escape ( DN ) + '$' ) ;
@@ -316,6 +310,23 @@ void Listener :: RemoveDevice ( const UdevDev & Dev ) {
   }//fi
 
 }// Listener :: RemoveDevice
+
+int Listener :: UnmntAll ( const UdevDev & Dev , bool Show ) {
+  //   This is workaround for "pumount" bug (the unmounting not the point
+  // that the specified), and the precaution against infinite looping.
+  int RC = 0 ; bool NE ; int PS = 0 ;
+  do {
+    MInfo . RefreshMountInfo ( ) ;
+    const QStringList MP = MPoints ( Dev ) ;
+    const int CS = MP . size ( ) ; NE = CS != PS ; PS = CS ;
+    if ( NE ) {
+      RC = ExecCmd ( Opt . toStr ( kUnmntCmd ) ,
+                     Mounts :: DecodeIFS ( sect ( MP . first ( ) , 0 ) ) ,
+                     Opt . toInt ( kUnmntTO ) , Show ) ;
+    }//fi
+  } while ( NE && ! RC && PS != 1 ) ;
+  return RC ;
+}// Listener :: UnmntAll
 
 ActList Listener :: FindActs ( const QString & Key ) const {
   const QRegExp RE ( '^' + QRegExp :: escape ( Key ) + "( |$)" ) ;
@@ -370,7 +381,9 @@ void Listener :: SetActions ( const UdevDev & Dev ) {
 
   if ( FSys ) {
     QString L = Dev . Property ( FS_LABEL ) ;
+#if ( QT_VERSION < QT_VERSION_CHECK ( 5 , 0 , 0 ) )
     L = QString :: fromLocal8Bit ( L . toLatin1 ( ) ) ;
+#endif
     Lbl += L . isEmpty ( ) ? tr ( ",(no label)" ) : ",[" + L + ']' ;
   }//fi
   Lbl += ',' + ( Cap ? ToHum ( Cap ) : tr ( "(no media)" ) ) ;
@@ -409,7 +422,7 @@ void Listener :: SetActions ( const UdevDev & Dev ) {
     A -> setCheckable ( true ) ; A -> setChecked ( MoM ) ;
     P += Cont && MoM ? " (" + sect ( M , 1 ) + ")" : "" ;
     A -> setText ( Lbl + P ) ; A -> setVisible ( Targ ) ;
-    ActList L = actions ( ) ; int I = L . indexOf ( Aft ) ;
+    const ActList L = actions ( ) ; int I = L . indexOf ( Aft ) ;
     if ( 0 <= I && I < L . size ( ) - 2 ) { B = L . at ( I + 1 ) ; }//fi
     if ( B != A && B != NULL ) { removeAction ( A ) ; insertAction ( B , A ) ;
     }//fi

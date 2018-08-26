@@ -42,6 +42,8 @@ class Listener : public QMenu { Q_OBJECT
   private :
 
     void RemoveDevice      ( const UdevDev & Dev ) ;
+    int  UnmntAll          ( const UdevDev & Dev , bool Show ) ;
+      // Attempt to unmount all mountpoints for device.
     void SetupDevice       ( const UdevDev & Dev ,
                                    bool TryMount , bool Show ) ;
     void SetActions        ( const UdevDev & Dev ) ; // Reset menu items for.
@@ -54,9 +56,9 @@ class Listener : public QMenu { Q_OBJECT
                              int   Timeout , bool Show ) ;
     QStringList MPoints    ( const UdevDev & Dev ) const ; // Mountpoints for.
     QStringList Parts      ( const UdevDev & Dev ) const ; // Partitions of.
-    QStringList Holders    ( const UdevDev & Dev ) const ;
+    QStringList Holders    ( const UdevDev & Dev ) const ; // from sysfs.
     QStringList DM_Maps    ( const UdevDev & Dev ) const ; // Maps for cont.
-    QStringList Slaves     ( const UdevDev & Dev ) const ;
+    QStringList Slaves     ( const UdevDev & Dev ) const ; // from sysfs.
     static bool Ejectable  ( const UdevDev & Dev ) ;
     static bool hasFS      ( const UdevDev & Dev ) ; // Filesystem recognized.
     static bool isLUKS     ( const UdevDev & Dev ) ; // It's container.
