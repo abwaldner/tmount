@@ -54,6 +54,7 @@ class Listener : public QMenu { Q_OBJECT
     int  ExecCmd           ( const QString & Cmd ,
                              const QString & Arg ,
                              int   Timeout , bool Show ) ;
+    void RefreshMInfo      ( ) ;
     QStringList MPoints    ( const UdevDev & Dev ) const ; // Mountpoints for.
     QStringList Parts      ( const UdevDev & Dev ) const ; // Partitions of.
     QStringList Holders    ( const UdevDev & Dev ) const ; // from sysfs.
@@ -66,7 +67,7 @@ class Listener : public QMenu { Q_OBJECT
     static UdevDev & WDisk ( const UdevDev & Dev ) ; // Whole disk for dev.
     static QString ToHum   ( qulonglong KB ) ; // From KiB to human readable.
 
-    enum ActReq { reqNoAct , reqEject , reqRemove } ;
+    enum ActReq { reqNoAct , reqEject , reqRemove , reqUnmtAll } ;
 
     Udev UdevContext ; UdevMon UMonitor ;
       // Don't reorder, the monitor constructs from context.

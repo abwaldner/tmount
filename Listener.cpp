@@ -118,7 +118,8 @@ void Listener :: exec ( const QPoint & Loc ) {
                MoM  = ! MP . isEmpty ( ) ; // It's mounted or mapped.
     int RC = 0 ; // Return code for command.
 
-    if ( MoM || ! Suppl ) { // Currently Suppl may be Eject or Remove.
+    if ( MoM || ! Suppl ) {
+      // Currently Suppl may be Eject, Remove or UnmountAll.
 
       loKey C , T , S ;
       if ( MoM ) {
@@ -138,27 +139,35 @@ void Listener :: exec ( const QPoint & Loc ) {
 
     const UdevDev WD ( WDisk ( Dev ) ) ; // whole disk.
     bool Show = Opt . toBool ( kEjectShow ) ;
+    RefreshMInfo ( ) ;
 
-    { const bool A =
-        ! Opt . toStr  ( kEjectCmd  ) .  isEmpty ( ) &&
-          Opt . toBool ( kAutoEject ) && Ejectable ( WD ) ;
-      if ( MoM && A && ! Suppl ) {
+    { const bool
+        A = Opt . toBool ( kAutoEject ) ,
+        D = Opt . toStr  ( kEjectCmd  ) . isEmpty ( ) ,
+        L = ( MPoints ( Dev ) + Holders ( Dev ) ) . isEmpty ( ) ,
+        S = Suppl == reqEject || Suppl == reqRemove ,
+        E = Ejectable ( WD  ) ;
+      if ( MoM && ( L || Suppl ) && A && ! D && E && ! S ) {
         Suppl = reqEject ; Show = Opt . toBool ( kAutoEjShow ) ;
       }//fi
     }
 
     if ( RC ) { SetActions ( Dev ) ; // workaround for setChecked ()
-    } else if ( Suppl ) {
 
-      QStringList Msg , NL ; MInfo . RefreshMountInfo ( ) ;
-      Node = WD . DevNode ( ) ;
+    } else if ( Suppl == reqUnmtAll ) {
 
-      foreach ( const QString P ,
-                  QStringList ( WD . SysPath ( ) ) << Parts ( WD ) ) {
+      UnmntAll ( Dev , Opt . toBool ( kUnmntShow ) ) ;
+
+    } else if ( Suppl ) { // Eject or Remove.
+
+      QStringList Msg , NL ; Node = WD . DevNode ( ) ;
+
+      foreach ( const QString P , Parts ( WD ) << WD . SysPath ( ) ) {
         const UdevDev D ( UdevContext , P ) ;
         const QString N = D . DevNode ( ) ; NL += N ;
+        UnmntAll ( D , false ) ; RefreshMInfo ( ) ;
         foreach ( const QString M , MPoints ( D ) ) {
-          Msg << N + tr ( " mounted on " ) + sect ( M , 0 ) ;
+          Msg << N + tr ( " mounted on " ) + M ;
         }//done
         foreach ( const QString M , Holders ( D ) ) {
           Msg << N + tr ( " mapped on "  ) + M ;
@@ -236,7 +245,7 @@ void Listener :: DeviceAction ( ) {
 
 void Listener :: MountAction ( ) {
 
-  MInfo . RefreshMountInfo ( ) ;
+  RefreshMInfo ( ) ;
 
   QStringList L ;
   foreach ( const ActPtr A , actions ( ) ) {
@@ -316,7 +325,7 @@ int Listener :: UnmntAll ( const UdevDev & Dev , bool Show ) {
   // that the specified), and the precaution against infinite looping.
   int RC = 0 ; bool NE ; int PS = 0 ;
   do {
-    MInfo . RefreshMountInfo ( ) ;
+    RefreshMInfo ( ) ;
     const QStringList MP = MPoints ( Dev ) ;
     const int CS = MP . size ( ) ; NE = CS != PS ; PS = CS ;
     if ( NE ) {
@@ -518,6 +527,9 @@ void Listener :: AddImage ( ) {
   }//fi
 }// Listener :: AddImage
 
+void Listener :: RefreshMInfo ( ) { MInfo . RefreshMountInfo ( ) ;
+}// Listener :: RefreshMInfo
+
 QStringList Listener :: MPoints ( const UdevDev & Dev ) const {
   return MInfo . MPoints ( Dev . DevNum ( ) ) ;
 }// Listener :: MPoints
@@ -580,25 +592,26 @@ bool Listener :: isPart ( const UdevDev & Dev ) {
 
 void Listener :: contextMenuEvent ( QContextMenuEvent * event ) {
 
-  QMenu SMn ; // Supplementary actions menu.
+  QMenu SMn ; ActPtr SA ; // Supplementary actions menu.
   const ActPtr Act = activeAction ( ) ;
   const QString AN = Act -> objectName ( ) ; // Primary key.
-
   const UdevDev Dev ( UdevContext , sect ( AN , 0 ) ) ;
+  const bool MoM  = ! sect ( AN  , 1 ) . isEmpty ( ) ; // Mounted or mapped.
   const UdevDev WD  ( WDisk ( Dev ) ) ; // Whole disk.
 
-  const bool MoM  = ! sect ( AN  , 1 ) . isEmpty ( ) ; // Mounted or mapped.
-  const bool Cont = isLUKS ( Dev ) ;                   // It's container.
-
-  ActPtr SA ;
-
-  { const QString Txt = MoM
-                          ? ( Cont ? tr ( "Lock"   ) : tr ( "Unmount" ) )
-                          : ( Cont ? tr ( "Unlock" ) : tr ( "Mount"   ) ) ;
+  { const QString Txt =
+      isLUKS ( Dev ) ? ( MoM ? tr ( "Lock"    ) : tr ( "Unlock" ) )
+                     : ( MoM ? tr ( "Unmount" ) : tr ( "Mount"  ) ) ;
     SA = SMn . addAction ( Act -> icon ( ) , Txt ) ;
     SA -> setCheckable ( true ) ; SA -> setChecked ( Act -> isChecked ( ) ) ;
     SA -> setData ( ( uint ) reqNoAct ) ; SMn . setActiveAction ( SA ) ;
   }
+
+  if ( MPoints ( Dev ) . size ( ) > 1 ) {
+    SA = SMn . addAction ( Act -> icon ( ) , tr ( "Unmount all MP's" ) ) ;
+    SA -> setCheckable ( true ) ; SA -> setChecked ( true ) ;
+    SA -> setData ( ( uint ) reqUnmtAll ) ; SMn . setActiveAction ( SA ) ;
+  }//fi
 
   if ( ! Opt . toStr ( kEjectCmd ) . isEmpty ( ) &&
          Ejectable ( WD ) ) {

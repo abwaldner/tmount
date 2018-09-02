@@ -4,9 +4,14 @@ v. 0.0.8 -
   2) Changed the method of displaying the message "Devices not found."
   3) Changing the "Hidden devices" and "Show anyway" filds no longer
      requires restart the program.
-  4) The "lock-crypsetup- *" scripts try to unmount the containers FS,
-     if necessary.  The "unlock-cryptsetup- *" scripts call the mount
-     command if a FS is found in the container.
+  4) The "lock-crypsetup- *" scripts try to unmount all mountpoints of
+     the containers FS, if necessary.  The "unlock-cryptsetup- *"
+     scripts call the mount command if a FS is found in the container.
+     In all scripts fixed processing filenames and mountpoints
+     containing non-ascii and nonprintable characters.
+  5) Enhansed the order of displaying menu items.
+  6) Changed the behavior of the "Eject" and "Remove" actions.  Added
+     "Unmount all mountpoints" action.
 
 v. 0.0.7 - 2018.06.13
   1) Added "Hide icon/Show in tray" feature.
