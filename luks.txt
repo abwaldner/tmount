@@ -22,6 +22,8 @@
       The "pmount" program can by itself unlock LUKS container and can
   automatically lock it after unmounting contained to it filesystem and
   does not require an explicit call to the utility "cryptsetup".
+  However, it can't unlock nested containers and containers that do not
+  contain a filesystem.
       "udevil" users must add at least "/dev/dm*" to the parameter
   "allowed_internal_devices" in udevil.conf file.
       "sudo" users can greatly simplify the work with the utility

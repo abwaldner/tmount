@@ -14,8 +14,8 @@
   button click on the tray icon.  Context (right-click activated) menu
   of that icon contains the "Settings", "Quit" and "Add image" items.
   When you right-click on the action menu item, an supplementary menu is
-  activated that contains the "Extract" and/or "Disconnect" items, if
-  applicable to the device.
+  activated that contains the "Eject" and/or "Remove", and/or
+  "Unmount all [M]ount[P]oints" items, if applicable to the device.
 
      By default "tmount" use "udevil"
   (https://ignorantguru.github.com/udevil/) for mounting/unmounting.
@@ -30,8 +30,11 @@
   /dev/sdc[1-9] and /dev/sr0 for /dev/sr0) will be appended for eject
   and remove commands.  If you leave the "Eject" and "Remove" fields
   empty, the corresponding menu items will just become unavailable.
+      The "Unmount all MP" action applies the "Unmount" command to all
+  mountpoints of this device.
       Before running the "Remove" or "Eject" command, the application
-  checks if there are mounted filesystems or mapped containers on
+  tries to unmount all mountpoints on all partitions of the whole disk,
+  then checks if there are mounted filesystems or mapped containers on
   the specified device, and if the device or any of its partitions is in
   use by another programs.  However, the application can not detect
   programs launched by another user, such as (g)parted, *fdisk, mkfs.*
@@ -42,7 +45,9 @@
   the filesystem image file in the dialog box and passes its pathname to
   the command given in the "Add image" field of the settings dialog,
   similar to the device filename.  This is sufficient for the "udevil"
-  and "pmount" programs with the appropriate settings.
+  and "pmount" programs with the appropriate settings. (See, however,
+  the note about "pmount" in "luks.txt" file and the script
+  "img-pmount.sh" in the examples.)
       The timeout is specified for each action in the corresponding
   field.
       The switches "Mount New", "Mount media", and "Mount on start"
@@ -51,7 +56,8 @@
   the application, respectively.  By default all set to "off".
   The "Autoeject" switch controls the automatic use of the "eject"
   command, if defined, to the ejection-capable devices after a
-  successful unmounting. It is set to "on" by default.
+  successfuly unmounting the last mountpoint for this device.  It is set
+  to "on" by default.
       The "Show" group of switches determines whether to show the output
   of the command (either explicitly or implicitly) when it successfully
   completes.  Note: error messages can not be disabled.  Both blocks
@@ -111,11 +117,12 @@
       Installation:
       -------------
 
-  1)  Make sure that the packages "qtcore", "qtgui" and "linguist-tools"
-      are installed.  The last package is necessary in case of use of
-      Qt5 and if you need to install the translations (currently only
-      Russian translation present).  In some distributions you may need
-      "developers packages" - "-devel", "-tools" or similar.
+  1)  Make sure that the packages "qtcore", "qtgui", "qtwidgets" (for
+      Qt5) and "linguist-tools" are installed.  The last package is
+      necessary in case of use of Qt5 and if you need to install the
+      translations (currently only Russian translation present).  In
+      some distributions you may need "developers packages" - "-devel",
+      "-tools" or similar.
   2)  Extract project directory from archive and "cd" to it.
   3)  Type "qmake" to configure the program.  If you would like to
       install the program somewhere other than /usr, pass a new value

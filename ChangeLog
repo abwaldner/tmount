@@ -12,6 +12,7 @@ v. 0.0.8 -
   5) Enhansed the order of displaying menu items.
   6) Changed the behavior of the "Eject" and "Remove" actions.  Added
      "Unmount all mountpoints" action.
+  7) Updated the documentation.
 
 v. 0.0.7 - 2018.06.13
   1) Added "Hide icon/Show in tray" feature.
