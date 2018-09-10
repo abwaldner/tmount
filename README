@@ -48,6 +48,13 @@
   and "pmount" programs with the appropriate settings. (See, however,
   the note about "pmount" in "luks.txt" file and the script
   "img-pmount.sh" in the examples.)
+    In all the above fields, no shell expansions are made, except for
+  grouping strings in double quotes into one parameter.  To specify
+  double quotes literally they must be tripled.  The pathname of
+  the command can be determined from the $PATH variable or specified
+  explicitly.  Since, as a rule, the program is launched, having its
+  current working directory the user's home directory, you can use, for
+  example, the "./bin/myscrypt" notation.
       The timeout is specified for each action in the corresponding
   field.
       The switches "Mount New", "Mount media", and "Mount on start"
