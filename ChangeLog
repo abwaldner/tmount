@@ -1,5 +1,5 @@
 
-v. 0.0.8 -
+v. 0.0.8 - 2018.09.13
   1) Enhanced config file synchronization.
   2) Changed the method of displaying the message "Devices not found."
   3) Changing the "Hidden devices" and "Show anyway" filds no longer
