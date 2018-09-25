@@ -36,11 +36,11 @@
 
   while { ! $RetC && [ set M [ Prop $Lnk MOUNTPOINT ] ] ne {} } {
     set RetC [ catch { exec -ignorestderr -- {*}$C $M } ]
-  }
+  };#done
 
   if { ! $RetC } {
 
-    set timeout -1 ; log_user 0 ; set env(LC_ALL) {C} ; set Err {}
+    set timeout -1 ; log_user 0 ; set Err {} ; set env(LC_ALL) {C}
 
     spawn su -c $Cmd
     expect {
@@ -49,7 +49,7 @@
       }
       full_buffer { append Err $expect_out(buffer) ; exp_continue }
       eof { append Err $expect_out(buffer) }
-    }
+    };#done
     set RetC [ lrange [ wait ] 3 3 ]
 
     if { $RetC } { puts stderr $Err } else { puts "${Map} released." };#fi

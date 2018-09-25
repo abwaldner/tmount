@@ -18,7 +18,7 @@
   GP () { lsblk -plno "${2}" "${1}" ; } # GP - get property for device
 
   N="/dev/mapper/${1}"
-  C=${TMOUNT_Unmount_command:-'! echo Unmount disabled by config. >&2 '}
+  C=${TMOUNT_Unmount_command:- ! echo Unmount disabled by config. >&2 }
 
   while
     M=$( GP "${N}" MOUNTPOINT ) ; [ "${M}" ] && eval " ${C} $( l "${M}" )"
