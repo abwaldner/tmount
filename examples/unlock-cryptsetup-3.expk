@@ -32,7 +32,7 @@
     return [ set P ]
   };# Prop
 
-  set RetC 1 ; set SN [ info script ]
+  set RetC 1 ; set SN [ info script ] ; set EOF "\004"
   set Dev [ lindex $argv end ]
   set Lnk [ GenMN $Dev ] ; set Map [ file tail $Lnk ]
   set Cmd "sudo -A ${Cmd} open"
