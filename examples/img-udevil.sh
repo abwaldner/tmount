@@ -4,11 +4,9 @@
   } # l - substitutes a literal in 'eval' or 'su -c' arguments
 
   if file -bL "${1}" | grep '^LUKS ' ; then
-    C="${TMOUNT_Unlock_command:-}"
-    if [ "${C}" ] ; then eval exec "${C} $( l "${1}" )"
-    else ! echo "Disabled by configuration." >&2
-    fi
-  else exec udevil mount "${1}"
+    C=${TMOUNT_Unlock_command:- sh -c \' ! echo Disabled by config. >&2 \' }
+  else C=' udevil mount '
   fi
+  eval exec " ${C} $( l "${1}" )"
 
 #eof

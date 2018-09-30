@@ -57,7 +57,7 @@
     if [ "${M}" ] ; then echo 'sudo -' ; eval sudo "${Cmd}"
     else ! echo Cancelled. >&2
     fi &&
-    { F=$( GP "${N}" FSTYPE ) L=$( GP "${N}" LABEL ) S=$( GP "${N}" SIZE )
+    ( F=$( GP "${N}" FSTYPE ) L=$( GP "${N}" LABEL ) S=$( GP "${N}" SIZE )
       R=$( realpath "${N}" ) F=${F:-(no FS)} L=${L:-(no label)}
       printf 'Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n' \
         "${1}" "${P}" "${N}" "${R}" "${R##*/}" "${F}" "${L}" "${S}"
@@ -65,7 +65,7 @@
         C=${TMOUNT_Mount_command:- ! echo Mounting disabled for >&2 }
         eval " ${C} $( l "${R}" )"
       fi
-    }
+    ) # (...) is overcaution for 'eval'
 
     echo ; echo 'Press Enter to continue...' ; read -r M
 

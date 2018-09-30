@@ -47,7 +47,7 @@
   proc Prop { Dev N } { ;# get property for device
     if [ catch { exec lsblk -no $N $Dev } P ] { set P {} };#fi
     return [ set P ]
-  }
+  };# Prop
 
   set RetC 1 ; set SN [ info script ]
   set Dev [ lindex $argv end ]
@@ -87,22 +87,21 @@
       full_buffer { append Err $expect_out(buffer) ; exp_continue }
       eof { append Err $expect_out(buffer) }
     };#done
-    set RetC [ lrange [ wait ] 3 3 ]
+    set RetC [ lrange [ wait ] 3 3 ] ; set env(LC_ALL) $LC
 
     if { $RetC } { puts stderr $Err
     } else {
-      set env(LC_ALL) $LC
       set F [ Prop $Lnk FSTYPE ] ; regsub {^$} $F {(no FS)}    F
       set L [ Prop $Lnk LABEL  ] ; regsub {^$} $L {(no label)} L
       set S [ Prop $Lnk SIZE   ] ; set R [ exec realpath $Lnk ]
-      set X "Device %s mapped to %s.\n%s -> %s\n%s (%s, \[%s], %s)\n"
+      set X "Device %s mapped to %s.\n%s -> %s\n%s (%s, \[%s], %s)"
       puts [ format $X $Dev $Map $Lnk $R [ file tail $R ] $F $L $S ]
       set C TMOUNT_Mount_command
       set C [ expr { [ info exist env($C) ] ? $env($C) : {} } ]
       regsub {^$} $C { sh -c "! echo Mounting disabled for ${0} >\&2" } C
       if { ! [ NoFS $R ] } {
         set RetC [ catch { exec -ignorestderr -- {*}$C $R } ]
-        if { ! $RetC } { puts "mounted on [ Prop $R MOUNTPOINT ]" };#fi
+        puts "mounted on [ Prop $R MOUNTPOINT ]"
       };#fi
     };#fi
 
