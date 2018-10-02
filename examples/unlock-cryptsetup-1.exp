@@ -41,7 +41,7 @@
   proc GenMN { Dev } { ;# generate cryptsetups map name
     set M [ file tail $Dev ]
     set M [ regsub -all {[^[:alnum:]#+-.:=@]|[^[:ascii:]]} $M {_} ]
-    return [ exec mktemp -u -p /dev/mapper "${M}-XXX" ]
+    return [ exec mktemp -u -p /dev/mapper "_${M}-XXX" ]
   };# GenMN
 
   proc Prop { Dev N } { ;# get property for device
@@ -61,9 +61,8 @@
   ]
 
   if { $Mode eq {} } {
-    puts stderr [
-      format {Usage: %s [-k|-i|-a] {device|file}} [ file tail $SN ]
-    ]
+    set X {Usage: %s [-k|-i|-a] {device|file}}
+    puts stderr [ format $X [ file tail $SN ] ]
   };#fi
 
   if { $Mode eq {a} } { set Mode [ Mode ] };#fi
@@ -78,7 +77,7 @@
 
     spawn su -c $Cmd
     expect {
-      {^Password: } {
+      {Password: } {
         exp_send [ Psw {su: Enter root password} ] ; exp_continue
       }
       {Enter passphrase for *: } {

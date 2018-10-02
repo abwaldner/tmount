@@ -33,7 +33,7 @@
 
   GenMN () { # generate cryptsetups map name
     mktemp -u -p /dev/mapper \
-      "$( printf '%s' "${1##*/}" | tr -c '[:alnum:]#+-.:=@' '_')-XXX"
+      "_$( printf '%s' "${1##*/}" | tr -c '[:alnum:]#+-.:=@' '_')-XXX"
   } # GenMN
 
   case "${1}" in -k|-i|-a ) M="${1}" ;; * ) M='' ;; esac

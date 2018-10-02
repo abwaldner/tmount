@@ -15,9 +15,6 @@
    return $RetC
   };# Dlg
 
-  proc ShLit { S } { return "'[ regsub -all {'+} $S {'"&"'} ]'"
-  };# ShLit - substitutes a literal in 'su -c' (or 'sh -c') argument
-
   proc Prop { Dev N } { ;# get property for device
     if [ catch { exec lsblk -no $N $Dev } P ] { set P {} };#fi
     return [ set P ]
@@ -42,12 +39,12 @@
     bind   .ok  <Return> { set RetC 0 } ; bind .esc <Return> { set RetC 1 }
     pack   .esc .ok -side right -in .btn
     entry  .ent -show {*} -textvar Psw  ; bind .ent <Return> { set RetC 0 }
-    .lbl   configure -text {su: Enter root password}
+    .lbl   configure -text {sudo: Enter your password}
     pack   .lbl .ent .btn -fill x -padx 2
     set timeout -1 ; log_user 0 ; set Err {} ; set env(LC_ALL) {C}
     set EOF "\004"
 
-    spawn su -c "${Cmd} close -- [ ShLit $Map ]"
+    spawn sudo $Cmd close -- $Map
     expect {
       {Password: } {
         if [ Dlg ] { set Psw $EOF };#fi

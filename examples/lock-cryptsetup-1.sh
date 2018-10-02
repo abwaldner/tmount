@@ -26,7 +26,7 @@
 
   ! [ "$( GP "${N}" MOUNTPOINT )" ] &&
   if [ "$( id -u )" != 0 ] ; then MySu "${0} $( l "${1}" )"
-  elif E=$( eval "${Cmd} close $( l "${1}" )" 2>&1 ) #"
+  elif E=$( eval "${Cmd} close -- $( l "${1}" )" 2>&1 ) #"
   then echo "${1} released." ; sleep 1
   elif [ true = "${TMOUNT_Lock_show:-}" ]
   then echo "${E}" ; sleep 1 # sleep is workaround for ktsuss

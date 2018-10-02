@@ -28,7 +28,7 @@
 
   ! [ "$( GP "${N}" MOUNTPOINT )" ] &&
   if tty >/dev/null ; then
-    echo 'sudo -' ; sudo "$Cmd" close "${1}" && echo "${1} released."
+    echo 'sudo -' ; sudo "$Cmd" close -- "${1}" && echo "${1} released."
     echo ; echo 'Press Enter to continue...' ; read -r M
   else MyTerm "${0}" "${@}"
   fi

@@ -26,7 +26,7 @@
   proc GenMN { Dev } { ;# generate cryptsetups map name
     set M [ file tail $Dev ]
     set M [ regsub -all {[^[:alnum:]#+-.:=@]|[^[:ascii:]]} $M {_} ]
-    return [ exec mktemp -u -p /dev/mapper "${M}-XXX" ]
+    return [ exec mktemp -u -p /dev/mapper "_${M}-XXX" ]
   };# GenMN
 
   proc Prop { Dev N } { ;# get property for device
@@ -46,9 +46,8 @@
   ]
 
   if { $Mode eq {} } {
-    puts stderr [
-      format {Usage: %s [-k|-i|-a] {device|file}} [ file tail $SN ]
-    ]
+    set X {Usage: %s [-k|-i|-a] {device|file}}
+    puts stderr [ format $X [ file tail $SN ] ]
   } else {
     wm withdraw . ; wm title . tmount ; label .lbl ; frame .btn
     wm iconphoto . [ image create photo -file /usr/share/pixmaps/tmount.png ]
@@ -86,12 +85,12 @@
 
     spawn su -c $Cmd
     expect {
-      {^Password: } {
+      {Password: } {
         if [ Dlg ] { set Psw $EOF };#fi
-        catch { .lbl configure -text "Enter LUKS passphrase for ${Dev}" }
         exp_send "${Psw}\n" ; exp_continue
       }
       {Enter passphrase for *: } {
+        .lbl configure -text "Enter LUKS passphrase for ${Dev}"
         set Psw {} ; if [ Dlg ] { set Psw $EOF };#fi
         exp_send "${Psw}\n" ; exp_continue
       }

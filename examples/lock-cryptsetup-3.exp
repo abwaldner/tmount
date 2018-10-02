@@ -19,9 +19,6 @@
     return "${P}\n"
   };# Psw
 
-  proc ShLit { S } { return "'[ regsub -all {'+} $S {'"&"'} ]'"
-  };# ShLit - substitutes a literal in 'su -c' (or 'sh -c') argument
-
   proc Prop { Dev N } { ;# get property for device
     if [ catch { exec lsblk -no $N $Dev } P ] { set P {} };#fi
     return [ set P ]
@@ -40,10 +37,10 @@
 
     set timeout -1 ; log_user 0 ; set Err {} ; set env(LC_ALL) {C}
 
-    spawn su -c "${Cmd} close -- [ ShLit $Map ]"
+    spawn sudo $Cmd close -- $Map
     expect {
       {Password: } {
-        exp_send [ Psw {su: Enter root password} ] ; exp_continue
+        exp_send [ Psw {sudo: Enter your password} ] ; exp_continue
       }
       full_buffer { append Err $expect_out(buffer) ; exp_continue }
       eof { append Err $expect_out(buffer) }

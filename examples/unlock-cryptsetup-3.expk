@@ -3,7 +3,6 @@
   package require Expect
 
   set Cmd /sbin/cryptsetup
-  set Ask tmount-askpass.tk ;# should be in the same directory
 
   proc Dlg {} {
    global RetC
@@ -24,7 +23,7 @@
   proc GenMN { Dev } { ;# generate cryptsetups map name
     set M [ file tail $Dev ]
     set M [ regsub -all {[^[:alnum:]#+-.:=@]|[^[:ascii:]]} $M {_} ]
-    return [ exec mktemp -u -p /dev/mapper "${M}-XXX" ]
+    return [ exec mktemp -u -p /dev/mapper "_${M}-XXX" ]
   };# GenMN
 
   proc Prop { Dev N } { ;# get property for device
@@ -35,7 +34,7 @@
   set RetC 1 ; set SN [ info script ] ; set EOF "\004"
   set Dev [ lindex $argv end ]
   set Lnk [ GenMN $Dev ] ; set Map [ file tail $Lnk ]
-  set Cmd "sudo -A ${Cmd} open"
+  set Cmd "sudo ${Cmd} open"
   set Mode [
     set M [ lindex $argv 0 ]
     if { $argc == 2 && $M in { -k -i -a } } { string range $M 1 1
@@ -44,9 +43,8 @@
   ]
 
   if { $Mode eq {} } {
-    puts stderr [
-      format {Usage: %s [-k|-i|-a] {device|file}} [ file tail $SN ]
-    ]
+    set X {Usage: %s [-k|-i|-a] {device|file}}
+    puts stderr [ format $X [ file tail $SN ] ]
   } else {
     wm withdraw . ; wm title . tmount ; label .lbl ; frame .btn
     wm iconphoto . [ image create photo -file /usr/share/pixmaps/tmount.png ]
@@ -70,25 +68,28 @@
 
   if { $Mode eq {k} } {
     set KeyF [ tk_getOpenFile -title {tmount - Select a key file} ]
-    if { $KeyF ne {} } { append Cmd { -d}
-    } else { set Mode {} ; set RetC 1 ; puts stderr Cancelled.
+    if { $KeyF eq {} } { set Mode {} ; set RetC 1 ; puts stderr Cancelled.
     };#fi
   };#fi
 
   if { $Mode ne {} } {
 
     entry .ent -show {*} -textvar Psw ; bind .ent <Return> { set RetC 0 }
-    .lbl  configure -text "Enter LUKS passphrase for ${Dev}"
+    .lbl  configure -text {sudo: Enter your password}
     pack  .ent -fill x -padx 2
-    set env(SUDO_ASKPASS) [ file join [ file dirname $SN ] $Ask ]
     set timeout -1 ; log_user 0 ; set Err {}
     set LC $env(LC_ALL) ; set env(LC_ALL) {C}
 
     if { $Mode eq {k} } {
-      spawn {*}$Cmd $KeyF $Dev $Map } else { spawn {*}$Cmd $Dev $Map
+      spawn {*}$Cmd -d $KeyF $Dev $Map } else { spawn {*}$Cmd $Dev $Map
     };#fi
     expect {
+      {Password: } {
+        if [ Dlg ] { set Psw $EOF };#fi
+        exp_send "${Psw}\n" ; exp_continue
+      }
       {Enter passphrase for *: } {
+        .lbl configure -text "Enter LUKS passphrase for ${Dev}"
         set Psw {} ; if [ Dlg ] { set Psw $EOF };#fi
         exp_send "${Psw}\n" ; exp_continue
       }

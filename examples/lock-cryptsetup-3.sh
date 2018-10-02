@@ -2,7 +2,6 @@
 
   Cmd='/sbin/cryptsetup'
   Ask='tmount-askpass.sh' # should be in the same directory
-#  Ask='tmount-askpass.tk'
   SUDO_ASKPASS="$( dirname "${0}" )/${Ask}" ; export SUDO_ASKPASS
 
   l () { printf 'b%se' "${1}" | sed "s/''*/'\"&\"'/g ; 1 s/^b/'/ ; $ s/e$/'/"
@@ -18,6 +17,6 @@
   do : ; done
 
   ! [ "$( GP "${N}" MOUNTPOINT )" ] &&
-  sudo -A "${Cmd}" close "${1}" && echo "${1} released."
+  sudo -A "${Cmd}" close -- "${1}" && echo "${1} released."
 
 #eof
