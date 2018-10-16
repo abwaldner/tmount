@@ -33,10 +33,10 @@
   proc ShLit { S } { return "'[ regsub -all {'+} $S {'"&"'} ]'"
   };# ShLit - substitutes a literal in 'su -c' (or 'sh -c') argument
 
-  proc NoFS { Dev } {
-    set P {E: ID_FS_USAGE=filesystem}
-    return [ catch { exec udevadm info $Dev | grep -Fxq $P } ]
-  };# NoFS
+  proc HasFS { Dev } {
+    catch { exec udevadm info $Dev } P
+    return [ regexp -line {^E: ID_FS_USAGE=filesystem$} $P ]
+  };# HasFS
 
   proc GenMN { Dev } { ;# generate cryptsetups map name
     set M [ file tail $Dev ]
@@ -49,10 +49,9 @@
     return [ set P ]
   };# Prop
 
-  set RetC 1 ; set SN [ info script ]
-  set Dev [ lindex $argv end ]
-  set Lnk [ GenMN $Dev ] ; set Map [ file tail $Lnk ]
-  set Cmd "${Cmd} open [ ShLit $Dev ] [ ShLit $Map ]"
+  set RetC 1 ; set Err {} ; set Dev [ lindex $argv end ]
+  set Lnk  [ GenMN $Dev ] ; set Map [ file tail $Lnk ]
+  append Cmd " open [ ShLit $Dev ] [ ShLit $Map ]"
   set Mode [
     set M [ lindex $argv 0 ]
     if { $argc == 2 && $M in { -k -i -a } } { string range $M 1 1
@@ -62,7 +61,7 @@
 
   if { $Mode eq {} } {
     set X {Usage: %s [-k|-i|-a] {device|file}}
-    puts stderr [ format $X [ file tail $SN ] ]
+    set Err [ format $X [ file tail [ info script ] ] ]
   };#fi
 
   if { $Mode eq {a} } { set Mode [ Mode ] };#fi
@@ -72,10 +71,10 @@
 
   if { $Mode ne {} } {
 
-    set timeout -1 ; log_user 0 ; set Err {}
-    set LC $env(LC_ALL) ; set env(LC_ALL) {C}
+    set timeout -1 ; log_user 0 ; set Err {} ; set LC $env(LC_ALL)
 
-    spawn su -c $Cmd
+    set env(LC_ALL) {C} ; spawn su -c $Cmd ; set env(LC_ALL) $LC
+
     expect {
       {Password: } {
         exp_send [ Psw {su: Enter root password} ] ; exp_continue
@@ -86,24 +85,28 @@
       full_buffer { append Err $expect_out(buffer) ; exp_continue }
       eof { append Err $expect_out(buffer) }
     };#done
-    set RetC [ lrange [ wait ] 3 3 ] ; set env(LC_ALL) $LC
 
-    if { $RetC } { puts stderr $Err
-    } else {
-      set F [ Prop $Lnk FSTYPE ] ; regsub {^$} $F {(no FS)}    F
-      set L [ Prop $Lnk LABEL  ] ; regsub {^$} $L {(no label)} L
-      set S [ Prop $Lnk SIZE   ] ; set R [ exec realpath $Lnk ]
-      set X "Device %s mapped to %s.\n%s -> %s\n%s (%s, \[%s], %s)"
-      puts [ format $X $Dev $Map $Lnk $R [ file tail $R ] $F $L $S ]
+    set RetC [ lrange [ wait ] 3 3 ]
+
+    if { ! $RetC && [ HasFS $Lnk ] } {
       set C TMOUNT_Mount_command
       set C [ expr { [ info exist env($C) ] ? $env($C) : {} } ]
-      regsub {^$} $C { sh -c "! echo Mounting disabled for ${0} >\&2" } C
-      if { ! [ NoFS $R ] } {
-        set RetC [ catch { exec -ignorestderr -- {*}$C $R } ]
-        puts "mounted on [ Prop $R MOUNTPOINT ]"
+      if { $C ne {} } { set RetC [ catch { exec -- {*}$C $Lnk } Err ]
+      } else { set RetC 1 ; set Err {Config error: mounting disabled}
       };#fi
     };#fi
 
+  };#fi
+
+  if { $RetC } { puts stderr $Err
+  } else {
+    set R [ exec realpath $Lnk ] ; set B [ file tail $R ]
+    set F [ Prop $R FSTYPE ] ; regsub {^$} $F {(no FS)}    F
+    set L [ Prop $R LABEL  ] ; regsub {^$} $L {(no label)} L
+    set S [ Prop $R SIZE   ] ; set M [ Prop $R MOUNTPOINT ]
+    set X "Device %s mapped to %s\n%s -> %s\n"
+    append X "%s (%s, \[%s], %s)\nmounted on %s"
+    puts [ format $X $Dev $Map $Lnk $R $B $F $L $S $M ]
   };#fi
 
 exit $RetC

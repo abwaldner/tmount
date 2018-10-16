@@ -36,12 +36,13 @@
   else L=$( Psw "Enter LUKS passphrase for ${1}" )
   fi &&
   printf '%s' "${L}" | pmount -p "${F}" "${1}" &&
-  { N=$( GP "${1}" NAME | tail -n 1 )
-    F=$( GP "${N}" FSTYPE ) L=$( GP "${N}" LABEL ) S=$( GP "${N}" SIZE )
-    R=$( realpath "${N}" ) F=${F:-(no FS)} L=${L:-(no label)}
-    printf 'Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n' \
-      "${1}" "${N##*/}" "${N}" "${R}" "${R##*/}" "${F}" "${L}" "${S}"
-    printf 'mounted on %s\n' "$( GP "${N}" MOUNTPOINT )"
+  { N=$( GP "${1}" NAME | tail -n 1 ) P=${N##*/}
+    F=$( GP "${N}" FSTYPE ) L=$( GP "${N}" LABEL ) R=$( realpath "${N}" )
+    printf 'Device %s mapped to %s\n%s -> %s\n' \
+           "${1}" "${P}" "${N}" "${R}"
+    printf '%s (%s, [%s], %s)\nmounted on %s\n' \
+           "${R##*/}" "${F:-(no FS)}" "${L:-(no label)}" \
+           "$( GP "${N}" SIZE )" "$( GP "${N}" MOUNTPOINT )"
   }
 
 #eof

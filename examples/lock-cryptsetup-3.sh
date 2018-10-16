@@ -17,6 +17,7 @@
   do : ; done
 
   ! [ "$( GP "${N}" MOUNTPOINT )" ] &&
-  sudo -A "${Cmd}" close -- "${1}" && echo "${1} released."
+  { ! [ -e "${N}" ] || sudo -A "${Cmd}" close -- "${1}" ; } &&
+  echo "${1} released."
 
 #eof

@@ -54,14 +54,16 @@
       else L=$( Psw "Enter LUKS passphrase for ${1}" )
       fi &&
       printf '%s' "${L}" | eval "${Cmd} -d $( l "${F}" )" &&
-      { F=$( GP "${N}" FSTYPE ) L=$( GP "${N}" LABEL ) S=$( GP "${N}" SIZE )
-        R=$( realpath "${N}" ) F=${F:-(no FS)} L=${L:-(no label)}
-        printf 'Device %s mapped to %s.\n%s -> %s\n%s (%s, [%s], %s)\n' \
-          "${1}" "${P}" "${N}" "${R}" "${R##*/}" "${F}" "${L}" "${S}"
-        if HasFS "${R}" ; then
-          C=${TMOUNT_Mount_command:- ! echo Mounting disabled for >&2 }
-          eval " ${C} $( l "${R}" )"
-        fi
+      if HasFS "${N}" ; then
+        C=${TMOUNT_Mount_command:- ! echo Mounting disabled for >&2 }
+        eval " ${C} $( l "${N}" ) " >/dev/null
+      fi &&
+      { F=$( GP "${N}" FSTYPE ) L=$( GP "${N}" LABEL ) R=$( realpath "${N}" )
+        printf 'Device %s mapped to %s\n%s -> %s\n' \
+               "${1}" "${P}" "${N}" "${R}"
+        printf '%s (%s, [%s], %s)\nmounted on %s\n' \
+               "${R##*/}" "${F:-(no FS)}" "${L:-(no label)}" \
+               "$( GP "${N}" SIZE )" "$( GP "${N}" MOUNTPOINT )"
       }
     } 2>&1 ) ||
     { [ false = "${TMOUNT_Unlock_show:-}" ] && Warn "${E}" ; }

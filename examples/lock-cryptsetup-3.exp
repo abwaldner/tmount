@@ -25,19 +25,22 @@
   };# Prop
 
   set RetC 0 ; set Map [ lindex $argv 0 ] ; set Lnk "/dev/mapper/${Map}"
+  lappend Cmd close -- $Map
   set C TMOUNT_Unmount_command
   set C [ expr { [ info exist env($C) ] ? $env($C) : {} } ]
-  regsub {^$} $C { sh -c "! echo Unmount disabled by config >\&2" } C
+  set M {Config error: unmounting disabled}
+  if { $C eq {} } { lappend C sh -c { ! echo "${0}" >&2 } $M };#fi
 
   while { ! $RetC && [ set M [ Prop $Lnk MOUNTPOINT ] ] ne {} } {
-    set RetC [ catch { exec -ignorestderr -- {*}$C $M } ]
+    set RetC [ catch { exec -- {*}$C $M } Err ]
   };#done
 
-  if { ! $RetC } {
+  if { ! $RetC && [ file exist $Lnk ] } {
 
-    set timeout -1 ; log_user 0 ; set Err {} ; set env(LC_ALL) {C}
+    set timeout -1 ; log_user 0 ; set Err {}
 
-    spawn sudo $Cmd close -- $Map
+    set env(LC_ALL) {C} ; spawn sudo {*}$Cmd
+
     expect {
       {Password: } {
         exp_send [ Psw {sudo: Enter your password} ] ; exp_continue
@@ -45,10 +48,11 @@
       full_buffer { append Err $expect_out(buffer) ; exp_continue }
       eof { append Err $expect_out(buffer) }
     };#done
+
     set RetC [ lrange [ wait ] 3 3 ]
 
-    if { $RetC } { puts stderr $Err } else { puts "${Map} released." };#fi
-
   };#fi
+
+  if { $RetC } { puts stderr $Err } else { puts "${Map} released." };#fi
 
 exit $RetC

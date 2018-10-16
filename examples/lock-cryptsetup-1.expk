@@ -11,9 +11,17 @@
    set y [ expr { [ winfo screenheight  . ] - [ winfo reqheight . ] } ]
    set y [ expr { $y / 2 - [ winfo vrooty . ] } ]
    wm geom . +$x+$y ; wm deiconify . ; focus .ent ; tkwait var RetC
-   catch { wm withdraw . } ; if { $RetC } { puts stderr Cancelled. };#fi
+   catch { wm withdraw . }
+   if { $RetC } { puts stderr Cancelled. };#fi
    return $RetC
   };# Dlg
+
+  proc Psw { Prompt } {
+    global Psw
+    .lbl configure -text $Prompt
+    set Psw {} ; if [ Dlg ] { set Psw "\004" };#fi
+    return "${Psw}\n"
+  };# Psw
 
   proc ShLit { S } { return "'[ regsub -all {'+} $S {'"&"'} ]'"
   };# ShLit - substitutes a literal in 'su -c' (or 'sh -c') argument
@@ -24,15 +32,17 @@
   };# Prop
 
   set RetC 0 ; set Map [ lindex $argv 0 ] ; set Lnk "/dev/mapper/${Map}"
+  append Cmd " close -- [ ShLit $Map ]"
   set C TMOUNT_Unmount_command
   set C [ expr { [ info exist env($C) ] ? $env($C) : {} } ]
-  regsub {^$} $C { sh -c "! echo Unmount disabled by config >\&2" } C
+  set M {Config error: unmounting disabled}
+  if { $C eq {} } { lappend C sh -c { ! echo "${0}" >&2 } $M };#fi
 
   while { ! $RetC && [ set M [ Prop $Lnk MOUNTPOINT ] ] ne {} } {
-    set RetC [ catch { exec -ignorestderr -- {*}$C $M } ]
+    set RetC [ catch { exec -- {*}$C $M } Err ]
   };#done
 
-  if { ! $RetC } {
+  if { ! $RetC && [ file exist $Lnk ] } {
 
     wm withdraw . ; wm title . tmount ; label .lbl ; frame .btn
     wm iconphoto . [ image create photo -file /usr/share/pixmaps/tmount.png ]
@@ -42,24 +52,23 @@
     bind   .ok  <Return> { set RetC 0 } ; bind .esc <Return> { set RetC 1 }
     pack   .esc .ok -side right -in .btn
     entry  .ent -show {*} -textvar Psw  ; bind .ent <Return> { set RetC 0 }
-    .lbl   configure -text {su: Enter root password}
     pack   .lbl .ent .btn -fill x -padx 2
-    set timeout -1 ; log_user 0 ; set Err {} ; set env(LC_ALL) {C}
-    set EOF "\004"
+    set timeout -1 ; log_user 0 ; set Err {}
 
-    spawn su -c "${Cmd} close -- [ ShLit $Map ]"
+    set env(LC_ALL) {C} ; spawn su -c $Cmd
+
     expect {
       {Password: } {
-        if [ Dlg ] { set Psw $EOF };#fi
-        exp_send "${Psw}\n" ; exp_continue
+        exp_send [ Psw {su: Enter root password} ] ; exp_continue
       }
       full_buffer { append Err $expect_out(buffer) ; exp_continue }
       eof { append Err $expect_out(buffer) }
     };#done
+
     set RetC [ lrange [ wait ] 3 3 ]
 
-    if { $RetC } { puts stderr $Err } else { puts "${Map} released." };#fi
-
   };#fi
+
+  if { $RetC } { puts stderr $Err } else { puts "${Map} released." };#fi
 
 exit $RetC
