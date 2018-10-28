@@ -42,7 +42,7 @@
   };# GenMN
 
   proc Prop { Dev N } { ;# get property for device
-    if [ catch { exec lsblk -no $N $Dev } P ] { set P {} };#fi
+    if [ catch { exec lsblk -dpno $N $Dev } P ] { set P {} };#fi
     return [ set P ]
   };# Prop
 

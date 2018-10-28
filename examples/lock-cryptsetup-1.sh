@@ -15,7 +15,7 @@
   l () { printf 'b%se' "${1}" | sed "s/''*/'\"&\"'/g ; 1 s/^b/'/ ; $ s/e$/'/"
   } # l - substitutes a literal in 'eval' or 'su -c' arguments
 
-  GP () { lsblk -plno "${2}" "${1}" ; } # GP - get property for device
+  GP () { lsblk -dpno "${2}" "${1}" ; } # GP - get property for device
 
   N="/dev/mapper/${1}"
   C=${TMOUNT_Unmount_command:- ! echo Unmount disabled by config. >&2 }

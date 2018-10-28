@@ -14,7 +14,7 @@
 #  } # MyTerm
 # ---------------------------------------------------------------------------
 
-  GP () { lsblk -plno "${2}" "${1}" ; } # GP - get property for device
+  GP () { lsblk -dpno "${2}" "${1}" ; } # GP - get property for device
 
   case "${1}" in -k|-i|-a ) M="${1}" ;; * ) M='' ;; esac
   case  ${#}  in 1 ) M='-a' ;; 2 ) shift ;; * ) M='' ;; esac
@@ -41,7 +41,7 @@
       -k ) pmount -p "${F}" "${1}" ;; -i ) pmount "${1}" ;;
        * ) ! echo Cancelled. >&2   ;;
     esac &&
-    { N=$( GP "${1}" NAME | tail -n 1 ) P=${N##*/}
+    { N=$( lsblk -plno NAME "${1}" | tail -n 1 ) P=${N##*/}
       F=$( GP "${N}" FSTYPE ) L=$( GP "${N}" LABEL ) R=$( realpath "${N}" )
       printf 'Device %s mapped to %s\n%s -> %s\n' \
              "${1}" "${P}" "${N}" "${R}"

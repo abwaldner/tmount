@@ -17,7 +17,7 @@
   l () { printf 'b%se' "${1}" | sed "s/''*/'\"&\"'/g ; 1 s/^b/'/ ; $ s/e$/'/"
   } # l - substitutes a literal in 'eval' or 'su -c' arguments
 
-  GP () { lsblk -plno "${2}" "${1}" ; } # GP - get property for device
+  GP () { lsblk -dpno "${2}" "${1}" ; } # GP - get property for device
 
   HasFS () { udevadm info "${1}" | grep -Fxq 'E: ID_FS_USAGE=filesystem'
   } # HasFS
