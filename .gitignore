@@ -1,0 +1,6 @@
+tmount.pro.user
+Makefile
+moc_*
+qrc_*
+*.o
+tmount

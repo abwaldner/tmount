@@ -1,8 +1,8 @@
 #!/bin/sh
 
-  # zenity/qarma --------------------------------------------------------------
+  # zenity/qarma -------------------------------------------------------------
 
-  Dlg () {
+  Dlg  () {
     zenity 2>/dev/null --title tmount \
       --window-icon /usr/share/pixmaps/tmount.png "${@}" ||
     ! echo Cancelled. >&2
@@ -12,7 +12,7 @@
     case $( Dlg --forms --add-combo 'Select' \
                 --text 'LUKS passphrase input method:' \
                 --combo-values 'Interactive|Key File'  ) in
-      I* ) echo -i ;; K* ) echo -k ;; * ) ! :
+      I* ) printf '%s' -i ;; K* ) printf '%s' -k ;; * ) ! : ;;
     esac
   } # Mode
 
@@ -20,7 +20,7 @@
     case $( Dlg --list --radiolist --hide-header \
                 --text 'LUKS passphrase input method:' \
                 --column 1 --column 2 TRUE Interactive FALSE 'Key File' ) in
-      I* ) echo -i ;; K* ) echo -k ;; * ) ! :
+      I* ) printf '%s' -i ;; K* ) printf '%s' -k ;; * ) ! : ;;
     esac
   } # Mode
 
@@ -31,9 +31,9 @@
 
   Warn () { Dlg --warning --no-markup --text "${1}" ; } # Warn
 
-  # Xdialog -------------------------------------------------------------------
+  # Xdialog ------------------------------------------------------------------
 
-  Dlg () {
+  Dlg  () {
     Xdialog 2>/dev/null --title tmount --stdout "${@}" ||
     ! echo Cancelled. >&2
   } # Dlg
@@ -53,38 +53,40 @@
         --backtitle 'Warning!' --msgbox "${1}" 0 0
   } # Warn
 
-  # gtkdialog -----------------------------------------------------------------
+  # gtkdialog ----------------------------------------------------------------
 
-  Dlg () {
-    local EXIT VAL Hdr Ftr
-    Hdr='<window title="tmount" image-name="/usr/share/pixmaps/tmount.png">'
-    Ftr='condition="command_is_true( [ $KEY_SYM = Escape ] && echo yes )"'
-    Ftr='<action signal="key-press-event" '"${Ftr}"'>Exit:Cancel</action>'
-    Ftr="${Ftr}"' </window>'
-    eval "$( D="${Hdr} ${1} ${Ftr}" gtkdialog -c -p D 2>/dev/null )"
+  Dlg  () ( # '(...)' used instead of 'local'.
+    H='<window title="tmount" image-name="/usr/share/pixmaps/tmount.png">'
+    F='condition="command_is_true( [ '
+    F="${F}"'$''KEY_SYM = Escape ] && echo yes )"'
+    F='<action signal="key-press-event" '"${F}"'>Exit:Cancel</action>'
+    F="${F}"' </window>'
+    eval "$( D="${H} ${1} ${F}" gtkdialog -c -p D 2>/dev/null )"
     [ OK = "${EXIT}" ] && echo "${VAL}" || ! echo Cancelled. >&2
-  } # Dlg
+  ) # Dlg
 
   Mode () {
-    local Frm
-    Frm='condition="command_is_true( [ $KEY_SYM = Return ] && echo yes )"'
-    Frm='<action signal="key-press-event" '"${Frm}"'>Exit:OK</action>'
-    Frm='
-      <frame LUKS passphrase input method:>
-        <vbox>
-          <radiobutton>
-            <label>Interactive</label> <variable>VAL</variable>
-          </radiobutton>
-          <radiobutton> <label>Key File</label> </radiobutton> '"${Frm}"'
-        </vbox>
-        <hbox> <button ok></button> <button cancel></button> </hbox>
-      </frame>
-    '
-    Frm=$( Dlg "${Frm}" )
-    case "${Frm}" in true ) echo -i ;; false ) echo -k ;; * ) ! : ;; esac
+    case $( # 'local' hot need in subshell.
+      F='condition="command_is_true( [ '
+      F="${F}"'$''KEY_SYM = Return ] && echo yes )"'
+      F='<action signal="key-press-event" '"${F}"'>Exit:OK</action>'
+      Dlg '
+        <frame LUKS passphrase input method:>
+          <vbox>
+            <radiobutton>
+              <label>Interactive</label> <variable>VAL</variable>
+            </radiobutton>
+            <radiobutton> <label>Key File</label> </radiobutton>
+            '"${F}"'
+          </vbox>
+          <hbox> <button ok></button> <button cancel></button> </hbox>
+        </frame>
+      '
+    ) in true ) printf '%s' -i ;; false ) printf '%s' -k ;; * ) ! : ;;
+    esac
   } # Mode
 
-  Psw () {
+  Psw  () {
     Dlg '
       <frame '"${1}"'>
         <entry visibility="false">
@@ -103,7 +105,8 @@
           <default>./</default> <variable>VAL</variable>
           <width>600</width><height>400</height>
           <action when="file-activated">Exit:OK</action>
-        </chooser> <hbox> <button cancel></button> </hbox>
+        </chooser>
+        <hbox> <button cancel></button> </hbox>
       </frame>
     '
   } # FSel
@@ -111,10 +114,36 @@
   Warn () {
     Dlg '
       <vbox>
-        <text label="Warning!"></text> <text label="'"${1}"'"></text>
+        <hbox>
+          <pixmap> <input file icon="dialog-warning"></input> </pixmap>
+          <text label="'"${1}"'"></text>
+        </hbox>
         <hbox> <button ok></button> </hbox>
       </vbox>
     '
   } # Warn
 
-#eof --------------------------------------------------------------------------
+  # yad ----------------------------------------------------------------------
+
+  Dlg  () {
+    yad 2>/dev/null --title tmount --center \
+      --window-icon /usr/share/pixmaps/tmount.png "${@}" ||
+    ! echo Cancelled. >&2
+  } # Dlg
+
+  Mode () {
+    case $( Dlg --entry --text 'LUKS passphrase input method:' \
+                --entry-label 'Select' 'Interactive' 'Key File' ) in
+      I* ) printf '%s' -i ;; K* ) printf '%s' -k ;; * ) ! : ;;
+    esac
+  } # Mode
+
+  Psw  () { Dlg --entry --hide-text --text "${1}" ; } # Psw
+
+  FSel () { Dlg --file --title 'tmount - Select a key file' ; } # FSel
+
+  Warn () {
+    Dlg --button gtk-ok --image dialog-warning --no-markup --text "${1}"
+  } # Warn
+
+#eof -------------------------------------------------------------------------

@@ -49,6 +49,10 @@
       Использование в примерах программы qarma
   (http://github.com/luebking/qarma) и собственной обёртки для задания
   переменной SUDO_ASKPASS обеспечивает вид, максимально похожий на вид
-  приложения.  Вы можете также использовать программы zenity, Xdialog
-  или gtkdialog, соответствующие функции приведены в файлах dialogs.sh и
-  dialogs.tcl.  Также вы можете использовать Expect+Tk (*.expk) скрипты.
+  приложения.  Вы можете также использовать программы
+  zenity (https://wiki.gnome.org/Projects/Zenity),
+  Xdialog (http://xdialog.free.fr/),
+  gtkdialog (https://github.com/oshazard/gtkdialog), или
+  yad (https://sourceforge.net/projects/yad-dialog/), соответствующие
+  функции приведены в файлах dialogs.sh и dialogs.tcl.  Также вы можете
+  использовать Expect+Tk (*.expk) скрипты.

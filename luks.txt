@@ -49,6 +49,9 @@
   (http://github.com/luebking/qarma) and own wrapper for setting of
   the SUDO_ASKPASS evironment variable provides a view that resembles
   the application as much as possible.  You can also use the programs
-  "zenity", "Xdialog" or "gtkdialog", the corresponding functions are
-  listed in the files "dialogs.sh" and "dialogs.tcl".  Also you can use
-  "Expect+Tk" (*.expk) scripts.
+  "zenity" (https://wiki.gnome.org/Projects/Zenity),
+  "Xdialog" (http://xdialog.free.fr/),
+  "gtkdialog" (https://github.com/oshazard/gtkdialog), or
+  "yad" (https://sourceforge.net/projects/yad-dialog/),
+  the corresponding functions are listed in the files "dialogs.sh" and
+  "dialogs.tcl".  Also you can use "Expect+Tk" (*.expk) scripts.

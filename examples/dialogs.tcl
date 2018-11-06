@@ -1,12 +1,12 @@
 #!/usr/bin/env expect
 
-  # zenity/qarma --------------------------------------------------------------
+  # zenity/qarma ------------------------------------------------------------
 
   proc Dlg { Res args } {
     upvar $Res R
     set L { --title tmount --window-icon /usr/share/pixmaps/tmount.png }
     set R [
-      if [ set C [ catch { exec qarma 2>/dev/null {*}$L {*}$args } S ] ] {
+      if [ set C [ catch { exec zenity 2>/dev/null {*}$L {*}$args } S ] ] {
         puts stderr [ regsub {^child .*abnormally$} $S Cancelled. ]
       } else { set S
       };#fi
@@ -37,7 +37,7 @@
     return $F
   };# FSel
 
-  # Xdialog -------------------------------------------------------------------
+  # Xdialog -----------------------------------------------------------------
 
   proc Dlg { Res args } {
     upvar $Res R
@@ -67,7 +67,7 @@
     return $F
   };# FSel
 
-  # gtkdialog -----------------------------------------------------------------
+  # gtkdialog ---------------------------------------------------------------
 
   proc Dlg { Res args } {
     upvar $Res R ; global env
@@ -113,4 +113,35 @@
     return $F
   };# FSel
 
-#eof --------------------------------------------------------------------------
+  # yad ---------------------------------------------------------------------
+
+  proc Dlg { Res args } {
+    upvar $Res R
+    set L { --title tmount --window-icon /usr/share/pixmaps/tmount.png }
+    append L { --center }
+    set R [
+      if [ set C [ catch { exec yad 2>/dev/null {*}$L {*}$args } S ] ] {
+        puts stderr [ regsub {^child .*abnormally$} $S Cancelled. ]
+      } else { set S
+      };#fi
+    ]
+    return $C
+  };# Dlg
+
+  proc Mode {} {
+    Dlg M --entry --text {LUKS passphrase input method:} \
+          --entry-label {Select} {Interactive} {Key File}
+    return [ string tolower [ string range $M 0 0 ] ]
+  };# Mode
+
+  proc Psw { Prompt } {
+    if [ Dlg P --entry --hide-text --text $Prompt ] { set P "\004" };#fi
+    return "${P}\n"
+  };# Psw
+
+  proc FSel {} {
+    Dlg F --file --title {tmount - Select a key file}
+    return $F
+  };# FSel
+
+#eof ------------------------------------------------------------------------
