@@ -1,6 +1,8 @@
 tmount.pro.user
+*.stash
 Makefile
 moc_*
 qrc_*
 *.o
 tmount
+*.qm

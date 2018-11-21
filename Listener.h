@@ -71,7 +71,7 @@ class Listener : public QMenu { Q_OBJECT
 
     Udev UdevContext ; UdevMon UMonitor ;
       // Don't reorder, the monitor constructs from context.
-    QRegExp HDevs , FDevs ;
+    QRegExp HDevs , FDevs ; bool Verb ;
     Mounts  MInfo ;
     QString CurrDev ; ActReq Suppl ;
     QProcessEnvironment Env ;

@@ -18,7 +18,7 @@ enum loKey {
   kUnlockCmd  , kLockCmd   , kAddImgCmd  ,
   kMountTO    , kUnmntTO   , kEjectTO    , kRemoveTO   ,
   kUnlockTO   , kLockTO    , kAddImgTO   ,
-  kHideDevs   , kForceDevs ,
+  kHideDevs   , kForceDevs , kVerbose    ,
   kMntNew     , kMntMedia  , kAutoEject  , kMntStart   ,
   kMountPix   , kUnmntPix  , kEjectPix   , kRemovePix  ,
   kUnlockPix  , kLockPix   , kUnrecPix   , kAddImgPix  ,

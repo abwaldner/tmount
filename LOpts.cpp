@@ -20,6 +20,7 @@ static const QString // ".conf" file items.
   UnlockTOItm   = "Unlock_timeout"  , LockTOItm     = "Lock_timeout"     ,
   AddImgTOItm   = "Add_Img_timeout" ,
   HideDevsItm   = "Hidden_devices"  , ForceDevsItm  = "Forced_devices"   ,
+  VerboseItm    = "Verbose"         ,
   MntNewItm     = "Mount_new"       , MntMediaItm   = "Mount_media"      ,
   AutoEjectItm  = "Auto_eject"      , MntStartItm   = "Mount_on_start"   ,
   MountShowItm  = "Mount_show"      , UnmntShowItm  = "Unmount_show"     ,
@@ -112,6 +113,7 @@ static CPtr // Labels.
   AddImgLbl    = QT_TRANSLATE_NOOP ( "LOpts" , "Add &Image" ) ,
   HideLbl      = QT_TRANSLATE_NOOP ( "LOpts" , "&Hidden devices"       ) ,
   ForceLbl     = QT_TRANSLATE_NOOP ( "LOpts" , "Show &anyway"          ) ,
+  VerboseLbl   = QT_TRANSLATE_NOOP ( "LOpts" , "&Verbose listing"      ) ,
   MntNewLbl    = QT_TRANSLATE_NOOP ( "LOpts" , "Mount &new devices"    ) ,
   MntMediaLbl  = QT_TRANSLATE_NOOP ( "LOpts" , "Mount inser&ted media" ) ,
   AutoEjectLbl = QT_TRANSLATE_NOOP ( "LOpts" , "Autoe&ject media"      ) ,
@@ -131,84 +133,87 @@ struct LOpts :: Item {
   loKey      Pix     ;
   loKey      TOLnk   ; // Command -> Timeout link.
   loKey      ShowLnk ; // -> Show flag link.
+  int        Grp     ; // Group in the dialog window.
 } ;
 
 LOpts :: Item LOpts :: ITbl [ ] = {
-  { "" , "" , NULL , NULL , NULL , kNoKey , kNoKey , kNoKey } ,
+  { "" , "" , NULL , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
   { MountCmdItm   , MDfl   , MountLbl     , MountTtp  , NULL , kMountPix  ,
-    kMountTO      , kMountShow  } ,
+    kMountTO      , kMountShow  , 1 } ,
   { UnmntCmdItm   , UDfl   , UnmntLbl     , UnmntTtp  , NULL , kUnmntPix  ,
-    kUnmntTO      , kUnmntShow  } ,
+    kUnmntTO      , kUnmntShow  , 1 } ,
   { EjectCmdItm   , EDfl   , EjectLbl     , EjectTtp  , NULL , kEjectPix  ,
-    kEjectTO      , kEjectShow  } ,
+    kEjectTO      , kEjectShow  , 1 } ,
   { RemoveCmdItm  , RDfl   , RemoveLbl    , RemoveTtp , NULL , kRemovePix ,
-    kRemoveTO     , kRemoveShow } ,
+    kRemoveTO     , kRemoveShow , 1 } ,
   { UnlockCmdItm  , ""     , UnlockLbl    , UnlockTtp , NULL , kUnlockPix ,
-    kUnlockTO     , kUnlockShow } ,
+    kUnlockTO     , kUnlockShow , 1 } ,
   { LockCmdItm    , ""     , LockLbl      , LockTtp   , NULL , kLockPix   ,
-    kLockTO       , kLockShow   } ,
+    kLockTO       , kLockShow   , 1 } ,
   { AddImgCmdItm  , MDfl   , AddImgLbl    , AddImgTtp , NULL , kAddImgPix ,
-    kAddImgTO     , kAddImgShow } ,
+    kAddImgTO     , kAddImgShow , 1 } ,
   { MountTOItm    , DefTO  , NULL         , TimeTtp   , NULL , kNoKey ,
-    kNoKey        , kNoKey } ,
+    kNoKey        , kNoKey , 0 } ,
   { UnmntTOItm    , DefTO  , NULL         , TimeTtp   , NULL , kNoKey ,
-    kNoKey        , kNoKey } ,
+    kNoKey        , kNoKey , 0 } ,
   { EjectTOItm    , DefTO  , NULL         , TimeTtp   , NULL , kNoKey ,
-    kNoKey        , kNoKey } ,
+    kNoKey        , kNoKey , 0 } ,
   { RemoveTOItm   , DefTO  , NULL         , TimeTtp   , NULL , kNoKey ,
-    kNoKey        , kNoKey } ,
+    kNoKey        , kNoKey , 0 } ,
   { UnlockTOItm   , 0      , NULL         , TimeTtp   , NULL , kNoKey ,
-    kNoKey        , kNoKey } ,
+    kNoKey        , kNoKey , 0 } ,
   { LockTOItm     , 0      , NULL         , TimeTtp   , NULL , kNoKey ,
-    kNoKey        , kNoKey } ,
+    kNoKey        , kNoKey , 0 } ,
   { AddImgTOItm   , DefTO  , NULL         , TimeTtp   , NULL , kNoKey ,
-    kNoKey        , kNoKey } ,
+    kNoKey        , kNoKey , 0 } ,
   { HideDevsItm   , ""     , HideLbl      , HideTtp   , NULL , kNoKey ,
-    kNoKey        , kNoKey } ,
+    kNoKey        , kNoKey , 3 } ,
   { ForceDevsItm  , ""     , ForceLbl     , ForceTtp  , NULL , kNoKey ,
-    kNoKey        , kNoKey } ,
+    kNoKey        , kNoKey , 3 } ,
+  { VerboseItm    , false  , VerboseLbl   , NULL      , NULL , kNoKey ,
+    kNoKey        , kNoKey , 4 } ,
   { MntNewItm     , false  , MntNewLbl    , NULL      , NULL , kNoKey ,
-    kNoKey        , kNewShow    } ,
+    kNoKey        , kNewShow    , 2 } ,
   { MntMediaItm   , false  , MntMediaLbl  , NULL      , NULL , kNoKey ,
-    kNoKey        , kMediaShow  } ,
+    kNoKey        , kMediaShow  , 2 } ,
   { AutoEjectItm  , true   , AutoEjectLbl , NULL      , NULL , kNoKey ,
-    kNoKey        , kAutoEjShow } ,
+    kNoKey        , kAutoEjShow , 2 } ,
   { MntStartItm   , false  , MntStartLbl  , NULL      , NULL , kNoKey ,
-    kNoKey        , kStartShow  } ,
-  { "" , MountP   , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey } ,
-  { "" , UnmntP   , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey } ,
-  { "" , EjectP   , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey } ,
-  { "" , RemoveP  , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey } ,
-  { "" , UnlockP  , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey } ,
-  { "" , LockP    , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey } ,
-  { "" , UnrecP   , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey } ,
-  { "" , AddImgP  , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey } ,
-  { "" , ExitP    , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey } ,
-  { "" , ConfigP  , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey } ,
-  { "" , AboutP   , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey } ,
-  { "" , TMntP    , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey } ,
+    kNoKey        , kStartShow  , 2 } ,
+  { "" , MountP   , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
+  { "" , UnmntP   , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
+  { "" , EjectP   , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
+  { "" , RemoveP  , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
+  { "" , UnlockP  , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
+  { "" , LockP    , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
+  { "" , UnrecP   , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
+  { "" , AddImgP  , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
+  { "" , ExitP    , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
+  { "" , ConfigP  , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
+  { "" , AboutP   , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
+  { "" , TMntP    , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
   { MountShowItm  , false  , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
-    kNoKey } ,
+    kNoKey , 0  } ,
   { UnmntShowItm  , false  , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
-    kNoKey } ,
+    kNoKey , 0  } ,
   { EjectShowItm  , false  , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
-    kNoKey } ,
+    kNoKey , 0  } ,
   { RemoveShowItm , true   , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
-    kNoKey } ,
+    kNoKey , 0  } ,
   { UnlockShowItm , false  , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
-    kNoKey } ,
+    kNoKey , 0  } ,
   { LockShowItm   , false  , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
-    kNoKey } ,
+    kNoKey , 0  } ,
   { AddImgShowItm , false  , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
-    kNoKey } ,
+    kNoKey , 0  } ,
   { NewShowItm    , false  , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
-    kNoKey } ,
+    kNoKey , 0  } ,
   { MediaShowItm  , false  , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
-    kNoKey } ,
+    kNoKey , 0  } ,
   { AutoEjShowItm , false  , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
-    kNoKey } ,
+    kNoKey , 0  } ,
   { StartShowItm  , false  , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
-    kNoKey } ,
+    kNoKey , 0  } ,
 } ;
 
 const int LOpts :: ITblSize =
@@ -263,7 +268,7 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
 
   for ( int I = 1 ; I < ITblSize ; ++ I ) {
     const Item & C = ITbl [ I ] ;
-    if ( C . TOLnk ) {
+    if ( C . Grp == 1 ) {
       const QString Ttp = tr ( C . ToolTip ) ;
       QLabel * Lbl = new QLabel ( ) ; P . load ( toStr ( C . Pix ) ) ;
       Lbl -> setPixmap  ( P . scaled ( H , H ) ) ;
@@ -287,7 +292,7 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
 
   for ( int I = 1 ; I < ITblSize ; ++ I ) {
     const Item & C = ITbl [ I ] ;
-    if ( C . ShowLnk && ! C . TOLnk ) {
+    if ( C . Grp == 2 ) {
       Lay -> addWidget ( C . Editor , R , 2 ) ;
       Lay -> addWidget ( ITbl [ C . ShowLnk ] . Editor , R ++ , 4 , HC ) ;
     }//fi
@@ -297,7 +302,7 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
 
   for ( int I = 1 ; I < ITblSize ; ++ I ) {
     const Item & C = ITbl [ I ] ;
-    if ( C . Label && ! C . ShowLnk && ! C . TOLnk ) {
+    if ( C . Grp == 3 ) {
       QLabel * Lbl = new QLabel ( tr ( C . Label ) ) ;
       Lbl -> setBuddy   ( C . Editor ) ;
       Lbl -> setToolTip ( TtpStyle + tr ( C . ToolTip ) ) ;
@@ -305,6 +310,8 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
       Lay -> addWidget  ( C . Editor  , R ++ , 2 ) ;
     }//fi
   }//done
+
+  Lay -> addWidget ( ITbl [ kVerbose ] . Editor , R ++ , 2 ) ;
 
   Lay -> addWidget ( HLine ( ) , R ++ , 0 , 1 , -1 ) ;
 

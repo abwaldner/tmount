@@ -16,28 +16,31 @@
 // and "util-linux"(in libblkid) packages.
 
 static CPtr // Property names.
-  FS_USAGE = "ID_FS_USAGE"          , FS_TYPE  = "ID_FS_TYPE" ,
-  FS_LABEL = "ID_FS_LABEL"          , DEV_BUS  = "ID_BUS"     ,
-  CD_MEDIA = "ID_CDROM_MEDIA"       , CDROM    = "ID_CDROM"   ,
-  TBL_TYPE = "ID_PART_TABLE_TYPE"   , ID_TYPE  = "ID_TYPE"    ,
-  PRT_TYPE = "ID_PART_ENTRY_TYPE"   , DEV_TYPE = "DEVTYPE"    ,
-  PRT_SCHM = "ID_PART_ENTRY_SCHEME" , DM_NAME  = "DM_NAME"    ,
+  FS_USAGE = "ID_FS_USAGE"          , FS_TYPE = "ID_FS_TYPE" ,
+  FS_LABEL = "ID_FS_LABEL"          , DEV_BUS = "ID_BUS"     ,
+  CD_MEDIA = "ID_CDROM_MEDIA"       , CDROM   = "ID_CDROM"   ,
+  TBL_TYPE = "ID_PART_TABLE_TYPE"   , ID_TYPE = "ID_TYPE"    ,
+  PRT_TYPE = "ID_PART_ENTRY_TYPE"   , DM_UUID = "DM_UUID"    ,
+  PRT_SCHM = "ID_PART_ENTRY_SCHEME" , DM_NAME = "DM_NAME"    ,
+  DEV_TYPE = "DEVTYPE"              ,
   AUDIO_TR = "ID_CDROM_MEDIA_TRACK_COUNT_AUDIO" ,
   DATA_TR  = "ID_CDROM_MEDIA_TRACK_COUNT_DATA"  ;
 
 static CPtr // Property values.
-  TYPE_LUKS = "crypto_LUKS" , TYPE_DISK = "disk"      ,
-  USAGE_FS  = "filesystem"  , TYPE_PART = "partition" ;
+  TYPE_LUKS = "crypto_LUKS" , TYPE_DISK = "disk" ,
+  USAGE_FS  = "filesystem"  , PART_PREF = "part" ,
+  TYPE_PART = "partition"   ;
 static const QRegExp HOTPLUG ( "usb|pcmcia|ieee1394|firewire|mmc|ccw" ) ;
 
 static const QString // UEvent actions.
   ACT_add = "add" , ACT_remove = "remove" , ACT_change = "change" ;
 
 static CPtr // These constants are defined by "sysfs".
-  Subsys_Block = "block"    , SA_Rem  = "removable" ,
-  SA_Events    = "events"   , SA_Size = "size"      ,
-  SD_Holders   = "/holders" , SD_Slaves = "/slaves" ,
-  Events_Eject = "eject_request" ;
+  Subsys_Block = "block"    , SA_Rem    = "removable" ,
+  SA_Events    = "events"   , SA_Size   = "size"      ,
+  SD_Holders   = "/holders" , SD_Slaves = "/slaves"   ,
+  SA_BackFile  = "loop/backing_file" ,
+  Events_Eject = "eject_request"     ;
 
 static const int NoTimeout = -1 ;
   // For interactive external program, defined by QProcess.
@@ -50,8 +53,8 @@ static const QString :: SplitBehavior SEP = QString :: SkipEmptyParts ;
 
 static const QDir :: Filters Drs = QDir :: Dirs | QDir :: NoDotAndDotDot ;
 
-inline QString sect ( const QString & S , int K ) {
-  return S . section ( ' ' , K , K ) ;
+inline QString sect ( const QString & S , int K , QChar Sep = ' ' ) {
+  return S . section ( Sep , K , K ) ;
 }// sect
 
 Listener :: Listener ( QWidget * parent ) :
@@ -73,6 +76,8 @@ Listener :: Listener ( QWidget * parent ) :
 
   HDevs = QRegExp ( Opt . toStr ( kHideDevs  ) ) ;
   FDevs = QRegExp ( Opt . toStr ( kForceDevs ) ) ;
+  Verb  = Opt . toBool ( kVerbose ) ;
+
   const bool TryMount = Opt . toBool ( kMntStart  ) ,
              Show     = Opt . toBool ( kStartShow ) ;
 
@@ -263,10 +268,15 @@ void Listener :: OptChanged ( ) {
 
   HDevs = QRegExp ( Opt . toStr ( kHideDevs  ) ) ;
   FDevs = QRegExp ( Opt . toStr ( kForceDevs ) ) ;
+  Verb  = Opt . toBool ( kVerbose ) ;
 
+  QStringList L ;
   foreach ( const ActPtr A , actions ( ) ) {
-    const UdevDev Dev ( UdevContext , sect ( A -> objectName ( ) , 0 ) ) ;
-    A -> setVisible ( isTarget ( Dev ) ) ;
+    L << sect ( A -> objectName ( ) , 0 ) ;
+  }//done
+  L . removeDuplicates ( ) ;
+  foreach ( const QString P , L ) {
+    SetActions ( UdevDev ( UdevContext , P ) ) ;
   }//done
 
 }// Listener :: OptChanged
@@ -311,7 +321,7 @@ void Listener :: RemoveDevice ( const UdevDev & Dev ) {
   UnmntAll ( Dev , false ) ; // Desperate attempt.
 
   if ( ! DN . isEmpty ( ) ) {
-    const QRegExp RE ( "^[^ ]+ " + QRegExp :: escape ( DN ) + '$' ) ;
+    const QRegExp RE ( "^[^ ]+ " + QRegExp :: escape ( DN ) + "$" ) ;
     foreach ( const ActPtr A , findChildren < ActPtr > ( RE ) ) {
       const UdevDev UD ( UdevContext , sect ( A -> objectName ( ) , 0 ) ) ;
       SetActions ( UD ) ;
@@ -338,7 +348,7 @@ int Listener :: UnmntAll ( const UdevDev & Dev , bool Show ) {
 }// Listener :: UnmntAll
 
 ActList Listener :: FindActs ( const QString & Key ) const {
-  const QRegExp RE ( '^' + QRegExp :: escape ( Key ) + "( |$)" ) ;
+  const QRegExp RE ( "^" + QRegExp :: escape ( Key ) + "( |$)" ) ;
   return findChildren < ActPtr > ( RE ) ;
 }// Listener :: FindActs
 
@@ -356,46 +366,60 @@ QString Listener :: ToHum ( qulonglong KB ) {
 
 void Listener :: SetActions ( const UdevDev & Dev ) {
 
-  const QString DTp = Dev . DevType ( ) , SPth = Dev . SysPath ( ) ;
   const bool
     Cont = isLUKS ( Dev ) , FSys = hasFS ( Dev ) , Targ = isTarget ( Dev ) ;
+
   qulonglong Cap = Dev . SysAttr ( SA_Size ) . toULongLong ( ) / 2 ;
     // Capacity in KiB, sysfs uses 512-bytes units.
+  if ( ! Dev . Property ( CDROM    ) . isEmpty ( ) &&
+         Dev . Property ( CD_MEDIA ) . isEmpty ( )    ) { Cap = 0 ;
+  }//fi // workaround for "no media"
 
-  QString Lbl = Dev . DevNode ( ) . mid ( 5 ) + ' ' ;
+  QString DT = Dev . DevType ( ) , CT = "" ;
 
-  if ( ! Cont && ! FSys ) {
-    if ( DTp == TYPE_DISK ) {
-      QString TT = Dev . Property ( TBL_TYPE ) . toUpper ( ) ;
-      if ( TT . isEmpty ( ) && ! Parts ( Dev ) . isEmpty ( ) ) { TT = "Unkn" ;
-      }//fi
-      Lbl += '(' + Dev . Property ( ID_TYPE ) ;
-      if ( ! TT . isEmpty ( ) ) { Lbl += ',' + TT + " pt" ; }//fi
+  if ( DT == TYPE_DISK ) {
+    CT = Dev . Property ( ID_TYPE  ) ;
+    if ( CT . isEmpty ( ) ) {
+      CT = sect ( Dev . Property ( DM_UUID ) , 0 , '-' ) . toLower ( ) ;
+    }//fi
+    if ( CT . isEmpty ( ) ) {
+      CT = sect ( Dev . SysAttr ( SA_BackFile ) , -1 , '/' ) ;
+    } else if ( CT . startsWith ( PART_PREF ) ) { DT = PART_PREF ;
+    }//fi
+  } else if ( DT == TYPE_PART ) { DT = PART_PREF ;
+  }//fi
+
+  const QString FST = Dev . Property ( FS_TYPE ) ;
+  QString Lbl = Dev . DevNode ( ) . section ( '/' , 2 ) ;
+
+  if ( ( ! Cont && ! FSys ) || Verb ) {
+    Lbl += " (" + ( CT . isEmpty ( ) ? DT : CT ) ;
+    if ( DT == TYPE_DISK ) {
+      CT = Dev . Property ( TBL_TYPE ) . toUpper ( ) ;
+      if ( ! CT . isEmpty ( ) ) { Lbl += "," + CT + " pt" ; }//fi
       if ( ! Dev . Property ( AUDIO_TR ) . isEmpty ( ) ) { Lbl += ",audio" ;
       }//fi
       if ( ! Dev . Property ( DATA_TR  ) . isEmpty ( ) ) { Lbl += ",data"  ;
       }//fi
-      if ( ! Dev . Property ( CDROM    ) . isEmpty ( ) &&
-             Dev . Property ( CD_MEDIA ) . isEmpty ( )    ) { Cap = 0 ;
-      }//fi
-    } else if ( isPart ( Dev ) ) {
-      const QString PT = PTName ( Dev . Property ( PRT_SCHM ) ,
-                                  Dev . Property ( PRT_TYPE ) ) ;
-      Lbl += PT . isEmpty ( ) ? "(part" : "(part," + PT ;
-    } else { Lbl += '(' + DTp ; // overcaution.
+    } else if ( DT == PART_PREF ) {
+      CT = PTName ( Dev . Property ( PRT_SCHM ) , // TBL_TYPE may be empty.
+                    Dev . Property ( PRT_TYPE ) ) ;
+      if ( ! CT . isEmpty ( ) ) { Lbl += "," + CT ; }//fi
     }//fi
-    Lbl += ')' ;
-  } else { Lbl += Dev . Property ( FS_TYPE ) ;
+    Lbl += ")" ;
   }//fi
+
+  if ( ! FST . isEmpty ( ) ) { Lbl += " " + FST ; }//fi
 
   if ( FSys ) {
     QString L = Dev . Property ( FS_LABEL ) ;
 #if ( QT_VERSION < QT_VERSION_CHECK ( 5 , 0 , 0 ) )
     L = QString :: fromLocal8Bit ( L . toLatin1 ( ) ) ;
 #endif
-    Lbl += L . isEmpty ( ) ? tr ( ",(no label)" ) : ",[" + L + ']' ;
+    Lbl += L . isEmpty ( ) ? tr ( ",(no label)" ) : ",[" + L + "]" ;
   }//fi
-  Lbl += ',' + ( Cap ? ToHum ( Cap ) : tr ( "(no media)" ) ) ;
+
+  Lbl += "," + ( Cap ? ToHum ( Cap ) : tr ( "(no media)" ) ) ;
 
   QStringList MPts = Cont ? DM_Maps ( Dev ) : MPoints ( Dev ) ;
   const  bool MoM  = ! MPts . isEmpty ( ) ; // It's mounted or mapped.
@@ -408,6 +432,7 @@ void Listener :: SetActions ( const UdevDev & Dev ) {
     Ico = Cont ? & DIcon : ( FSys ? & MIcon : & CIcon ) ;
   }//fi
 
+  const QString SPth = Dev . SysPath ( ) ;
   ActList AL = FindActs ( SPth ) ; const int Sz = MPts . size ( ) ;
 
   while ( AL . size ( ) > Sz ) { delete AL . takeLast ( ) ; }//done
@@ -427,7 +452,7 @@ void Listener :: SetActions ( const UdevDev & Dev ) {
   foreach ( const QString M , MPts ) {
     QString P = sect ( M , 0 ) ; ActPtr B = NULL ;
     const ActPtr A = AL . takeFirst ( ) ; A -> setIcon ( * Ico ) ;
-    A -> setObjectName ( ( SPth + ' ' + P ) . trimmed ( ) ) ;
+    A -> setObjectName ( ( SPth + " " + P ) . trimmed ( ) ) ;
     A -> setCheckable ( true ) ; A -> setChecked ( MoM ) ;
     P += Cont && MoM ? " (" + sect ( M , 1 ) + ")" : "" ;
     A -> setText ( Lbl + P ) ; A -> setVisible ( Targ ) ;
@@ -463,7 +488,7 @@ int Listener :: ExecCmd ( const QString & Cmd ,
 
     const int TO = Timeout ? Timeout * 1000 : NoTimeout ;
     const QString C = Cmd + " \"" +
-                      QString ( Arg ) . replace ( '"' , "\"\"\"" ) + '"' ;
+                        QString ( Arg ) . replace ( '"' , "\"\"\"" ) + "\"" ;
 
     Proc . start ( C , QIODevice :: ReadOnly ) ;
 
@@ -489,7 +514,7 @@ int Listener :: ExecCmd ( const QString & Cmd ,
         Msg << "'" + C + tr ( "' returns " ) + QString :: number ( RC ) ;
       }//fi
       QMessageBox :: warning ( this , TPref + tr ( "Warning" ) ,
-                                      Msg . join ( "\n" ) ) ;
+                                        Msg . join ( "\n"  ) ) ;
 
     } else if ( Show ) {
 
@@ -538,7 +563,7 @@ QStringList Listener :: DM_Maps ( const UdevDev & Dev ) const {
   QStringList L ;
   foreach ( const QString H , Holders ( Dev ) ) {
     const QString M = sect ( H , 1 ) ;
-    if ( ! M . isEmpty ( ) ) { L << M + ' ' + sect ( H , 0 ) ; }//fi
+    if ( ! M . isEmpty ( ) ) { L << M + " " + sect ( H , 0 ) ; }//fi
   }//done
   return L ;
 }// Listener :: DM_Maps
@@ -547,7 +572,7 @@ QStringList Listener :: Holders ( const UdevDev & Dev ) const {
   QStringList L ; const QDir SD ( Dev . SysPath ( ) + SD_Holders ) ;
   foreach ( const QFileInfo I , SD . entryInfoList ( Drs ) ) {
     const UdevDev D ( UdevContext , I . symLinkTarget ( ) ) ;
-    L << Mounts :: EncodeIFS ( D . DevNode  ( ) ) + ' ' +
+    L << Mounts :: EncodeIFS ( D . DevNode  ( ) ) + " " +
          Mounts :: EncodeIFS ( D . Property ( DM_NAME ) ) ;
   }//done
   return L ;

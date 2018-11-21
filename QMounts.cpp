@@ -10,8 +10,8 @@
 
 static const char * const MInfoFileName = "/proc/self/mountinfo" ;
 
-inline QString sect ( const QString & S , int K ) {
-  return S . section ( ' ' , K , K ) ;
+inline QString sect ( const QString & S , int K , QChar Sep = ' ' ) {
+  return S . section ( Sep , K , K ) ;
 }// sect
 
 Mounts :: Mounts ( QObject * parent ) :
