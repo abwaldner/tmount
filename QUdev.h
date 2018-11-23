@@ -29,6 +29,7 @@ class UdevEnum {
     explicit UdevEnum ( const Udev & Context ) ; virtual ~UdevEnum ( ) ;
     int MatchSubsys   ( CPtr Subsys ) ;
     int MatchProperty ( CPtr Prop , CPtr Val ) ;
+    int MatchSysAttr  ( CPtr Prop , CPtr Val ) ;
     int MatchParent   ( const UdevDev & Root ) ;
     int ScanDevs  ( ) ;
       //   Functions above returns 0 on success,

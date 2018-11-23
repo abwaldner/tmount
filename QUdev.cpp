@@ -140,6 +140,10 @@ int UdevEnum :: MatchProperty ( CPtr Prop , CPtr Val ) {
   return :: udev_enumerate_add_match_property ( mEnum , Prop , Val ) ;
 }// UdevEnum :: MatchProperty
 
+int UdevEnum :: MatchSysAttr ( CPtr Prop , CPtr Val ) {
+  return :: udev_enumerate_add_match_sysattr ( mEnum , Prop , Val ) ;
+}// UdevEnum :: MatchSysAttr
+
 int UdevEnum :: MatchParent ( const UdevDev & Root ) {
   return :: udev_enumerate_add_match_parent ( mEnum , Root . mDev ) ;
 }// UdevEnum :: MatchParent

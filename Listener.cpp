@@ -177,6 +177,13 @@ void Listener :: exec ( const QPoint & Loc ) {
         foreach ( const QString M , Holders ( D ) ) {
           Msg << N + tr ( " mapped on "  ) + M ;
         }//done
+        UdevEnum En ( UdevContext ) ; En . MatchSubsys ( Subsys_Block ) ;
+        En . MatchSysAttr ( SA_BackFile , N . toLatin1 ( ) ) ;
+        En . ScanDevs ( ) ;
+        foreach ( const UdevPair M , En . GetList ( ) ) {
+          Msg << N + tr ( " mapped on " ) +
+                       UdevDev ( UdevContext , M . first ) . DevNode ( ) ;
+        }//done
       }//done
 
       const QStringList F ( "[1-9]*" ) ;
