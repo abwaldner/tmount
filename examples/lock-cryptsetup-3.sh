@@ -9,14 +9,17 @@
 
   GP () { lsblk -dpno "${2}" "${1}" ; } # GP - get property for device
 
-  N="/dev/mapper/${1}"
-  C=${TMOUNT_Unmount_command:- ! echo Unmount disabled by config. >&2 }
+  N="/dev/mapper/${1}" M=$( GP "${N}" MOUNTPOINT )
+  C=${TMOUNT_Unmount_command:-}
 
-  while
-    M=$( GP "${N}" MOUNTPOINT ) ; [ "${M}" ] && eval " ${C} $( l "${M}" )"
-  do : ; done
+  if ! [ "${M}" ] || [ "${C}" ] ; then
+    while [ "${M}" ] && eval " ${C} $( l "${M}" ) " ; do
+      M=$( GP "${N}" MOUNTPOINT )
+    done
+  else echo 'Config error: unmounting disabled' >&2
+  fi
 
-  ! [ "$( GP "${N}" MOUNTPOINT )" ] &&
+  ! [ "${M}" ] &&
   { ! [ -e "${N}" ] || sudo -A "${Cmd}" close -- "${1}" ; } &&
   echo "${1} released."
 

@@ -3,24 +3,24 @@
   # zenity/qarma -------------------------------------------------------------
 
   Dlg  () {
-    zenity 2>/dev/null --title tmount \
-      --window-icon /usr/share/pixmaps/tmount.png "${@}" ||
-    ! echo Cancelled. >&2
+    zenity 2>/dev/null --title 'tmount' \
+      --window-icon '/usr/share/pixmaps/tmount.png' "${@}" ||
+    ! echo 'Cancelled.' >&2
   } # Dlg
 
   Mode () { # preferably for qarma
     case $( Dlg --forms --add-combo 'Select' \
                 --text 'LUKS passphrase input method:' \
-                --combo-values 'Interactive|Key File'  ) in
-      I* ) printf '%s' -i ;; K* ) printf '%s' -k ;; * ) ! : ;;
+                --combo-values 'Interactive|Key File'  )
+    in I* ) printf '%s' '-i' ;; K* ) printf '%s' '-k' ;; * ) ! : ;;
     esac
   } # Mode
 
   Mode () { # preferably for zenity
     case $( Dlg --list --radiolist --hide-header \
                 --text 'LUKS passphrase input method:' \
-                --column 1 --column 2 TRUE Interactive FALSE 'Key File' ) in
-      I* ) printf '%s' -i ;; K* ) printf '%s' -k ;; * ) ! : ;;
+                --column 1 --column 2 TRUE 'Interactive' FALSE 'Key File' )
+    in I* ) printf '%s' '-i' ;; K* ) printf '%s' '-k' ;; * ) ! : ;;
     esac
   } # Mode
 
@@ -34,13 +34,13 @@
   # Xdialog ------------------------------------------------------------------
 
   Dlg  () {
-    Xdialog 2>/dev/null --title tmount --stdout "${@}" ||
-    ! echo Cancelled. >&2
+    Xdialog 2>/dev/null --title 'tmount' --stdout "${@}" ||
+    ! echo 'Cancelled.' >&2
   } # Dlg
 
   Mode () {
     Dlg --no-tags --radiolist 'LUKS passphrase input method:' 0 0 3 \
-          -i Interactive on -k 'Key File' off
+          '-i' 'Interactive' on '-k' 'Key File' off
   } # Mode
 
   Psw  () { Dlg --password --inputbox "${1}" 0 0 ; } # Psw
@@ -49,7 +49,7 @@
   } # FSel
 
   Warn () {
-    Dlg --left --icon /usr/share/pixmaps/tmount.png \
+    Dlg --left --icon '/usr/share/pixmaps/tmount.png' \
         --backtitle 'Warning!' --msgbox "${1}" 0 0
   } # Warn
 
@@ -62,7 +62,7 @@
     F='<action signal="key-press-event" '"${F}"'>Exit:Cancel</action>'
     F="${F}"' </window>'
     eval "$( D="${H} ${1} ${F}" gtkdialog -c -p D 2>/dev/null )"
-    [ OK = "${EXIT}" ] && echo "${VAL}" || ! echo Cancelled. >&2
+    [ OK = "${EXIT}" ] && echo "${VAL}" || ! echo 'Cancelled.' >&2
   ) # Dlg
 
   Mode () {
@@ -82,7 +82,7 @@
           <hbox> <button ok></button> <button cancel></button> </hbox>
         </frame>
       '
-    ) in true ) printf '%s' -i ;; false ) printf '%s' -k ;; * ) ! : ;;
+    ) in true ) printf '%s' '-i' ;; false ) printf '%s' '-k' ;; * ) ! : ;;
     esac
   } # Mode
 
@@ -126,15 +126,15 @@
   # yad ----------------------------------------------------------------------
 
   Dlg  () {
-    yad 2>/dev/null --title tmount --center \
-      --window-icon /usr/share/pixmaps/tmount.png "${@}" ||
-    ! echo Cancelled. >&2
+    yad 2>/dev/null --title 'tmount' --center \
+      --window-icon '/usr/share/pixmaps/tmount.png' "${@}" ||
+    ! echo 'Cancelled.' >&2
   } # Dlg
 
   Mode () {
     case $( Dlg --entry --text 'LUKS passphrase input method:' \
-                --entry-label 'Select' 'Interactive' 'Key File' ) in
-      I* ) printf '%s' -i ;; K* ) printf '%s' -k ;; * ) ! : ;;
+                --entry-label 'Select' 'Interactive' 'Key File' )
+    in I* ) printf '%s' '-i' ;; K* ) printf '%s' '-k' ;; * ) ! : ;;
     esac
   } # Mode
 

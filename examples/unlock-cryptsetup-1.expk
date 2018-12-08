@@ -38,6 +38,12 @@
     return [ regexp -line {^E: ID_FS_USAGE=filesystem$} $P ]
   };# HasFS
 
+  proc PTT { Dev } { ;# Partition Table Type
+    catch { exec udevadm info $Dev } P ; set T {}
+    regexp -line {^E: ID_PART_TABLE_TYPE=(.*)$} $P P T
+    return [ regsub {.+} $T {& pt} ]
+  };# PTT
+
   proc GenMN { Dev } { ;# generate cryptsetups map name
     set M [ file tail $Dev ]
     set M [ regsub -all {[^[:alnum:]#+-.:=@]|[^[:ascii:]]} $M {_} ]
@@ -120,12 +126,13 @@
   if { $RetC } { puts stderr $Err
   } else {
     set R [ exec realpath $Lnk ] ; set B [ file tail $R ]
-    set F [ Prop $R FSTYPE ] ; regsub {^$} $F {(no FS)}    F
-    set L [ Prop $R LABEL  ] ; regsub {^$} $L {(no label)} L
     set S [ Prop $R SIZE   ] ; set M [ Prop $R MOUNTPOINT ]
-    set X "Device %s mapped to %s\n%s -> %s\n"
-    append X "%s (%s, \[%s], %s)\nmounted on %s"
-    puts [ format $X $Dev $Map $Lnk $R $B $F $L $S $M ]
+    set L [ Prop $R LABEL  ] ; regsub {^$} $L {(no label)} L
+    set F [ Prop $R FSTYPE ] ; regsub {^$} $F [ PTT $R ] F
+    regsub {^$} $F {(no FS)} F
+    set X  "Device %s mapped to %s\n%s -> %s\n%s (%s, \[%s], %s)\n"
+    puts [ format $X $Dev $Map $Lnk $R $B $F $L $S ]
+    if { $M ne {} } { puts "mounted on ${M}" };#fi
   };#fi
 
 exit $RetC

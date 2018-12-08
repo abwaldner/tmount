@@ -3,9 +3,9 @@
   Cmd='/sbin/cryptsetup'
 
   Dlg () {
-    qarma 2>/dev/null --title tmount \
-      --window-icon /usr/share/pixmaps/tmount.png "${@}" ||
-    ! echo Cancelled. >&2
+    qarma 2>/dev/null --title 'tmount' \
+      --window-icon '/usr/share/pixmaps/tmount.png' "${@}" ||
+    ! echo 'Cancelled.' >&2
   } # Dlg
 
   Warn () { Dlg --warning --no-markup --text "${1}" ; } # Warn
@@ -17,17 +17,20 @@
 
   GP () { lsblk -dpno "${2}" "${1}" ; } # GP - get property for device
 
-  N="/dev/mapper/${1}"
-  C=${TMOUNT_Unmount_command:- ! echo Unmount disabled by config. >&2 }
+  N="/dev/mapper/${1}" M=$( GP "${N}" MOUNTPOINT )
+  C=${TMOUNT_Unmount_command:-}
 
-  while
-    M=$( GP "${N}" MOUNTPOINT ) ; [ "${M}" ] && eval " ${C} $( l "${M}" )"
-  do : ; done
+  if ! [ "${M}" ] || [ "${C}" ] ; then
+    while [ "${M}" ] && eval " ${C} $( l "${M}" ) " ; do
+      M=$( GP "${N}" MOUNTPOINT )
+    done
+  else echo 'Config error: unmounting disabled' >&2
+  fi
 
-  ! [ "$( GP "${N}" MOUNTPOINT )" ] &&
+  ! [ "${M}" ] &&
   if ! [ -e "${N}" ] ; then echo "${1} released."
   elif [ "$( id -u )" != 0 ] ; then MySu "${0} $( l "${1}" )"
-  elif E=$( eval "${Cmd} close -- $( l "${1}" )" 2>&1 ) #"
+  elif E=$( eval " ${Cmd} close -- $( l "${1}" ) " 2>&1 ) #"
   then echo "${1} released." ; sleep 1
   elif [ true = "${TMOUNT_Lock_show:-}" ]
   then echo "${E}" ; sleep 1 # sleep is workaround for ktsuss

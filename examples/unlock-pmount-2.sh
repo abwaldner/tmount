@@ -5,12 +5,12 @@
 # ---------------------------------------------------------------------------
   MyTerm () {
     exec 2>/dev/null xfce4-terminal --disable-server --hide-menubar \
-      --hide-toolbar --show-borders --icon /usr/share/pixmaps/tmount.png \
-      --geometry=40x10 --title tmount -x "${@}"
+      --hide-toolbar --show-borders --icon '/usr/share/pixmaps/tmount.png' \
+      --geometry=40x10 --title 'tmount' -x "${@}"
   } # MyTerm
 # ---------------------------------------------------------------------------
 #  MyTerm () {
-#    exec 2>/dev/null qterminal --geometry 400x100 --title tmount -e "${@}"
+#    exec 2>/dev/null qterminal --geometry 400x100 --title 'tmount' -e "${@}"
 #  } # MyTerm
 # ---------------------------------------------------------------------------
 
@@ -25,7 +25,8 @@
   else
 
     [ "${M}" = '-a' ] && {
-      echo 'Enter' ; echo '  "k" for key file selection,'
+      echo 'Enter'
+      echo '  "k" for key file selection,'
       echo '  "i" for password interactive input,'
       echo 'or any to cancel...'
       read -r M
@@ -39,15 +40,14 @@
 
     case "${M}" in
       -k ) pmount -p "${F}" "${1}" ;; -i ) pmount "${1}" ;;
-       * ) ! echo Cancelled. >&2   ;;
+       * ) ! echo 'Cancelled.' >&2 ;;
     esac &&
     { N=$( lsblk -plno NAME "${1}" | tail -n 1 ) P=${N##*/}
       F=$( GP "${N}" FSTYPE ) L=$( GP "${N}" LABEL ) R=$( realpath "${N}" )
-      printf 'Device %s mapped to %s\n%s -> %s\n' \
-             "${1}" "${P}" "${N}" "${R}"
-      printf '%s (%s, [%s], %s)\nmounted on %s\n' \
-             "${R##*/}" "${F:-(no FS)}" "${L:-(no label)}" \
-             "$( GP "${N}" SIZE )" "$( GP "${N}" MOUNTPOINT )"
+      printf 'Device %s mapped to %s\n%s -> %s\n%s (%s, [%s], %s)\n' \
+             "${1}" "${P}" "${N}" "${R}" "${R##*/}" "${F:-(no FS)}"  \
+             "${L:-(no label)}" "$( GP "${N}" SIZE )"
+      echo "mounted on $( GP "${N}" MOUNTPOINT )"
     }
 
     echo ; echo 'Press Enter to continue...' ; read -r M

@@ -5,12 +5,12 @@
 # ---------------------------------------------------------------------------
   MyTerm () {
     exec 2>/dev/null xfce4-terminal --disable-server --hide-menubar \
-      --hide-toolbar --show-borders --icon /usr/share/pixmaps/tmount.png \
-      --geometry=40x10 --title tmount -x "${@}"
+      --hide-toolbar --show-borders --icon '/usr/share/pixmaps/tmount.png' \
+      --geometry=40x10 --title 'tmount' -x "${@}"
   } # MyTerm
 # ---------------------------------------------------------------------------
 #  MyTerm () {
-#    exec 2>/dev/null qterminal --geometry 400x100 --title tmount -e "${@}"
+#    exec 2>/dev/null qterminal --geometry 400x100 --title 'tmount' -e "${@}"
 #  } # MyTerm
 # ---------------------------------------------------------------------------
 
@@ -19,14 +19,17 @@
 
   GP () { lsblk -dpno "${2}" "${1}" ; } # GP - get property for device
 
-  N="/dev/mapper/${1}"
-  C=${TMOUNT_Unmount_command:- ! echo Unmount disabled by config. >&2 }
+  N="/dev/mapper/${1}" M=$( GP "${N}" MOUNTPOINT )
+  C=${TMOUNT_Unmount_command:-}
 
-  while
-    M=$( GP "${N}" MOUNTPOINT ) ; [ "${M}" ] && eval " ${C} $( l "${M}" )"
-  do : ; done
+  if ! [ "${M}" ] || [ "${C}" ] ; then
+    while [ "${M}" ] && eval " ${C} $( l "${M}" ) " ; do
+      M=$( GP "${N}" MOUNTPOINT )
+    done
+  else echo 'Config error: unmounting disabled' >&2
+  fi
 
-  ! [ "$( GP "${N}" MOUNTPOINT )" ] &&
+  ! [ "${M}" ] &&
   if tty >/dev/null ; then
     ! [ -e "${N}" ] ||
     { echo 'su -' ; su -c "${Cmd} close -- $( l "${1}" )" ; } &&

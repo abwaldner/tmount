@@ -3,16 +3,16 @@
   Cmd='/sbin/cryptsetup'
 
   Dlg () {
-    qarma 2>/dev/null --title tmount \
-      --window-icon /usr/share/pixmaps/tmount.png "${@}" ||
-    ! echo Cancelled. >&2
+    qarma 2>/dev/null --title 'tmount' \
+      --window-icon '/usr/share/pixmaps/tmount.png' "${@}" ||
+    ! echo 'Cancelled.' >&2
   } # Dlg
 
   Mode () { # preferably for qarma
     case $( Dlg --forms --add-combo 'Select' \
                 --text 'LUKS passphrase input method:' \
-                --combo-values 'Interactive|Key File'  ) in
-      I* ) printf '%s' -i ;; K* ) printf '%s' -k ;; * ) ! : ;;
+                --combo-values 'Interactive|Key File'  )
+    in I* ) printf '%s' '-i' ;; K* ) printf '%s' '-k' ;; * ) ! : ;;
     esac
   } # Mode
 
@@ -32,6 +32,10 @@
 
   HasFS () { udevadm info "${1}" | grep -Fxq 'E: ID_FS_USAGE=filesystem'
   } # HasFS
+
+  PTT () { # get Partition Table Type
+    udevadm info "${1}" | sed -n 's/^E: ID_PART_TABLE_TYPE=\(.*\)$/\1 pt/p'
+  } # PTT
 
   GenMN () { # generate cryptsetups map name
     mktemp -u -p /dev/mapper \
@@ -55,15 +59,17 @@
       fi &&
       printf '%s' "${L}" | eval "${Cmd} -d $( l "${F}" )" &&
       if HasFS "${N}" ; then
-        C=${TMOUNT_Mount_command:- ! echo Mounting disabled for >&2 }
-        eval " ${C} $( l "${N}" ) " >/dev/null
+        C=${TMOUNT_Mount_command:-}
+        if [ "$C" ] ; then eval " ${C} $( l "${N}" ) " >/dev/null
+        else ! echo 'Config error: mounting disabled' >&2
+        fi
       fi &&
       { F=$( GP "${N}" FSTYPE ) L=$( GP "${N}" LABEL ) R=$( realpath "${N}" )
-        printf 'Device %s mapped to %s\n%s -> %s\n' \
-               "${1}" "${P}" "${N}" "${R}"
-        printf '%s (%s, [%s], %s)\nmounted on %s\n' \
-               "${R##*/}" "${F:-(no FS)}" "${L:-(no label)}" \
-               "$( GP "${N}" SIZE )" "$( GP "${N}" MOUNTPOINT )"
+        M=$( GP "${N}" MOUNTPOINT ) F=${F:-$( PTT "${N}" )} #"
+        printf 'Device %s mapped to %s\n%s -> %s\n%s (%s, [%s], %s)\n' \
+               "${1}" "${P}" "${N}" "${R}" "${R##*/}" "${F:-(no FS)}"  \
+               "${L:-(no label)}" "$( GP "${N}" SIZE )"
+        if [ "${M}" ] ; then echo "mounted on ${M}" ; fi
       }
     } 2>&1 ) ||
     { [ false = "${TMOUNT_Unlock_show:-}" ] && Warn "${E}" ; }

@@ -3,16 +3,16 @@
   # Don't use this with regular files!
 
   Dlg () {
-    qarma 2>/dev/null --title tmount \
-      --window-icon /usr/share/pixmaps/tmount.png "${@}" ||
-    ! echo Cancelled. >&2
+    qarma 2>/dev/null --title 'tmount' \
+      --window-icon '/usr/share/pixmaps/tmount.png' "${@}" ||
+    ! echo 'Cancelled.' >&2
   } # Dlg
 
   Mode () { # preferably for qarma
     case $( Dlg --forms --add-combo 'Select' \
                 --text 'LUKS passphrase input method:' \
-                --combo-values 'Interactive|Key File'  ) in
-      I* ) printf '%s' -i ;; K* ) printf '%s' -k ;; * ) ! : ;;
+                --combo-values 'Interactive|Key File'  )
+    in I* ) printf '%s' '-i' ;; K* ) printf '%s' '-k' ;; * ) ! : ;;
     esac
   } # Mode
 
@@ -38,11 +38,10 @@
   printf '%s' "${L}" | pmount -p "${F}" "${1}" &&
   { N=$( lsblk -plno NAME "${1}" | tail -n 1 ) P=${N##*/}
     F=$( GP "${N}" FSTYPE ) L=$( GP "${N}" LABEL ) R=$( realpath "${N}" )
-    printf 'Device %s mapped to %s\n%s -> %s\n' \
-           "${1}" "${P}" "${N}" "${R}"
-    printf '%s (%s, [%s], %s)\nmounted on %s\n' \
-           "${R##*/}" "${F:-(no FS)}" "${L:-(no label)}" \
-           "$( GP "${N}" SIZE )" "$( GP "${N}" MOUNTPOINT )"
+    printf 'Device %s mapped to %s\n%s -> %s\n%s (%s, [%s], %s)\n' \
+           "${1}" "${P}" "${N}" "${R}" "${R##*/}" "${F:-(no FS)}"  \
+           "${L:-(no label)}" "$( GP "${N}" SIZE )"
+    echo "mounted on $( GP "${N}" MOUNTPOINT )"
   }
 
 #eof

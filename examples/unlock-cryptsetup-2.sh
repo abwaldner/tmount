@@ -5,12 +5,12 @@
 # ---------------------------------------------------------------------------
   MyTerm () {
     exec 2>/dev/null xfce4-terminal --disable-server --hide-menubar \
-      --hide-toolbar --show-borders --icon /usr/share/pixmaps/tmount.png \
-      --geometry=40x10 --title tmount -x "${@}"
+      --hide-toolbar --show-borders --icon '/usr/share/pixmaps/tmount.png' \
+      --geometry=40x10 --title 'tmount' -x "${@}"
   } # MyTerm
 # ---------------------------------------------------------------------------
 #  MyTerm () {
-#    exec 2>/dev/null qterminal --geometry 400x100 --title tmount -e "${@}"
+#    exec 2>/dev/null qterminal --geometry 400x100 --title 'tmount' -e "${@}"
 #  } # MyTerm
 # ---------------------------------------------------------------------------
 
@@ -21,6 +21,10 @@
 
   HasFS () { udevadm info "${1}" | grep -Fxq 'E: ID_FS_USAGE=filesystem'
   } # HasFS
+
+  PTT () { # get Partition Table Type
+    udevadm info "${1}" | sed -n 's/^E: ID_PART_TABLE_TYPE=\(.*\)$/\1 pt/p'
+  } # PTT
 
   GenMN () { # generate cryptsetups map name
     mktemp -u -p /dev/mapper \
@@ -55,18 +59,20 @@
     }
 
     if [ "${M}" ] ; then echo 'su - ' ; su -c "${Cmd}"
-    else ! echo Cancelled. >&2
+    else ! echo 'Cancelled.' >&2
     fi &&
     if HasFS "${N}" ; then
-      C=${TMOUNT_Mount_command:- ! echo Mounting disabled for >&2 }
-      ( eval " ${C} $( l "${N}" ) " ) >/dev/null
+      C=${TMOUNT_Mount_command:-}
+      if [ "$C" ] ; then eval " ${C} $( l "${N}" ) " >/dev/null
+      else ! echo 'Config error: mounting disabled' >&2
+      fi
     fi &&
     { F=$( GP "${N}" FSTYPE ) L=$( GP "${N}" LABEL ) R=$( realpath "${N}" )
-      printf 'Device %s mapped to %s\n%s -> %s\n' \
-             "${1}" "${P}" "${N}" "${R}"
-      printf '%s (%s, [%s], %s)\nmounted on %s\n' \
-             "${R##*/}" "${F:-(no FS)}" "${L:-(no label)}" \
-             "$( GP "${N}" SIZE )" "$( GP "${N}" MOUNTPOINT )"
+      M=$( GP "${N}" MOUNTPOINT ) F=${F:-$( PTT "${N}" )} #"
+      printf 'Device %s mapped to %s\n%s -> %s\n%s (%s, [%s], %s)\n' \
+             "${1}" "${P}" "${N}" "${R}" "${R##*/}" "${F:-(no FS)}"  \
+             "${L:-(no label)}" "$( GP "${N}" SIZE )"
+      if [ "${M}" ] ; then echo "mounted on ${M}" ; fi
     }
 
     echo ; echo 'Press Enter to continue...' ; read -r M
