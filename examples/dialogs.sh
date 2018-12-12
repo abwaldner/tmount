@@ -17,9 +17,9 @@
   } # Mode
 
   Mode () { # preferably for zenity
-    case $( Dlg --list --radiolist --hide-header \
+    case $( Dlg --list --radiolist --hide-header --column 1 --column 2 \
                 --text 'LUKS passphrase input method:' \
-                --column 1 --column 2 TRUE 'Interactive' FALSE 'Key File' )
+                TRUE 'Interactive' FALSE 'Key File' )
     in I* ) printf '%s' '-i' ;; K* ) printf '%s' '-k' ;; * ) ! : ;;
     esac
   } # Mode
@@ -55,21 +55,20 @@
 
   # gtkdialog ----------------------------------------------------------------
 
-  Dlg  () ( # '(...)' used instead of 'local'.
-    H='<window title="tmount" image-name="/usr/share/pixmaps/tmount.png">'
-    F='condition="command_is_true( [ '
-    F="${F}"'$''KEY_SYM = Escape ] && echo yes )"'
-    F='<action signal="key-press-event" '"${F}"'>Exit:Cancel</action>'
-    F="${F}"' </window>'
-    eval "$( D="${H} ${1} ${F}" gtkdialog -c -p D 2>/dev/null )"
+  Dlg  () ( # '(...)' used instead of 'local' for EXIT and VAL, etc.
+    D='
+      <window title="tmount" image-name="/usr/share/pixmaps/tmount.png">
+        '"${*}"'
+        <action signal="key-press-event" condition="command_is_true(
+            [ ''$''KEY_SYM = Escape ] && echo yes )">Exit:Cancel</action>
+      </window>
+    '
+    eval "$( D="${D}" gtkdialog -c -p D 2>/dev/null )"
     [ OK = "${EXIT}" ] && echo "${VAL}" || ! echo 'Cancelled.' >&2
   ) # Dlg
 
   Mode () {
-    case $( # 'local' hot need in subshell.
-      F='condition="command_is_true( [ '
-      F="${F}"'$''KEY_SYM = Return ] && echo yes )"'
-      F='<action signal="key-press-event" '"${F}"'>Exit:OK</action>'
+    case $(
       Dlg '
         <frame LUKS passphrase input method:>
           <vbox>
@@ -77,7 +76,8 @@
               <label>Interactive</label> <variable>VAL</variable>
             </radiobutton>
             <radiobutton> <label>Key File</label> </radiobutton>
-            '"${F}"'
+            <action signal="key-press-event" condition="command_is_true(
+                [ ''$''KEY_SYM = Return ] && echo yes )">Exit:OK</action>
           </vbox>
           <hbox> <button ok></button> <button cancel></button> </hbox>
         </frame>
@@ -88,7 +88,7 @@
 
   Psw  () {
     Dlg '
-      <frame '"${1}"'>
+      <frame '"$( printf '%s' "${1}" | tr -d '>' )"'>
         <entry visibility="false">
           <variable>VAL</variable>
           <action signal="activate">Exit:OK</action>
@@ -100,10 +100,10 @@
 
   FSel () {
     Dlg '
-      <frame Select a key file:>
+      <frame Select a key file>
         <chooser action="0">
           <default>./</default> <variable>VAL</variable>
-          <width>600</width><height>400</height>
+          <width>600</width> <height>400</height>
           <action when="file-activated">Exit:OK</action>
         </chooser>
         <hbox> <button cancel></button> </hbox>
@@ -113,13 +113,15 @@
 
   Warn () {
     Dlg '
-      <vbox>
-        <hbox>
-          <pixmap> <input file icon="dialog-warning"></input> </pixmap>
-          <text label="'"${1}"'"></text>
-        </hbox>
-        <hbox> <button ok></button> </hbox>
-      </vbox>
+      <frame Warning!>
+        <vbox>
+          <hbox>
+            <pixmap> <input file icon="dialog-warning"></input> </pixmap>
+            <text label="'"$( printf '%s' "${1}" | tr -d '"' )"'"></text>
+          </hbox>
+          <hbox> <button ok></button> </hbox>
+        </vbox>
+      </frame>
     '
   } # Warn
 

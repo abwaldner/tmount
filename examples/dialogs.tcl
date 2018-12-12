@@ -21,9 +21,9 @@
   };# Mode
 
   proc Mode {} { ;# preferably for zenity
-    Dlg M --list --radiolist --hide-header \
-                 --text {LUKS passphrase input method:} \
-                 --column 1 --column 2 TRUE Interactive FALSE {Key File}
+    Dlg M --list --radiolist --hide-header --column 1 --column 2 \
+          --text {LUKS passphrase input method:} \
+          TRUE Interactive FALSE {Key File}
     return [ string tolower [ string range $M 0 0 ] ]
   };# Mode
 
@@ -52,8 +52,8 @@
   };# Dlg
 
   proc Mode {} {
-    Dlg M --no-tags --radiolist {LUKS passphrase input method:} 0 0 3 \
-        i Interactive on k {Key File} off
+    Dlg M --no-tags --radiolist {LUKS passphrase input method:} \
+          0 0 3 i Interactive on k {Key File} off
     return $M
   };# Mode
 
@@ -71,45 +71,64 @@
 
   proc Dlg { Res args } {
     upvar $Res R ; global env
-    append D \
-      {<window title="tmount" image-name="/usr/share/pixmaps/tmount.png">} \
-      {*}$args {<action signal="key-press-event" } \
-      {condition="command_is_true( [ $KEY_SYM = Escape ] && echo yes )">} \
-      {Exit:Cancel</action></window>}
+    append D {
+      <window title="tmount" image-name="/usr/share/pixmaps/tmount.png"> } \
+        {*}$args {
+        <action signal="key-press-event" condition="command_is_true(
+            [ $KEY_SYM = Escape ] && echo yes )">Exit:Cancel</action>
+      </window>
+    }
     set R [
       set env(D) $D ; set S [ exec gtkdialog 2>/dev/null -c -p D ]
       if [ set C [ regexp {EXIT="OK"} $S ] ] {
-        regsub {.*VAL="([^"]*)".*} $S {\1} } else { puts stderr Cancelled.
-      };#fi "
+        regsub {.*VAL="([^"]*)".*} $S {\1} ;#"
+      } else { puts stderr Cancelled.
+      };#fi
     ]
     return [ expr { ! $C } ]
   };# Dlg
 
   proc Mode {} {
-    Dlg M {<frame LUKS passphrase input method:><vbox><radiobutton>
-      <label>Interactive</label><variable>VAL</variable></radiobutton>
-      <radiobutton><label>Key File</label></radiobutton>
-      <action signal="key-press-event" } \
-      {condition="command_is_true( [ $KEY_SYM = Return ] && echo yes )">} \
-      {Exit:OK</action></vbox><hbox><button ok></button>
-        <button cancel></button></hbox></frame>}
+    Dlg M {
+      <frame LUKS passphrase input method:>
+        <vbox>
+          <radiobutton> <label>Interactive</label> <variable>VAL</variable>
+          </radiobutton>
+          <radiobutton> <label>Key File</label> </radiobutton>
+          <action signal="key-press-event" condition="command_is_true(
+              [ $KEY_SYM = Return ] && echo yes )">Exit:OK</action>
+        </vbox>
+        <hbox> <button ok></button> <button cancel></button> </hbox>
+      </frame>
+    }
     return [ regsub false [ regsub true $M i ] k ]
   };# Mode
 
   proc Psw { Prompt } {
-    append D {<frame } $Prompt {><entry visibility="false">
-      <variable>VAL</variable><action signal="activate">Exit:OK</action>
-      </entry><hbox><button ok></button><button cancel></button>
-      </hbox></frame>}
+    append D {
+      <frame } [ regsub -all > $Prompt {} ] {>
+        <entry visibility="false">
+          <variable>VAL</variable>
+          <action signal="activate">Exit:OK</action>
+        </entry>
+        <hbox> <button ok></button> <button cancel></button> </hbox>
+      </frame>
+    }
     if [ Dlg P $D ] { set P "\004" };#fi
     return "${P}\n"
   };# Psw
 
   proc FSel {} {
-    Dlg F {<frame Select a key file:> <chooser action="0">
-      <default>./</default><variable>VAL</variable><width>600</width>
-      <height>400</height><action when="file-activated">Exit:OK</action>
-      </chooser><hbox><button cancel></button></hbox></frame>}
+    Dlg F {
+      <frame Select a key file>
+        <chooser action="0">
+           <default>./</default> <variable>VAL</variable>
+           <width>600</width> <height>400</height>
+           <action when="file-activated">Exit:OK</action>
+        </chooser>
+        <hbox> <button cancel></button> </hbox>
+      </frame>
+    }
     return $F
   };# FSel
 
