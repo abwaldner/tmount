@@ -1,7 +1,7 @@
 
       tmount - block devices mounter/unmounter for system tray.
 
-  (C) 2016-2018 Alexander B. Waldner.
+  (C) 2016-2019 Alexander B. Waldner.
 
       This code was initially based on the code of "easymount" program
   (C) 2013 by Stanislaw Adaszewski, <http://algoholic.eu>
@@ -18,6 +18,6 @@
   with this program.  If not, see <http://www.gnu.org/licenses/>.
 
       Some icons were taken from:
-  oxygen-icons (http://www.oxygen-icons.org/), LGPL-3
-  gnome-icon-theme (https://www.gnome.org/), LGPL-3
-  adwaita-icon-theme (https://git.gnome.org/browse/adwaita-icon-theme/), LGPL-3
+  oxygen-icons (http://www.oxygen-icons.org), LGPL-3
+  gnome-icon-theme (https://www.gnome.org), LGPL-3
+  adwaita-icon-theme (https://git.gnome.org/browse/adwaita-icon-theme), LGPL-3

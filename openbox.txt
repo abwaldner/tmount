@@ -12,18 +12,17 @@ $ cat ~/bin/obm-tmount.sh
     L2='Cancel'     R2='true'
   fi
 
-  cat <<EOF
-<?xml version="1.0" encoding="utf-8"?>
-  <openbox_pipe_menu>
-    <separator label="${L0}"/>
-    <item label="${L1}">
-      <action name="Execute"><command>${R1}</command></action>
-    </item>
-    <item label="${L2}">
-      <action name="Execute"><command>${R2}</command></action>
-    </item>
-  </openbox_pipe_menu>
-EOF
+  echo '<?xml version="1.0" encoding="utf-8"?>' ; echo '
+    <openbox_pipe_menu>
+      <separator label="'"${L0}"'"/>
+      <item label="'"${L1}"'">
+        <action name="Execute"><command>'"${R1}"'</command></action>
+      </item>
+      <item label="'"${L2}"'">
+        <action name="Execute"><command>'"${R2}"'</command></action>
+      </item>
+    </openbox_pipe_menu>
+  '
 
 #eof obm-tmount.sh
 

@@ -79,10 +79,10 @@
 
     expect {
       {Password: } {
-        exp_send [ Psw {sudo: Enter your password} ] ; exp_continue
+        exp_send -- [ Psw {sudo: Enter your password} ] ; exp_continue
       }
       {Enter passphrase for *: } {
-        exp_send [ Psw "Enter LUKS passphrase for ${Dev}" ] ; exp_continue
+        exp_send -- [ Psw "Enter LUKS passphrase for ${Dev}" ] ; exp_continue
       }
       full_buffer { append Err $expect_out(buffer) ; exp_continue }
       eof { append Err $expect_out(buffer) }

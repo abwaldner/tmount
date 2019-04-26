@@ -59,7 +59,7 @@
 
     expect {
       {Password: } {
-        exp_send [ Psw {su: Enter root password} ] ; exp_continue
+        exp_send -- [ Psw {su: Enter root password} ] ; exp_continue
       }
       full_buffer { append Err $expect_out(buffer) ; exp_continue }
       eof { append Err $expect_out(buffer) }
