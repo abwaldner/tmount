@@ -1,0 +1,84 @@
+#!/usr/bin/env expect
+
+  proc Dlg { Res args } {
+    upvar $Res R
+    set L { --title tmount --window-icon /usr/share/pixmaps/tmount.png }
+    set R [
+      if [ set C [ catch { exec qarma 2>/dev/null {*}$L {*}$args } S ] ] {
+        puts stderr [ regsub {^child .*abnormally$} $S Cancelled. ]
+      } else { set S
+      };#fi
+    ]
+    return $C
+  };# Dlg
+
+  proc Mode {} {
+    Dlg M --forms --text {LUKS passphrase input method:} \
+          --add-combo Select --combo-values {Interactive|Key File}
+    return [ string tolower [ string range $M 0 0 ] ]
+  };# Mode
+
+  proc Psw { Prompt } {
+    if [ Dlg P --entry --hide-text --text $Prompt ] { set P "\004" };#fi
+    return "${P}\n"
+  };# Psw
+
+  proc FSel {} {
+    Dlg F --file-selection --title {tmount - Select a key file}
+    return $F
+  };# FSel
+
+  proc Prop { Dev N } { ;# get property for device
+    if [ catch { exec lsblk -dpno $N $Dev } P ] { set P {} };#fi
+    return [ set P ]
+  };# Prop
+
+  set RetC 1 ; set Err {} ; set Dev [ lindex $argv end ] ; set Cmd pmount
+
+  set Mode [
+    set M [ lindex $argv 0 ]
+    if { $argc == 2 && $M in { -k -i -a } } { string range $M 1 1
+    } elseif { $argc == 1 } { expr {{a}}
+    };#fi
+  ]
+
+  if { $Mode eq {} } {
+    set X {Usage: %s [-k|-i|-a] {device|file}}
+    set Err [ format $X [ file tail [ info script ] ] ]
+  };#fi
+
+  if { $Mode eq {a} } { set Mode [ Mode ] };#fi
+
+  if { $Mode eq {k} } { set Mode [ FSel ] ; lappend Cmd -p $Mode };#fi
+
+  if { $Mode ne {} } {
+
+    set timeout -1 ; log_user 0 ; set Err {} ; set LC $env(LC_ALL)
+
+    set env(LC_ALL) {C} ; spawn {*}$Cmd $Dev ; set env(LC_ALL) $LC
+
+    expect {
+      {Enter passphrase for *: } {
+        exp_send -- [ Psw "Enter LUKS passphrase for ${Dev}" ] ; exp_continue
+      }
+      full_buffer { append Err $expect_out(buffer) ; exp_continue }
+      eof { append Err $expect_out(buffer) }
+    };#done
+
+    set RetC [ lrange [ wait ] 3 3 ]
+
+  };#fi
+
+  if { $RetC } { puts stderr $Err
+  } else {
+    regexp -linestop {.*$} [ exec lsblk -plno NAME $Dev ] Lnk
+    set Map [ file tail   $Lnk ] ; set D {Device}
+    set R [ exec realpath $Lnk ] ; set B [ file tail $R ]
+    set S [ Prop $R SIZE   ] ; set M [ Prop $R MOUNTPOINT ]
+    set L [ Prop $R LABEL  ] ; regsub {^$} $L {(no label)} L
+    set F [ Prop $R FSTYPE ] ; set P {mounted on} ; set T {mapped to}
+    set X  "%s %s %s %s\n%s -> %s\n%s (%s, \[%s], %s)\n%s %s\n"
+    puts [ format $X $D $Dev $T $Map $Lnk $R $B $F $L $S $P $M ]
+  };#fi
+
+exit $RetC
