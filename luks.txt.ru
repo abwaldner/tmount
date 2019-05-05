@@ -51,8 +51,8 @@
   переменной SUDO_ASKPASS обеспечивает вид, максимально похожий на вид
   приложения.  Вы можете также использовать программы
   zenity (https://wiki.gnome.org/Projects/Zenity),
-  Xdialog (http://xdialog.free.fr/),
+  Xdialog (http://xdialog.free.fr),
   gtkdialog (https://github.com/oshazard/gtkdialog), или
-  yad (https://sourceforge.net/projects/yad-dialog/), соответствующие
+  yad (https://sourceforge.net/projects/yad-dialog), соответствующие
   функции приведены в файлах dialogs.sh и dialogs.tcl.  Также вы можете
   использовать Expect+Tk (*.expk) скрипты.

@@ -2,7 +2,7 @@
       tmount - block devices mounter/unmounter
                for system tray (and not only) on Linux.
 
-      Alexander B. Waldner, 2016-2018.
+      Alexander B. Waldner, 2016-2019.
   See COPYING file for terms of usage.
 
       "tmount" is an application, that starts in system tray (aka
@@ -18,14 +18,14 @@
   "Unmount all [M]ount[P]oints" items, if applicable to the device.
 
      By default "tmount" use "udevil"
-  (https://ignorantguru.github.com/udevil/) for mounting/unmounting.
+  (https://ignorantguru.github.com/udevil) for mounting/unmounting.
   You can use any other appropriate program or your own script by
   editing "Mount" and "Unmount" fields in "Settings" dialog window.
   The device node name (b.e. /dev/sdc1 or /dev/sr0) will be appended to
   the end of given command line for mount and unlock commands and
   the mountpoint pathname will be appended for unmount command.  For
   example, for use of the "pmount" program
-  (http://pmount.alioth.debian.org/) just type "pmount" and "pumount" in
+  (http://pmount.alioth.debian.org) just type "pmount" and "pumount" in
   appropriate fields.  The whole disk node name (b.e. /dev/sdc for
   /dev/sdc[1-9] and /dev/sr0 for /dev/sr0) will be appended for eject
   and remove commands.  If you leave the "Eject" and "Remove" fields
@@ -34,13 +34,13 @@
   mountpoints of this device.
       Before running the "Remove" or "Eject" command, the application
   tries to unmount all mountpoints on all partitions of the whole disk,
-  then checks if there are mounted filesystems or mapped containers on
-  the specified device, and if the device or any of its partitions is in
-  use by another programs.  However, the application can not detect
-  programs launched by another user, such as (g)parted, *fdisk, mkfs.*
-  by root, or cd/dvd-recorder or mediaplayer by another user of
-  the "cdrom" group.  In addition, in general, the program can't lock
-  the device before starting the test.
+  then checks if there are mounted filesystems or mapped containers or
+  loopback-maps on the specified device, and if the device or any of its
+  partitions is in use by another programs.  However, the application can not
+  detect programs launched by another user, such as (g)parted, *fdisk, mkfs.*
+  by root, or cd/dvd-recorder or mediaplayer by another user of the "cdrom"
+  group.  In addition, in general, the program can't lock the device before
+  starting the test.
       The context menu "Add image" item allows you to choose
   the filesystem image file in the dialog box and passes its pathname to
   the command given in the "Add image" field of the settings dialog,
