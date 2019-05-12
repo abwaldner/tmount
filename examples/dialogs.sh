@@ -2,13 +2,14 @@
 
   # zenity/qarma -------------------------------------------------------------
 
-  Dlg  () {
+  Dlg () { # <form options>...
     zenity 2>/dev/null --title 'tmount' \
       --window-icon '/usr/share/pixmaps/tmount.png' "${@}" ||
     ! echo 'Cancelled.' >&2
   } # Dlg
 
-  Mode () { # preferably for qarma
+  # preferably for qarma
+  Mode () {
     case $( Dlg --forms --add-combo 'Select' \
                 --text 'LUKS passphrase input method:' \
                 --combo-values 'Interactive|Key File'  )
@@ -16,7 +17,8 @@
     esac
   } # Mode
 
-  Mode () { # preferably for zenity
+  # preferably for zenity
+  Mode () {
     case $( Dlg --list --radiolist --hide-header --column 1 --column 2 \
                 --text 'LUKS passphrase input method:' \
                 TRUE 'Interactive' FALSE 'Key File' )
@@ -24,16 +26,20 @@
     esac
   } # Mode
 
-  Psw  () { Dlg --entry --hide-text --text "${1}" ; } # Psw
+  Psw () { # <prompt line>
+    Dlg --entry --hide-text --text "${1}"
+  } # Psw
 
   FSel () { Dlg --file-selection --title 'tmount - Select a key file'
   } # FSel
 
-  Warn () { Dlg --warning --no-markup --text "${1}" ; } # Warn
+  Warn () { # <text>
+    Dlg --warning --no-markup --text "${1}"
+  } # Warn
 
   # Xdialog ------------------------------------------------------------------
 
-  Dlg  () {
+  Dlg () { # <form options>...
     Xdialog 2>/dev/null --title 'tmount' --stdout "${@}" ||
     ! echo 'Cancelled.' >&2
   } # Dlg
@@ -43,29 +49,31 @@
           '-i' 'Interactive' on '-k' 'Key File' off
   } # Mode
 
-  Psw  () { Dlg --password --inputbox "${1}" 0 0 ; } # Psw
+  Psw () { # <prompt line>
+    Dlg --password --inputbox "${1}" 0 0
+  } # Psw
 
   FSel () { Dlg --backtitle 'Select a key file' --no-buttons --fselect ./ 0 0
   } # FSel
 
-  Warn () {
+  Warn () { # <text>
     Dlg --left --icon '/usr/share/pixmaps/tmount.png' \
         --backtitle 'Warning!' --msgbox "${1}" 0 0
   } # Warn
 
   # gtkdialog ----------------------------------------------------------------
 
-  Dlg  () ( # '(...)' used instead of 'local' for EXIT and VAL, etc.
+  Dlg () ( # <forms>...
     D='
       <window title="tmount" image-name="/usr/share/pixmaps/tmount.png">
         '"${*}"'
         <action signal="key-press-event" condition="command_is_true(
-            [ ''$''KEY_SYM = Escape ] && echo yes )">Exit:Cancel</action>
+            [ '\$'KEY_SYM = Escape ] && echo yes )">Exit:Cancel</action>
       </window>
     '
-    eval "$( D="${D}" gtkdialog -c -p D 2>/dev/null )"
+    eval "$( D=${D} gtkdialog -c -p D 2>/dev/null )"
     [ OK = "${EXIT}" ] && echo "${VAL}" || ! echo 'Cancelled.' >&2
-  ) # Dlg
+  ) # Dlg  # '(...)' used instead of 'local' for EXIT and VAL, etc.
 
   Mode () {
     case $(
@@ -77,7 +85,7 @@
             </radiobutton>
             <radiobutton> <label>Key File</label> </radiobutton>
             <action signal="key-press-event" condition="command_is_true(
-                [ ''$''KEY_SYM = Return ] && echo yes )">Exit:OK</action>
+                [ '\$'KEY_SYM = Return ] && echo yes )">Exit:OK</action>
           </vbox>
           <hbox> <button ok></button> <button cancel></button> </hbox>
         </frame>
@@ -86,7 +94,7 @@
     esac
   } # Mode
 
-  Psw  () {
+  Psw () { # <prompt line>
     Dlg '
       <frame '"$( printf '%s' "${1}" | tr -d '>' )"'>
         <entry visibility="false">
@@ -111,7 +119,7 @@
     '
   } # FSel
 
-  Warn () {
+  Warn () { # <text>
     Dlg '
       <frame Warning!>
         <vbox>
@@ -127,7 +135,7 @@
 
   # yad ----------------------------------------------------------------------
 
-  Dlg  () {
+  Dlg () { # <form options>...
     yad 2>/dev/null --title 'tmount' --center \
       --window-icon '/usr/share/pixmaps/tmount.png' "${@}" ||
     ! echo 'Cancelled.' >&2
@@ -140,11 +148,13 @@
     esac
   } # Mode
 
-  Psw  () { Dlg --entry --hide-text --text "${1}" ; } # Psw
+  Psw () { # <prompt line>
+    Dlg --entry --hide-text --text "${1}"
+  } # Psw
 
   FSel () { Dlg --file --title 'tmount - Select a key file' ; } # FSel
 
-  Warn () {
+  Warn () { # <text>
     Dlg --button gtk-ok --image dialog-warning --no-markup --text "${1}"
   } # Warn
 

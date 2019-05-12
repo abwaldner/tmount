@@ -14,10 +14,12 @@
 #  } # MyTerm
 # ---------------------------------------------------------------------------
 
-  GP () { lsblk -dpno "${2}" "${1}" ; } # GP - get property for device
+  GP () { # <device> <property name>
+    lsblk -dpno "${2}" "${1}" # Get property ($2) for device ($1).
+  } # GP
 
-  case "${1}" in -k|-i|-a ) M="${1}" ;; * ) M='' ;; esac
-  case  ${#}  in 1 ) M='-a' ;; 2 ) shift ;; * ) M='' ;; esac
+  case ${1} in -k|-i|-a ) M=${1} ;; * ) M='' ;; esac
+  case ${#} in 1 ) M='-a' ;; 2 ) shift ;; * ) M='' ;; esac
   [ "${M}" ] || echo "Usage: ${0##*/} [-k|-i|-a] {device|file}" >&2
 
   [ "${M}" ] &&
@@ -30,7 +32,7 @@
       echo '  "i" for password interactive input,'
       echo 'or any to cancel...'
       read -r M
-      case "${M}" in K|k ) M='-k' ;; I|i ) M='-i' ;; * ) M='' ;; esac
+      case ${M} in K|k ) M='-k' ;; I|i ) M='-i' ;; * ) M='' ;; esac
     }
 
     [ "${M}" = '-k' ] && {
@@ -38,11 +40,11 @@
       { IFS='' read -r F && [ "${F}" ] ; } || M=''
     }
 
-    case "${M}" in
+    case ${M} in
       -k ) pmount -p "${F}" "${1}" ;; -i ) pmount "${1}" ;;
        * ) ! echo 'Cancelled.' >&2 ;;
     esac &&
-    { N=$( lsblk -plno NAME "${1}" | tail -n 1 ) P=${N##*/}
+    { N=$( lsblk -plno NAME "${1}" | tail -n 1 ) ; P=${N##*/}
       F=$( GP "${N}" FSTYPE ) L=$( GP "${N}" LABEL ) R=$( realpath "${N}" )
       printf 'Device %s mapped to %s\n%s -> %s\n%s (%s, [%s], %s)\n' \
              "${1}" "${P}" "${N}" "${R}" "${R##*/}" "${F:-(no FS)}"  \

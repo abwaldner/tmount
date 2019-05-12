@@ -2,22 +2,27 @@
 
   Cmd='/sbin/cryptsetup'
 
-  Dlg () {
+  Dlg () { # <form options>...
     qarma 2>/dev/null --title 'tmount' \
       --window-icon '/usr/share/pixmaps/tmount.png' "${@}" ||
     ! echo 'Cancelled.' >&2
   } # Dlg
 
-  Warn () { Dlg --warning --no-markup --text "${1}" ; } # Warn
+  Warn () { # <text>
+    Dlg --warning --no-markup --text "${1}"
+  } # Warn
 
   MySu () { exec 2>/dev/null ktsuss -u root -- "${1}" ; } # MySu
 
-  l () { printf 'b%se' "${1}" | sed "s/''*/'\"&\"'/g ; 1 s/^b/'/ ; $ s/e$/'/"
-  } # l - substitutes a literal in 'eval' or 'su -c' arguments
+  l () { # <string>  # Substitutes a literal in 'eval' or 'su -c' args.
+    printf 'b%se' "${1}" | sed "s/''*/'\"&\"'/g ; 1 s/^b/'/ ; $ s/e$/'/"
+  } # l
 
-  GP () { lsblk -dpno "${2}" "${1}" ; } # GP - get property for device
+  GP () { # <device> <property name>
+    lsblk -dpno "${2}" "${1}" # Get property ($2) for device ($1).
+  } # GP
 
-  N="/dev/mapper/${1}" M=$( GP "${N}" MOUNTPOINT )
+  N=/dev/mapper/${1} ; M=$( GP "${N}" MOUNTPOINT )
   C=${TMOUNT_Unmount_command:-}
 
   if ! [ "${M}" ] || [ "${C}" ] ; then

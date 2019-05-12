@@ -1,7 +1,8 @@
 #!/bin/sh
 
-  l () { printf 'b%se' "${1}" | sed "s/''*/'\"&\"'/g ; 1 s/^b/'/ ; $ s/e$/'/"
-  } # l - substitutes a literal in 'eval' or 'su -c' arguments
+  l () { # <string>  # Substitutes a literal in 'eval' or 'su -c' args.
+    printf 'b%se' "${1}" | sed "s/''*/'\"&\"'/g ; 1 s/^b/'/ ; $ s/e$/'/"
+  } # l
 
   if file -bL "${1}" | grep '^LUKS '
   then C=${TMOUNT_Unlock_command:-} ; else C=' udevil mount '

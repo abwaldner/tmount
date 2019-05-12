@@ -4,12 +4,15 @@
   Ask='tmount-askpass.sh' # should be in the same directory
   SUDO_ASKPASS="$( dirname "${0}" )/${Ask}" ; export SUDO_ASKPASS
 
-  l () { printf 'b%se' "${1}" | sed "s/''*/'\"&\"'/g ; 1 s/^b/'/ ; $ s/e$/'/"
-  } # l - substitutes a literal in 'eval' or 'su -c' arguments
+  l () { # <string>  # Substitutes a literal in 'eval' or 'su -c' args.
+    printf 'b%se' "${1}" | sed "s/''*/'\"&\"'/g ; 1 s/^b/'/ ; $ s/e$/'/"
+  } # l
 
-  GP () { lsblk -dpno "${2}" "${1}" ; } # GP - get property for device
+  GP () { # <device> <property name>
+    lsblk -dpno "${2}" "${1}" # Get property ($2) for device ($1).
+  } # GP
 
-  N="/dev/mapper/${1}" M=$( GP "${N}" MOUNTPOINT )
+  N=/dev/mapper/${1} ; M=$( GP "${N}" MOUNTPOINT )
   C=${TMOUNT_Unmount_command:-}
 
   if ! [ "${M}" ] || [ "${C}" ] ; then

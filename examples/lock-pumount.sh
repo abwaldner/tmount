@@ -1,6 +1,6 @@
 #!/bin/sh
 
-  N="/dev/mapper/${1}"
+  N=/dev/mapper/${1}
 
   while [ -e "${N}" ] && pumount "${N}" ; do : ; done
 

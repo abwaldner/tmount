@@ -2,15 +2,15 @@
 
   Cmd='/sbin/cryptsetup'
   Ask='tmount-askpass.sh' # should be in the same directory
-  SUDO_ASKPASS="$( dirname "${0}" )/${Ask}" ; export SUDO_ASKPASS
+  SUDO_ASKPASS=$( dirname "${0}" )/${Ask} ; export SUDO_ASKPASS
 
-  Dlg () {
+  Dlg () { # <form options>...
     qarma 2>/dev/null --title 'tmount' \
       --window-icon '/usr/share/pixmaps/tmount.png' "${@}" ||
     ! echo 'Cancelled.' >&2
   } # Dlg
 
-  Mode () { # preferably for qarma
+  Mode () {
     case $( Dlg --forms --add-combo 'Select' \
                 --text 'LUKS passphrase input method:' \
                 --combo-values 'Interactive|Key File'  )
@@ -18,35 +18,41 @@
     esac
   } # Mode
 
-  Psw  () { Dlg --entry --hide-text --text "${1}" ; } # Psw
+  Psw () { # <prompt line>
+    Dlg --entry --hide-text --text "${1}"
+  } # Psw
 
   FSel () { Dlg --file-selection --title 'tmount - Select a key file'
   } # FSel
 
-  l () { printf 'b%se' "${1}" | sed "s/''*/'\"&\"'/g ; 1 s/^b/'/ ; $ s/e$/'/"
-  } # l - substitutes a literal in 'eval' or 'su -c' arguments
+  l () { # <string>  # Substitutes a literal in 'eval' or 'su -c' args.
+    printf 'b%se' "${1}" | sed "s/''*/'\"&\"'/g ; 1 s/^b/'/ ; $ s/e$/'/"
+  } # l
 
-  GP () { lsblk -dpno "${2}" "${1}" ; } # GP - get property for device
+  GP () { # <device> <property name>
+    lsblk -dpno "${2}" "${1}" # Get property ($2) for device ($1).
+  } # GP
 
-  HasFS () { udevadm info "${1}" | grep -Fxq 'E: ID_FS_USAGE=filesystem'
+  HasFS () { # <device>
+    udevadm info "${1}" | grep -Fxq 'E: ID_FS_USAGE=filesystem'
   } # HasFS
 
-  PTT () { # get Partition Table Type
+  PTT () { # <device>  # Get Partition Table Type.
     udevadm info "${1}" | sed -n 's/^E: ID_PART_TABLE_TYPE=\(.*\)$/\1 pt/p'
   } # PTT
 
-  GenMN () { # generate cryptsetups map name
+  GenMN () { # <device>  # Generate cryptsetups map name.
     mktemp -u -p /dev/mapper \
       "_$( printf '%s' "${1##*/}" | tr -c '[:alnum:]#+-.:=@' '_')-XXX"
   } # GenMN
 
-  case "${1}" in -k|-i|-a ) M="${1}" ;; * ) M='' ;; esac
-  case  ${#}  in 1 ) M='-a' ;; 2 ) shift ;; * ) M='' ;; esac
+  case ${1} in -k|-i|-a ) M=${1} ;; * ) M='' ;; esac
+  case ${#} in 1 ) M='-a' ;; 2 ) shift ;; * ) M='' ;; esac
   [ "${M}" ] || echo "Usage: ${0##*/} [-k|-i|-a] {device|file}" >&2
 
   [ "${M}" = '-a' ] && M=$( Mode )
 
-  F='-' L='' N=$( GenMN "${1}" ) P=${N##*/}
+  F='-' L='' N=$( GenMN "${1}" ) ; P=${N##*/}
   Cmd="${Cmd} open $( l "${1}" ) ${P}"
 
   [ "${M}" ] &&
