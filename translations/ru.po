@@ -1,0 +1,133 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-12-18 22:27+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Cancelled."
+msgstr "Отменено."
+
+msgid "Select"
+msgstr "Выберите"
+
+msgid "LUKS passphrase input method:"
+msgstr "Способ ввода пароля LUKS:"
+
+msgid "nteractive"
+msgstr " (интерактивно)"
+
+msgid "ey File"
+msgstr " (файл с ключом)"
+
+msgid "Select a key file"
+msgstr "Выберите файл с ключом"
+
+msgid "Enter LUKS passphrase for"
+msgstr "Введите LUKS-пароль для"
+
+msgid "Usage"
+msgstr "Использование"
+
+msgid "device|file"
+msgstr "устройство|файл"
+
+msgid "Device"
+msgstr "Устройство"
+
+msgid "mapped to"
+msgstr "отображено на"
+
+msgid "mounted on"
+msgstr "смонтировано на"
+
+msgid "released."
+msgstr "освобождено."
+
+msgid "Config error: unmounting disabled"
+msgstr "Ошибка конфигурации: размонтирование отключено"
+
+msgid "Config error: mounting disabled"
+msgstr "Ошибка конфигурации: монтирование отключено"
+
+msgid "(no FS)"
+msgstr "(без ФС)"
+
+msgid "(no label)"
+msgstr "(без метки)"
+
+msgid "Press Enter to continue..."
+msgstr "Нажмите 'Ввод' для продолжения..."
+
+msgid "Enter"
+msgstr "Введите"
+
+msgid "for key file selection,"
+msgstr "для выбора файла с ключом,"
+
+msgid "for password interactive input,"
+msgstr "для интерактивного ввода пароля,"
+
+msgid "or any to cancel..."
+msgstr "или любой символ для отмены..."
+
+msgid "Enter key file name"
+msgstr "Введите имя файла с ключом"
+
+msgid "or empty string to cancel..."
+msgstr "или пустую строку для отмены..."
+
+msgid "Enter your password"
+msgstr "Введите ваш пароль"
+
+msgid "Enter root password"
+msgstr "Введите пароль root"
+
+msgid "LUKS disabled by config."
+msgstr "LUKS запрещён конфигурацией."
+
+msgid "Not implemented."
+msgstr "Не реализовано."
+
+msgid "Interactive"
+msgstr "Интерактивно"
+
+msgid "Key File"
+msgstr "Файл с ключом"
+
+msgid "is not removable."
+msgstr "не извлекаемо."
+
+msgid "You can remove"
+msgstr "Вы можете извлечь"
+
+msgid "Warning!"
+msgstr "Предупреждение!"
+
+msgid "Devices"
+msgstr "Устройства"
+
+msgid "Additional"
+msgstr "Дополнительно"
+
+msgid "not running:"
+msgstr "не запущен:"
+
+msgid "Start"
+msgstr "Запустить"
+
+msgid "Cancel"
+msgstr "Отмена"
+
