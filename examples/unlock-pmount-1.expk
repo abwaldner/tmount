@@ -2,6 +2,10 @@
 
   package require Expect
 
+  set MsD /usr/share/tmount/translations/ ;# i18n directory
+  package require msgcat ; namespace import msgcat::mc
+  catch { msgcat::mcload $MsD }
+
   proc Dlg {} {
    global RetC
    set x [ expr { [ winfo screenwidth   . ] - [ winfo reqwidth  . ] } ]
@@ -10,7 +14,7 @@
    set y [ expr { $y / 2 - [ winfo vrooty . ] } ]
    wm geom . +$x+$y ; wm deiconify . ; focus .ent ; tkwait var RetC
    catch { wm withdraw . }
-   if { $RetC } { puts stderr Cancelled. };#fi
+   if { $RetC } { puts stderr [ mc Cancelled. ] };#fi
    return $RetC
   };# Dlg
 
@@ -23,8 +27,8 @@
 
   proc FSel {} {
     global RetC
-    set F [ tk_getOpenFile -title {tmount - Select a key file} ]
-    if { $F eq {} } { set RetC 1 ; puts stderr Cancelled. };#fi
+    set F [ tk_getOpenFile -title "tmount - [ mc {Select a key file} ]" ]
+    if { $F eq {} } { set RetC 1 ; puts stderr [ mc Cancelled. ] };#fi
     return $F
   };# FSel
 
@@ -43,24 +47,26 @@
   ]
 
   if { $Mode eq {} } {
-    set X {Usage: %s [-k|-i|-a] {device|file}}
-    set Err [ format $X [ file tail [ info script ] ] ]
+    set Err [
+      format {%s: %s [-k|-i|-a] {%s}} \
+        [ mc {Usage} ] [ file tail [ info script ] ] [ mc {device|file} ]
+    ]
   } else {
     wm withdraw . ; wm title . tmount ; label .lbl ; frame .btn
     wm iconphoto . [ image create photo -file /usr/share/pixmaps/tmount.png ]
     bind . <Escape> { set RetC 1 } ; bind . <Destroy> { set RetC 1 }
-    button .ok  -text  OK     -command { set RetC 0 }
-    button .esc -text  Cancel -command { set RetC 1 }
+    button .ok  -text [ mc OK     ] -command { set RetC 0 }
+    button .esc -text [ mc Cancel ] -command { set RetC 1 }
     bind   .ok  <Return> { set RetC 0 } ; bind .esc <Return> { set RetC 1 }
     pack   .esc .ok -side right -in .btn
     pack   .btn -fill x -side bottom -padx 2 ; pack .lbl -fill x -padx 2
   };#fi
 
   if { $Mode eq {a} } {
-    .lbl configure -text {LUKS passphrase input method:}
+    .lbl configure -text [ mc {LUKS passphrase input method:} ]
     frame .ent ; bind .ent <Return> { set RetC 0 }
-    radiobutton .ent.i -var Mode -val i -text Interactive
-    radiobutton .ent.k -var Mode -val k -text {Key File}
+    radiobutton .ent.i -var Mode -val i -text "I[ mc nteractive ]"
+    radiobutton .ent.k -var Mode -val k -text "K[ mc {ey File}  ]"
     pack .ent.i .ent.k -side left ; .ent.i select ; pack .ent -fill x -padx 2
     if [ Dlg ] { set Mode {} };#fi
     catch { destroy .ent }
@@ -78,7 +84,8 @@
 
     expect {
       {Enter passphrase for *: } {
-        exp_send -- [ Psw "Enter LUKS passphrase for ${Dev}" ] ; exp_continue
+        exp_send -- [ Psw "[ mc {Enter LUKS passphrase for} ] ${Dev}" ]
+        exp_continue
       }
       full_buffer { append Err $expect_out(buffer) ; exp_continue }
       eof { append Err $expect_out(buffer) }
@@ -91,11 +98,12 @@
   if { $RetC } { puts stderr $Err
   } else {
     regexp -linestop {.*$} [ exec lsblk -plno NAME $Dev ] Lnk
-    set Map [ file tail   $Lnk ] ; set D {Device}
+    set Map [ file tail   $Lnk ] ; set D [ mc {Device}  ]
     set R [ exec realpath $Lnk ] ; set B [ file tail $R ]
     set S [ Prop $R SIZE   ] ; set M [ Prop $R MOUNTPOINT ]
-    set L [ Prop $R LABEL  ] ; regsub {^$} $L {(no label)} L
-    set F [ Prop $R FSTYPE ] ; set P {mounted on} ; set T {mapped to}
+    set L [ Prop $R LABEL  ] ; regsub {^$} $L [ mc {(no label)} ] L
+    set F [ Prop $R FSTYPE ] ; set P [ mc {mounted on} ]
+    set T [ mc {mapped to} ]
     set X  "%s %s %s %s\n%s -> %s\n%s (%s, \[%s], %s)\n%s %s\n"
     puts [ format $X $D $Dev $T $Map $Lnk $R $B $F $L $S $P $M ]
   };#fi

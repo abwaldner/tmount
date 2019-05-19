@@ -2,6 +2,12 @@
 
   # Don't use this with regular files!
 
+  gt () { # <string>
+    TEXTDOMAINDIR='/usr/share/tmount/translations/' \
+      gettext -d 'tmount' -s "${1}" 2>/dev/null ||
+    printf '%s\n' "${1}" # including 'gettext' absence
+  } # gt
+
 # ---------------------------------------------------------------------------
   MyTerm () {
     exec 2>/dev/null xfce4-terminal --disable-server --hide-menubar \
@@ -20,39 +26,41 @@
 
   case ${1} in -k|-i|-a ) M=${1} ;; * ) M='' ;; esac
   case ${#} in 1 ) M='-a' ;; 2 ) shift ;; * ) M='' ;; esac
-  [ "${M}" ] || echo "Usage: ${0##*/} [-k|-i|-a] {device|file}" >&2
+  [ "${M}" ] ||
+  echo "$( gt 'Usage' ): ${0##*/} [-k|-i|-a] {$( gt 'device|file' )}" >&2
 
   [ "${M}" ] &&
   if ! tty >/dev/null ; then MyTerm "${0}" "${M}" "${@}"
   else
 
     [ "${M}" = '-a' ] && {
-      echo 'Enter'
-      echo '  "k" for key file selection,'
-      echo '  "i" for password interactive input,'
-      echo 'or any to cancel...'
+      printf '%s\n  "k" %s\n  "i" %s\n%s\n' "$( gt 'Enter' )" \
+        "$( gt 'for key file selection,' )" \
+        "$( gt 'for password interactive input,' )" \
+        "$( gt 'or any to cancel...' )"
       read -r M
       case ${M} in K|k ) M='-k' ;; I|i ) M='-i' ;; * ) M='' ;; esac
     }
 
     [ "${M}" = '-k' ] && {
-      echo 'Enter key file name' ; echo '  or empty string to cancel...'
+      printf '%s\n  %s\n' "$( gt 'Enter key file name' )" \
+                          "$( gt 'or empty string to cancel...' )"
       { IFS='' read -r F && [ "${F}" ] ; } || M=''
     }
 
     case ${M} in
       -k ) pmount -p "${F}" "${1}" ;; -i ) pmount "${1}" ;;
-       * ) ! echo 'Cancelled.' >&2 ;;
+       * ) ! gt 'Cancelled.' >&2 ;;
     esac &&
     { N=$( lsblk -plno NAME "${1}" | tail -n 1 ) ; P=${N##*/}
       F=$( GP "${N}" FSTYPE ) L=$( GP "${N}" LABEL ) R=$( realpath "${N}" )
-      printf 'Device %s mapped to %s\n%s -> %s\n%s (%s, [%s], %s)\n' \
-             "${1}" "${P}" "${N}" "${R}" "${R##*/}" "${F:-(no FS)}"  \
-             "${L:-(no label)}" "$( GP "${N}" SIZE )"
-      echo "mounted on $( GP "${N}" MOUNTPOINT )"
+      printf '%s %s %s %s\n%s -> %s\n%s (%s, [%s], %s)\n%s %s\n' \
+        "$( gt 'Device' )" "${1}" "$( gt 'mapped to' )" "${P}" "${N}" "${R}" \
+        "${R##*/}" "${F}" "${L:-$( gt '(no label)' )}" "$( GP "${N}" SIZE )" \
+        "$( gt 'mounted on' )" "$( GP "${N}" MOUNTPOINT )"
     }
 
-    echo ; echo 'Press Enter to continue...' ; read -r M
+    echo ; gt 'Press Enter to continue...' ; read -r M
 
   fi
 

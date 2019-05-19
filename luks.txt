@@ -1,57 +1,53 @@
 
-      LUKS container unlocking process essentially depends on
-  the particular environment.  Therefore, the default configuration of
-  "tmount" does not define of any action for such devices.
+      LUKS container unlocking process essentially depends on the particular
+  environment.  Therefore, the default configuration of "tmount" does not
+  define of any action for such devices.
       You can select the appropriate scripts available in the directory
-  /usr/share/tmount/docs (or in a subdirectory of the project directory
-  ./examples), modify them to meet your needs and preferences, put them
-  at any place available for execution and edit the "Unlock" and "Lock"
-  fields of "Settings" dialog of "tmount".
-      Unlocking command takes a parameter is the same as the mount
-  command.
-      Locking command takes as parameter the name, which opens the
-  container in the directory /dev/mapper "cryptsetup" utility (without
-  the directory name).
-      Unlock command requires interactive input of LUKS passphrase or
-  of key file name, and both commands may require interactive input of
-  password, if implemented through the use of "su" or "sudo".
-  Therefore, "tmount" by default launches them without setting
-  a timeout.  Be careful: in this case these scripts hang blocking
-  the application.  For this reason, the containers will never be
-  unlocked automatically.
+  /usr/share/tmount/examples (or in a subdirectory of the project directory
+  ./examples), modify them to meet your needs and preferences, put them at any
+  place available for execution and edit the "Unlock" and "Lock" fields of
+  "Settings" dialog of "tmount".
+      Unlocking command takes a parameter is the same as the mount command.
+      Locking command takes as parameter the name, which opens the container
+  in the directory /dev/mapper "cryptsetup" utility (without the directory
+  name).
+      Unlock command requires interactive input of LUKS passphrase or of key
+  file name, and both commands may require interactive input of password, if
+  implemented through the use of "su" or "sudo".  Therefore, "tmount" by
+  default launches them without setting a timeout.  Be careful: in this case
+  these scripts hang blocking the application.  For this reason,
+  the containers will never be unlocked automatically.
       The "pmount" program can by itself unlock LUKS container and can
-  automatically lock it after unmounting contained to it filesystem and
-  does not require an explicit call to the utility "cryptsetup".
-  However, it can't unlock nested containers and containers that do not
-  contain a filesystem.
+  automatically lock it after unmounting contained to it filesystem and does
+  not require an explicit call to the utility "cryptsetup".  However, it can't
+  unlock nested containers and containers that do not contain a filesystem.
       "udevil" users must add at least "/dev/dm*" to the parameter
   "allowed_internal_devices" in udevil.conf file.
       "sudo" users can greatly simplify the work with the utility
   "cryptsetup", if will be entitled to its execution without entering
-  a password.  However, this does not require any modification of the
-  scripts.  In addition, when using terminal emulators or tools like
-  "ktsuss" (http://github.com/nomius/ktsuss, the graphical version of
-  "su") lost the return code and the stderr output of the called
-  program.  Therefore, the use of these variants is not recommended.
-  To work with "su", it is preferable to use the "expect" script.
-      Currently, all unlock scripts accept an additional parameter
-  specifying the way to enter the LUKS password: "-k" - request the key
-  file name, "-i" - interactive input, "-a" or the absence of the
-  parameter - the selection dialog.
-      To unlock containers that are in regular files, you should ensure
-  that the relevant scripts are run through the field "Add image" of
-  the settings dialog (see img-*.sh in examles).   Warning: don't forget
-  to change the timeout value.  Note: the "pumount" program works
-  incorrectly in this case, therefore it is necessary pre-unlock
-  the container and add "/dev/dm-*" to the "/etc/pmount.allow" file.
+  a password.  However, this does not require any modification of the scripts.
+  In addition, when using terminal emulators or tools like "ktsuss"
+  (http://github.com/nomius/ktsuss, the graphical version of "su") lost
+  the return code and the stderr output of the called program.  Therefore,
+  the use of these variants is not recommended.  To work with "su", it is
+  preferable to use the "expect" script.
+      Currently, all unlock scripts accept an additional parameter specifying
+  the way to enter the LUKS password: "-k" - request the key file name, "-i" -
+  interactive input, "-a" or the absence of the parameter - the selection
+  dialog.
+      To unlock containers that are in regular files, you should ensure that
+  the relevant scripts are run through the field "Add image" of the settings
+  dialog (see img-*.sh in examles).   Warning: don't forget to change
+  the timeout value.  Note: the "pumount" program works incorrectly in this
+  case, therefore it is necessary pre-unlock the container and add "/dev/dm-*"
+  to the "/etc/pmount.allow" file.
       Implementation notes:
       Use in the examples of the "qarma" program
   (http://github.com/luebking/qarma) and own wrapper for setting of
   the SUDO_ASKPASS evironment variable provides a view that resembles
-  the application as much as possible.  You can also use the programs
-  "zenity" (https://wiki.gnome.org/Projects/Zenity),
-  "Xdialog" (http://xdialog.free.fr),
-  "gtkdialog" (https://github.com/oshazard/gtkdialog), or
-  "yad" (https://sourceforge.net/projects/yad-dialog),
-  the corresponding functions are listed in the files "dialogs.sh" and
-  "dialogs.tcl".  Also you can use "Expect+Tk" (*.expk) scripts.
+  the application as much as possible.  You can also use the programs zenity
+  (https://wiki.gnome.org/Projects/Zenity), Xdialog (http://xdialog.free.fr),
+  gtkdialog (https://github.com/oshazard/gtkdialog), or yad
+  (https://sourceforge.net/projects/yad-dialog), the corresponding functions
+  are listed in the files "dialogs.sh" and "dialogs.tcl".  Also you can use
+  "Expect+Tk" (*.expk) scripts.

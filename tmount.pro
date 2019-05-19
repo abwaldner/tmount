@@ -1,40 +1,35 @@
 
 VERSION = "0.0.9"
 
-TEMPLATE = app
-SOURCES += tmount.cpp QUnixApp.cpp
-SOURCES += Listener.cpp LOpts.cpp TrayIcon.cpp
-SOURCES += QUdev.cpp QMounts.cpp
-HEADERS += defs.h QUnixApp.h
-HEADERS += Listener.h LOpts.h TrayIcon.h
-HEADERS += QUdev.h QMounts.h PTName.h
-LIBS   += -ludev
-CONFIG += release
-RESOURCES += tmount.qrc
+SOURCES = $$files( *.cpp )
+HEADERS = $$files( *.h )
+RESOURCES += $${TARGET}.qrc
 TRANSLATIONS = $$files( translations/*.ts )
+CONFIG += release
 QT += gui core widgets
-DEFINES += VERSION=\\\"$$VERSION\\\"
+LIBS += -ludev
+DEFINES += VERSION=\\\"$${VERSION}\\\"
 
 unix : !mac {
-#  INCLUDEPATH *= /usr/include
-#    Qt 5.9
-  PREFIX = $$(PREFIX)
-  isEmpty( PREFIX ) : PREFIX = /usr
-  target.path = $$PREFIX/bin/
-  APP_TRANSLATIONS = $$PREFIX/share/$$TARGET/translations/
-  DEFINES += APP_TRANSLATIONS=\\\"$$APP_TRANSLATIONS\\\"
-  LRELEASE = $$[QT_INSTALL_BINS]/lrelease
-  locale.path   = $$APP_TRANSLATIONS
-  locale.files  = $$replace( TRANSLATIONS , ".ts" , ".qm" )
-  locale.CONFIG = no_check_exist
-  exists( $$LRELEASE ) : locale.commands = $$LRELEASE $$_PRO_FILE_
-  icon.files = icons/tmount.png
-  icon.path  = $$PREFIX/share/pixmaps/
-  desktop.path  = $$PREFIX/share/applications
-  desktop.files = *.desktop
-  docs.path   = $$PREFIX/share/$$TARGET/docs/
-  docs.files  = README *.txt COPYING LICENSE ChangeLog examples/*
-  docs.files += *.ru
-  INSTALLS += target locale icon desktop docs
-  QMAKE_DISTCLEAN += $$locale.files
+  isEmpty( PREFIX ) : PREFIX = $$(PREFIX)
+  isEmpty( PREFIX ) : PREFIX = /usr/
+  APP_TRANSLATIONS = $${PREFIX}/share/$${TARGET}/translations/
+  DEFINES += APP_TRANSLATIONS=\\\"$${APP_TRANSLATIONS}\\\"
+  target.path   = $${PREFIX}/bin/
+  icon.path     = $${PREFIX}/share/pixmaps/
+  desktop.path  = $${PREFIX}/share/applications/
+  docs.path     = $${PREFIX}/share/$${TARGET}/docs/
+  exmpl.path    = $${PREFIX}/share/$${TARGET}/examples/
+  locale.path   = $${APP_TRANSLATIONS}
+  postinst.path = $${PREFIX}/
+  icon.files    = icons/$${TARGET}.png
+  desktop.files = $${TARGET}.desktop
+  docs.files    = README *.txt COPYING LICENSE ChangeLog
+  exmpl.files   = examples/*
+  locale.files  = translations/*.qm translations/*.msg translations/*.mo
+  docs.files   += *.ru
+  postinst.extra = ./mkTextDomains.sh $${locale.path} $${TARGET}
+  INSTALLS += target locale icon desktop docs exmpl postinst
 }
+
+# eof

@@ -1,13 +1,16 @@
 #!/usr/bin/env expect
 
   set Cmd /sbin/cryptsetup
+  set MsD /usr/share/tmount/translations/ ;# i18n directory
+  package require msgcat ; namespace import msgcat::mc
+  catch { msgcat::mcload $MsD }
 
   proc Dlg { Res args } {
     upvar $Res R
     set L { --title tmount --window-icon /usr/share/pixmaps/tmount.png }
     set R [
       if [ set C [ catch { exec qarma 2>/dev/null {*}$L {*}$args } S ] ] {
-        puts stderr [ regsub {^child .*abnormally$} $S Cancelled. ]
+        puts stderr [ regsub {^child .*abnormally$} $S [ mc Cancelled. ] ]
       } else { set S
       };#fi
     ]
@@ -15,8 +18,9 @@
   };# Dlg
 
   proc Mode {} {
-    Dlg M --forms --text {LUKS passphrase input method:} \
-          --add-combo Select --combo-values {Interactive|Key File}
+    Dlg M --forms --text [ mc {LUKS passphrase input method:} ] \
+          --add-combo [ mc Select ] \
+          --combo-values "I[ mc nteractive ]|K[ mc {ey File} ]"
     return [ string tolower [ string range $M 0 0 ] ]
   };# Mode
 
@@ -26,7 +30,7 @@
   };# Psw
 
   proc FSel {} {
-    Dlg F --file-selection --title {tmount - Select a key file}
+    Dlg F --file-selection --title "tmount - [ mc {Select a key file} ]"
     return $F
   };# FSel
 
@@ -66,8 +70,10 @@
   ]
 
   if { $Mode eq {} } {
-    set X {Usage: %s [-k|-i|-a] {device|file}}
-    set Err [ format $X [ file tail [ info script ] ] ]
+    set Err [
+      format {%s: %s [-k|-i|-a] {%s}} \
+        [ mc {Usage} ] [ file tail [ info script ] ] [ mc {device|file} ]
+    ]
   };#fi
 
   if { $Mode eq {a} } { set Mode [ Mode ] };#fi
@@ -83,10 +89,12 @@
 
     expect {
       {Password: } {
-        exp_send -- [ Psw {su: Enter root password} ] ; exp_continue
+        exp_send -- [ Psw "su: [ mc {Enter root password} ]" ]
+        exp_continue
       }
       {Enter passphrase for *: } {
-        exp_send -- [ Psw "Enter LUKS passphrase for ${Dev}" ] ; exp_continue
+        exp_send -- [ Psw "[ mc {Enter LUKS passphrase for} ] ${Dev}" ]
+        exp_continue
       }
       full_buffer { append Err $expect_out(buffer) ; exp_continue }
       eof { append Err $expect_out(buffer) }
@@ -98,7 +106,7 @@
       set C TMOUNT_Mount_command
       set C [ expr { [ info exist env($C) ] ? $env($C) : {} } ]
       if { $C ne {} } { set RetC [ catch { exec -- {*}$C $Lnk } Err ]
-      } else { set RetC 1 ; set Err {Config error: mounting disabled}
+      } else { set RetC 1 ; set Err [ mc {Config error: mounting disabled} ]
       };#fi
     };#fi
 
@@ -108,12 +116,13 @@
   } else {
     set R [ exec realpath $Lnk ] ; set B [ file tail $R ]
     set S [ Prop $R SIZE   ] ; set M [ Prop $R MOUNTPOINT ]
-    set L [ Prop $R LABEL  ] ; regsub {^$} $L {(no label)} L
+    set L [ Prop $R LABEL  ] ; regsub {^$} $L [ mc {(no label)} ] L
     set F [ Prop $R FSTYPE ] ; regsub {^$} $F [ PTT $R ] F
     regsub {^$} $F {(no FS)} F
-    set X  "Device %s mapped to %s\n%s -> %s\n%s (%s, \[%s], %s)\n"
-    puts [ format $X $Dev $Map $Lnk $R $B $F $L $S ]
-    if { $M ne {} } { puts "mounted on ${M}" };#fi
+    set T [ mc {mapped to} ] ; set D [ mc {Device} ]
+    set X  "%s %s %s %s\n%s -> %s\n%s (%s, \[%s], %s)\n"
+    puts [ format $X $D $Dev $T $Map $Lnk $R $B $F $L $S ]
+    if { $M ne {} } { puts "[ mc {mounted on} ] ${M}" };#fi
   };#fi
 
 exit $RetC

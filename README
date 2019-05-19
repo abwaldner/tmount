@@ -5,141 +5,125 @@
       Alexander B. Waldner, 2016-2019.
   See COPYING file for terms of usage.
 
-      "tmount" is an application, that starts in system tray (aka
-  notification area), then lists and monitors via "udev" all filesystem-
-  contains block devices and offers mounting/unmounting (or
-  locking/unlocking for LUKS containers).  In addition, the application
-  can operate as automounter for hotplug devices and removable media.
-      Actions are selected (toggled) from menu, which shown on left-
-  button click on the tray icon.  Context (right-click activated) menu
-  of that icon contains the "Settings", "Quit" and "Add image" items.
-  When you right-click on the action menu item, an supplementary menu is
-  activated that contains the "Eject" and/or "Remove", and/or
-  "Unmount all [M]ount[P]oints" items, if applicable to the device.
+      "tmount" is an application, that starts in system tray (aka notification
+  area), then lists and monitors via "udev" all filesystem-contains block
+  devices and offers mounting/unmounting (or locking/unlocking for LUKS
+  containers).  In addition, the application can operate as automounter for
+  hotplug devices and removable media.
+      Actions are selected (toggled) from menu, which shown on left-button
+  click on the tray icon.  Context (right-click activated) menu of that icon
+  contains the "Settings", "Quit" and "Add image" items.  When you right-click
+  on the action menu item, an supplementary menu is activated that contains
+  the "Eject" and/or "Remove", and/or "Unmount all [M]ount[P]oints" items, if
+  applicable to the device.
 
-     By default "tmount" use "udevil"
-  (https://ignorantguru.github.com/udevil) for mounting/unmounting.
-  You can use any other appropriate program or your own script by
-  editing "Mount" and "Unmount" fields in "Settings" dialog window.
-  The device node name (b.e. /dev/sdc1 or /dev/sr0) will be appended to
-  the end of given command line for mount and unlock commands and
-  the mountpoint pathname will be appended for unmount command.  For
-  example, for use of the "pmount" program
-  (http://pmount.alioth.debian.org) just type "pmount" and "pumount" in
-  appropriate fields.  The whole disk node name (b.e. /dev/sdc for
-  /dev/sdc[1-9] and /dev/sr0 for /dev/sr0) will be appended for eject
-  and remove commands.  If you leave the "Eject" and "Remove" fields
+     By default "tmount" use "udevil" (https://ignorantguru.github.com/udevil)
+  for mounting/unmounting.  You can use any other appropriate program or your
+  own script by editing "Mount" and "Unmount" fields in "Settings" dialog
+  window.  The device node name (b.e. /dev/sdc1 or /dev/sr0) will be appended
+  to the end of given command line for mount and unlock commands and
+  the mountpoint pathname will be appended for unmount command.  For example,
+  for use of the "pmount" program (http://pmount.alioth.debian.org) just type
+  "pmount" and "pumount" in appropriate fields.  The whole disk node name
+  (b.e. /dev/sdc for /dev/sdc[1-9] and /dev/sr0 for /dev/sr0) will be appended
+  for eject and remove commands.  If you leave the "Eject" and "Remove" fields
   empty, the corresponding menu items will just become unavailable.
       The "Unmount all MP" action applies the "Unmount" command to all
   mountpoints of this device.
-      Before running the "Remove" or "Eject" command, the application
-  tries to unmount all mountpoints on all partitions of the whole disk,
-  then checks if there are mounted filesystems or mapped containers or
-  loopback-maps on the specified device, and if the device or any of its
-  partitions is in use by another programs.  However, the application can not
-  detect programs launched by another user, such as (g)parted, *fdisk, mkfs.*
-  by root, or cd/dvd-recorder or mediaplayer by another user of the "cdrom"
-  group.  In addition, in general, the program can't lock the device before
-  starting the test.
-      The context menu "Add image" item allows you to choose
-  the filesystem image file in the dialog box and passes its pathname to
-  the command given in the "Add image" field of the settings dialog,
-  similar to the device filename.  This is sufficient for the "udevil"
-  and "pmount" programs with the appropriate settings. (See, however,
-  the note about "pmount" in "luks.txt" file and the script
-  "img-pmount.sh" in the examples.)
-    In all the above fields, no shell expansions are made, except for
-  grouping strings in double quotes into one parameter.  To specify
-  double quotes literally they must be tripled.  The pathname of
-  the command can be determined from the $PATH variable or specified
-  explicitly.  Since, as a rule, the program is launched, having its
-  current working directory the user's home directory, you can use, for
-  example, the "./bin/myscrypt" notation.
+      Before running the "Remove" or "Eject" command, the application tries to
+  unmount all mountpoints on all partitions of the whole disk, then checks if
+  there are mounted filesystems or mapped containers or loopback-maps on
+  the specified device, and if the device or any of its partitions is in use
+  by another programs.  However, the application can not detect programs
+  launched by another user, such as (g)parted, *fdisk, mkfs.* by root, or
+  cd/dvd-recorder or mediaplayer by another user of the "cdrom" group.  In
+  addition, in general, the program can't lock the device before starting
+  the test.
+      The context menu "Add image" item allows you to choose the filesystem
+  image file in the dialog box and passes its pathname to the command given in
+  the "Add image" field of the settings dialog, similar to the device
+  filename.  This is sufficient for the "udevil" and "pmount" programs with
+  the appropriate settings. (See, however, the note about "pmount" in
+  "luks.txt" file and the script "img-pmount.sh" in the examples.)
+      In all the above fields, no shell expansions are made, except for
+  grouping strings in double quotes into one parameter.  To specify double
+  quotes literally they must be tripled.  The pathname of the command can be
+  determined from the PATH environment variable or specified explicitly.
+  Since, as a rule, the program is launched, having its current working
+  directory the user's home directory, you can use, for example,
+  the "./bin/myscrypt" notation.
       The timeout is specified for each action in the corresponding
   field.
-      The switches "Mount New", "Mount media", and "Mount on start"
-  control attempts of program to mount the filesystems on the connected
-  devices, inserted removable media and detected during the start of
-  the application, respectively.  By default all set to "off".
-  The "Autoeject" switch controls the automatic use of the "eject"
-  command, if defined, to the ejection-capable devices after a
-  successfuly unmounting the last mountpoint for this device.  It is set
-  to "on" by default.
-      The "Show" group of switches determines whether to show the output
-  of the command (either explicitly or implicitly) when it successfully
+      The switches "Mount New", "Mount media", and "Mount on start" control
+  attempts of program to mount the filesystems on the connected devices,
+  inserted removable media and detected during the start of the application,
+  respectively.  By default all set to "off".  The "Autoeject" switch controls
+  the automatic use of the "eject" command, if defined, to the ejection-
+  capable devices after a successfuly unmounting the last mountpoint for this
+  device.  It is set to "on" by default.
+      The "Show" group of switches determines whether to show the output of
+  the command (either explicitly or implicitly) when it successfully
   completes.  Note: error messages can not be disabled.  Both blocks
   the application's event loop.
-      To configure the lock/unlock of LUKS containers see the file
-  luks.txt in the directory /usr/share/tmount/docs or in the project
-  directory.  Note: the unlocking of cryptocontainers never starts
-  automatically.  For configuring the "Remove" item, see
-  the "remove.txt" file for details.
-      By default "tmount" shows all block devices and partitions
-  containing the filesystem or LUKS container.  To hide some of them,
-  for example the root filesystem, type an extended regular expression,
-  matches these devices (b.e. "/dev/sd([ab].*|c1)") to the "Hidden
-  devices" field.  You can also specify devices that will always be
-  shown, regardless of the presence of the filesystem, the container, or
-  even the media.  To do this, enter the appropriate regular expression
-  (b.e. "/dev/sr[01]") in the "Show anyway" field. (Note: these are
-  PCRE's, not shell globs.)
-      All options can be also installed by editing of the configuration
-  file ~/.config/tmount/tmount.conf, which is created when you first
-  start "tmount".  For running programs or scripts, set environment
-  variables of the form "TMOUNT_<name>=<value>", where <name> is the key
-  from this file.
+      To configure the lock/unlock of LUKS containers see the file luks.txt in
+  the directory /usr/share/tmount/docs or in the project directory.  Note:
+  the unlocking of cryptocontainers never starts automatically.  For
+  configuring the "Remove" item, see the "remove.txt" file for details.
+      By default "tmount" shows all block devices and partitions containing
+  the filesystem or LUKS container.  To hide some of them, for example
+  the root filesystem, type an extended regular expression, matches these
+  devices (b.e. "/dev/sd([ab].*|c1)") to the "Hidden devices" field.  You can
+  also specify devices that will always be shown, regardless of the presence
+  of the filesystem, the container, or even the media.  To do this, enter
+  the appropriate regular expression (b.e. "/dev/sr[01]") in the "Show anyway"
+  field. (Note: these are PCRE's, not shell globs.)
+      All options can be also installed by editing of the configuration file
+  ~/.config/tmount/tmount.conf, which is created when you first start
+  "tmount".  For running programs or scripts, set environment variables of
+  the form "TMOUNT_<name>=<value>", where <name> is the key from this file.
 
-      The program sees all the mountpoints created by the outside
-  (by automounter, filemanager or manually), on the real or virtual
-  ("loopback", "device mapper") devices, as well as using the
-  "mount --bind", and invites the separate menu items for unmounting
-  each of them individually.
-      Note:  the "pumount" program, unlike the "udevil", can in this
-  case work not properly, unmounting not the point that the specified.
-  However, this is not the work of the fool the application.
+      The program sees all the mountpoints created by the outside (by
+  automounter, filemanager or manually), on the real or virtual ("loopback",
+  "device mapper") devices, as well as using the "mount --bind", and invites
+  the separate menu items for unmounting each of them individually.  Note:
+  the "pumount" program, unlike the "udevil", can in this case work not
+  properly, unmounting not the point that the specified.  However, this is not
+  the work of the fool the application.
 
       When receiving TERM, HUP, INT and QUIT UNIX signals, the program
-  correctly terminated.  Receiving SIGUSR1 calls up the devices menu,
-  and SIGUSR2 - the additional menu.  This can be used for pure keyboard
-  control of the program, for example, using the hotkeys of your
-  favorite WM or DE.  The example of "pipe-menu" for Openbox is in the
-  "openbox.txt" file.
-      If the program is started with the command line option "-wait N",
-  it waits for the system tray to be available up to N seconds, then
-  silently ends, if it remains inaccessible.  Running without parameters
-  is equivalent to starting with "-wait 30".  When running with
-  parameter "-wait 0" the program works without show an icon in
-  the system tray and can be controlled only by signals (see above).
-  Also switching the "tray/background" modes is possible using
-  the context menu items "Hide icon/Show in tray" (if the system tray is
-  available).
+  correctly terminated.  Receiving SIGUSR1 calls up the devices menu, and
+  SIGUSR2 - the additional menu.  This can be used for pure keyboard control
+  of the program, for example, using the hotkeys of your favorite WM or DE.
+  The example of "pipe-menu" for Openbox is in the "openbox.txt" file.
+      If the program is started with the command line option "-wait N", it
+  waits for the system tray to be available up to N seconds, then silently
+  ends, if it remains inaccessible.  Running without parameters is equivalent
+  to starting with "-wait 30".  When running with parameter "-wait 0"
+  the program works without show an icon in the system tray and can be
+  controlled only by signals (see above).  Also switching
+  the "tray/background" modes is possible using the context menu items
+  "Hide icon/Show in tray" (if the system tray is available).
       Return codes: 0 - normal termination, 1 - wrong parameter, 128+ -
   signal is caught (128+SIGALRM=142 - timeout exceeded).
 
-      "tmount" use only "udev", "procfs" and "sysfs" functionality and
-  require only libudev and Qt libraries.  This is Linux-specific
-  program.  Current version tested on qt-4.8.7, qt-5.9.4 and
-  eudev 3.2.5.
+      "tmount" use only "udev", "procfs" and "sysfs" functionality and require
+  only libudev and Qt libraries.  This is Linux-specific program.  Current
+  version tested on qt-4.8.7, qt-5.11.3 and eudev 3.2.5.
 
       Installation:
       -------------
 
-  1)  Make sure that the packages "qtcore", "qtgui", "qtwidgets" (for
-      Qt5) and "linguist-tools" are installed.  The last package is
-      necessary in case of use of Qt5 and if you need to install the
-      translations (currently only Russian translation present).  In
-      some distributions you may need "developers packages" - "-devel",
-      "-tools" or similar.
+  1)  Make sure that the packages "qtcore", "qtgui" and "qtwidgets" (for Qt5)
+      are installed.  In some distributions you may need "developers
+      packages" - "-devel", "-tools" or similar.
   2)  Extract project directory from archive and "cd" to it.
-  3)  Type "qmake" to configure the program.  If you would like to
-      install the program somewhere other than /usr, pass a new value
-      for PREFIX variable during configuration, for example:
-      "qmake PREFIX=/usr/local".
+  3)  Type "qmake" to configure the program.  If you would like to install
+      the program somewhere other than /usr, pass a new value for PREFIX
+      variable during configuration, for example: "qmake PREFIX=/usr/local".
   4)  Enter "make" to build the application.
   5)  Type "sudo make install" (or "su -c 'make install'").
 
-      Users of Gentoo or its derived distributions can place
-  "tmount.ebuild" into your local overlay, renaming it according to
-  the latest release (b.e., in "tmount-0.0.7.ebuild") or to
-  "tmount-9999.ebuild" for install the current version, run
-  "ebuild ... digest" and emerge it.
+      Users of Gentoo or its derived distributions can place "tmount.ebuild"
+  into your local overlay, renaming it according to the latest release (b.e.,
+  in "tmount-0.0.8.ebuild") or to "tmount-9999.ebuild" for install the current
+  version, run "ebuild ... digest" and emerge it.

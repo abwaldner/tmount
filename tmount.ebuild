@@ -1,15 +1,15 @@
 #   This "ebuild" template file is a part of "tmount" project.
 # See COPYING file for terms of usage.
-# Alexander B. Waldner, 2017.
+# Alexander B. Waldner, 2017-2019.
 
 EAPI=6
 inherit qmake-utils
 
-DESCRIPTION="block devices mounter/unmounter for system tray"
+DESCRIPTION="Block devices mounter/unmounter for system tray (and not only)"
 HOMEPAGE="https://github.com/abwaldner/tmount"
 LICENSE="GPL-3"
 SLOT="0"
-IUSE="nls qt5"
+IUSE="+qt5"
 
 if [ "${PV}" = "9999" ] ; then
   EGIT_REPO_URI="
@@ -37,9 +37,7 @@ RDEPEND="
   virtual/libudev
 "
 
-DEPEND="${RDEPEND}
-  qt5? ( nls? ( dev-qt/linguist-tools ) )
-"
+DEPEND="${RDEPEND}"
 
 src_configure () {
 
@@ -49,11 +47,17 @@ src_configure () {
 
 src_install () {
 
-  local f l p="translations/${PN}_"
+  local f l t='translations/'
+  local p="${t}/${PN}_"
 
   for f in "${p}"*.qm ; do
-    l=${f#${p}} ; l=${l%.qm}
-    has "${l}" ${LINGUAS} || { rm -f "${f}" ; rm -f *."${l}" ; }
+    l=${f#${p}} ; l=${l%.qm} # get language code
+    has "${l}" ${LINGUAS} || {
+      rm -f "${f}"          # qt translation
+      rm -f "${p}/${l}.msg" # tcl translation
+      rm -f "${p}/${l}.mo"  # gettext translation
+      rm -f *."${l}"        # docs
+    }
   done
 
   emake INSTALL_ROOT="${D}" install

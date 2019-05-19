@@ -1,13 +1,16 @@
 #!/usr/bin/env expect
 
   set Cmd /sbin/cryptsetup
+  set MsD /usr/share/tmount/translations/ ;# i18n directory
+  package require msgcat ; namespace import msgcat::mc
+  catch { msgcat::mcload $MsD }
 
   proc Dlg { Res args } {
     upvar $Res R
     set L { --title tmount --window-icon /usr/share/pixmaps/tmount.png }
     set R [
       if [ set C [ catch { exec qarma 2>/dev/null {*}$L {*}$args } S ] ] {
-        puts stderr [ regsub {^child .*abnormally$} $S Cancelled. ]
+        puts stderr [ regsub {^child .*abnormally$} $S [ mc Cancelled. ] ]
       } else { set S
       };#fi
     ]
@@ -28,7 +31,7 @@
   lappend Cmd close -- $Map
   set C TMOUNT_Unmount_command
   set C [ expr { [ info exist env($C) ] ? $env($C) : {} } ]
-  set M {Config error: unmounting disabled}
+  set M [ mc {Config error: unmounting disabled} ]
   if { $C eq {} } { lappend C sh -c { ! printf '%s\n' "${0}" >&2 } $M };#fi
 
   while { ! $RetC && [ set M [ Prop $Lnk MOUNTPOINT ] ] ne {} } {
@@ -37,13 +40,14 @@
 
   if { ! $RetC && [ file exist $Lnk ] } {
 
-    set timeout -1 ; log_user 0 ; set Err {}
+    set timeout -1 ; log_user 0 ; set Err {} ; set LC $env(LC_ALL)
 
-    set env(LC_ALL) {C} ; spawn sudo {*}$Cmd
+    set env(LC_ALL) {C} ; spawn sudo {*}$Cmd ; set env(LC_ALL) $LC
 
     expect {
       {Password: } {
-        exp_send -- [ Psw {sudo: Enter your password} ] ; exp_continue
+        exp_send -- [ Psw "sudo: [ mc {Enter your password} ]" ]
+        exp_continue
       }
       full_buffer { append Err $expect_out(buffer) ; exp_continue }
       eof { append Err $expect_out(buffer) }
@@ -53,6 +57,7 @@
 
   };#fi
 
-  if { $RetC } { puts stderr $Err } else { puts "${Map} released." };#fi
+  if { $RetC } { puts stderr $Err } else { puts "${Map} [ mc released. ]"
+  };#fi
 
 exit $RetC

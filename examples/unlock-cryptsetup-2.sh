@@ -2,6 +2,12 @@
 
   Cmd='/sbin/cryptsetup'
 
+  gt () { # <string>
+    TEXTDOMAINDIR='/usr/share/tmount/translations/' \
+      gettext -d 'tmount' -s "${1}" 2>/dev/null ||
+    printf '%s\n' "${1}" # including 'gettext' absence
+  } # gt
+
 # ---------------------------------------------------------------------------
   MyTerm () {
     exec 2>/dev/null xfce4-terminal --disable-server --hide-menubar \
@@ -37,7 +43,8 @@
 
   case ${1} in -k|-i|-a ) M=${1} ;; * ) M='' ;; esac
   case ${#} in 1 ) M='-a' ;; 2 ) shift ;; * ) M='' ;; esac
-  [ "${M}" ] || echo "Usage: ${0##*/} [-k|-i|-a] {device|file}" >&2
+  [ "${M}" ] ||
+  echo "$( gt 'Usage' ): ${0##*/} [-k|-i|-a] {$( gt 'device|file' )}" >&2
 
   [ "${M}" ] &&
   if ! tty >/dev/null ; then MyTerm "${0}" "${M}" "${@}"
@@ -47,39 +54,42 @@
     Cmd="${Cmd} open $( l "${1}" ) ${P}"
 
     [ "${M}" = '-a' ] && {
-      echo 'Enter'
-      echo '  "k" for key file selection,'
-      echo '  "i" for password interactive input,'
-      echo 'or any to cancel...'
+      printf '%s\n  "k" %s\n  "i" %s\n%s\n' "$( gt 'Enter' )" \
+        "$( gt 'for key file selection,' )" \
+        "$( gt 'for password interactive input,' )" \
+        "$( gt 'or any to cancel...' )"
       read -r M
       case ${M} in K|k ) M='-k' ;; I|i ) M='-i' ;; * ) M='' ;; esac
     }
 
     [ "${M}" = '-k' ] && {
-      echo 'Enter key file name' ; echo '  or empty string to cancel...'
+      printf '%s\n  %s\n' "$( gt 'Enter key file name' )" \
+                          "$( gt 'or empty string to cancel...' )"
       if IFS='' read -r F && [ "${F}" ]
       then Cmd="${Cmd} -d $( l "${F}" )" ; else M=''
       fi
     }
 
     if [ "${M}" ] ; then echo 'su - ' ; su -c "${Cmd}"
-    else ! echo 'Cancelled.' >&2
+    else ! gt 'Cancelled.' >&2
     fi &&
     if HasFS "${N}" ; then
       C=${TMOUNT_Mount_command:-}
       if [ "$C" ] ; then eval " ${C} $( l "${N}" ) " >/dev/null
-      else ! echo 'Config error: mounting disabled' >&2
+      else ! gt 'Config error: mounting disabled' >&2
       fi
     fi &&
     { F=$( GP "${N}" FSTYPE ) L=$( GP "${N}" LABEL ) R=$( realpath "${N}" )
-      M=$( GP "${N}" MOUNTPOINT ) F=${F:-$( PTT "${N}" )} #"
-      printf 'Device %s mapped to %s\n%s -> %s\n%s (%s, [%s], %s)\n' \
-             "${1}" "${P}" "${N}" "${R}" "${R##*/}" "${F:-(no FS)}"  \
-             "${L:-(no label)}" "$( GP "${N}" SIZE )"
-      if [ "${M}" ] ; then echo "mounted on ${M}" ; fi
+      M=$( GP "${N}" MOUNTPOINT ) S=$( GP "${N}" SIZE )
+      F=${F:-$( PTT "${N}" )} #"
+      printf '%s %s %s %s\n%s -> %s\n%s (%s, [%s], %s)\n' \
+        "$( gt 'Device' )" "${1}" "$( gt 'mapped to' )" "${P}" \
+        "${N}" "${R}" "${R##*/}" "${F:-$( gt '(no FS)' )}" \
+        "${L:-$( gt '(no label)' )}" "${S}"
+      if [ "${M}" ] ; then echo "$( gt 'mounted on' ) ${M}" ; fi
     }
 
-    echo ; echo 'Press Enter to continue...' ; read -r M
+    echo ; gt 'Press Enter to continue...' ; read -r M
 
   fi
 

@@ -4,16 +4,22 @@
   Ask='tmount-askpass.sh' # should be in the same directory
   SUDO_ASKPASS=$( dirname "${0}" )/${Ask} ; export SUDO_ASKPASS
 
+  gt () { # <string>
+    TEXTDOMAINDIR='/usr/share/tmount/translations/' \
+      gettext -d 'tmount' -s "${1}" 2>/dev/null ||
+    printf '%s\n' "${1}" # including 'gettext' absence
+  } # gt
+
   Dlg () { # <form options>...
     qarma 2>/dev/null --title 'tmount' \
       --window-icon '/usr/share/pixmaps/tmount.png' "${@}" ||
-    ! echo 'Cancelled.' >&2
+    ! gt 'Cancelled.' >&2
   } # Dlg
 
   Mode () {
-    case $( Dlg --forms --add-combo 'Select' \
-                --text 'LUKS passphrase input method:' \
-                --combo-values 'Interactive|Key File'  )
+    case $( Dlg --forms --add-combo "$( gt 'Select' )" \
+                --text "$( gt 'LUKS passphrase input method:' )" \
+                --combo-values "I$( gt 'nteractive' )|K$( gt 'ey File' )" ) #"
     in I* ) printf '%s' '-i' ;; K* ) printf '%s' '-k' ;; * ) ! : ;;
     esac
   } # Mode
@@ -22,7 +28,8 @@
     Dlg --entry --hide-text --text "${1}"
   } # Psw
 
-  FSel () { Dlg --file-selection --title 'tmount - Select a key file'
+  FSel () {
+    Dlg --file-selection --title "tmount - $( gt 'Select a key file' )"
   } # FSel
 
   l () { # <string>  # Substitutes a literal in 'eval' or 'su -c' args.
@@ -48,7 +55,8 @@
 
   case ${1} in -k|-i|-a ) M=${1} ;; * ) M='' ;; esac
   case ${#} in 1 ) M='-a' ;; 2 ) shift ;; * ) M='' ;; esac
-  [ "${M}" ] || echo "Usage: ${0##*/} [-k|-i|-a] {device|file}" >&2
+  [ "${M}" ] ||
+  echo "$( gt 'Usage' ): ${0##*/} [-k|-i|-a] {$( gt 'device|file' )}" >&2
 
   [ "${M}" = '-a' ] && M=$( Mode )
 
@@ -57,21 +65,23 @@
 
   [ "${M}" ] &&
   if [ '-k' = "${M}" ] ; then F=$( FSel )
-  else L=$( Psw "Enter LUKS passphrase for ${1}" )
+  else L=$( Psw "$( gt 'Enter LUKS passphrase for' ) ${1}" ) #"
   fi &&
   printf '%s' "${L}" | eval sudo -A " ${Cmd} -d $( l "${F}" ) " &&
   if HasFS "${N}" ; then
     C=${TMOUNT_Mount_command:-}
     if [ "$C" ] ; then eval " ${C} $( l "${N}" ) " >/dev/null
-    else ! echo 'Config error: mounting disabled' >&2
+    else ! gt 'Config error: mounting disabled' >&2
     fi
   fi &&
   { F=$( GP "${N}" FSTYPE ) L=$( GP "${N}" LABEL ) R=$( realpath "${N}" )
-    M=$( GP "${N}" MOUNTPOINT ) F=${F:-$( PTT "${N}" )} #"
-    printf 'Device %s mapped to %s\n%s -> %s\n%s (%s, [%s], %s)\n' \
-           "${1}" "${P}" "${N}" "${R}" "${R##*/}" "${F:-(no FS)}"  \
-           "${L:-(no label)}" "$( GP "${N}" SIZE )"
-    if [ "${M}" ] ; then echo "mounted on ${M}" ; fi
+    M=$( GP "${N}" MOUNTPOINT ) S=$( GP "${N}" SIZE )
+    F=${F:-$( PTT "${N}" )} #"
+    printf '%s %s %s %s\n%s -> %s\n%s (%s, [%s], %s)\n' \
+      "$( gt 'Device' )" "${1}" "$( gt 'mapped to' )" "${P}" \
+      "${N}" "${R}" "${R##*/}" "${F:-$( gt '(no FS)' )}" \
+      "${L:-$( gt '(no label)' )}" "${S}"
+    if [ "${M}" ] ; then echo "$( gt 'mounted on' ) ${M}" ; fi
   }
 
 #eof
