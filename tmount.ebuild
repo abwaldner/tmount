@@ -54,8 +54,8 @@ src_install () {
     l=${f#${p}} ; l=${l%.qm} # get language code
     has "${l}" ${LINGUAS} || {
       rm -f "${f}"          # qt translation
-      rm -f "${p}/${l}.msg" # tcl translation
-      rm -f "${p}/${l}.mo"  # gettext translation
+      rm -f "${t}/${l}.msg" # tcl translation
+      rm -f "${t}/${l}.mo"  # gettext translation
       rm -f *."${l}"        # docs
     }
   done
