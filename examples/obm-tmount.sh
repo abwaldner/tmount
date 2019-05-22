@@ -6,6 +6,13 @@
     printf '%s\n' "${1}" # including 'gettext' absence
   } # gt
 
+  exa () { # <string>  # Prepare a string to use as XML attribute.
+    printf '%s' "${1}" | sed '
+      s/&/\&amp;/g ; # must be first
+      s/</\&lt;/g ; s/>/\&gt;/g ; s/"/\&quot;/g ; s/'"'"'/\&apos;/g
+    '
+  } # exa
+
   if P=$( pidof -s tmount ) ; then
     L0='tmount:'
     L1=$( gt 'Devices'    ) R1="kill -USR1 ${P}"
@@ -18,14 +25,14 @@
 
   echo '<?xml version="1.0" encoding="utf-8"?>' ; echo '
     <openbox_pipe_menu>
-      <separator label="'"${L0}"'"/>
-      <item label="'"${L1}"'">
+      <separator label="'"$( exa "${L0}" )"'"/>
+      <item label="'"$( exa "${L1}" )"'">
         <action name="Execute"><command>'"${R1}"'</command></action>
       </item>
-      <item label="'"${L2}"'">
+      <item label="'"$( exa "${L2}" )"'">
         <action name="Execute"><command>'"${R2}"'</command></action>
       </item>
     </openbox_pipe_menu>
   '
 
-#eof
+#eof obm-tmount.sh
