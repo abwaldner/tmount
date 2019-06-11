@@ -1,4 +1,4 @@
-tmount.pro.user
+tmount.pro.*
 *.stash
 Makefile
 moc_*

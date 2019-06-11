@@ -39,7 +39,7 @@ int QUnixApp :: AddSig ( int Sig ) const {
   struct sigaction SA ;
   SA . sa_handler = USHandler ; SA . sa_flags = SA_RESTART ;
   :: sigemptyset ( & SA . sa_mask ) ;
-  return :: sigaction ( Sig  , & SA , NULL ) ;
+  return :: sigaction ( Sig  , & SA , nullptr ) ;
 }// QUnixApp :: AddSig
 
 void QUnixApp :: USHandler ( int Sig ) {

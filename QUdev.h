@@ -66,7 +66,7 @@ class UdevDev {
 class UdevMon : public QObject { Q_OBJECT
   // Monitors "udev" events only, no "kernel".
   public :
-    explicit UdevMon ( const Udev & Context , QObject * parent = 0 ) ;
+    explicit UdevMon ( const Udev & Context , QObject * parent = nullptr ) ;
     virtual ~UdevMon ( ) ;
     int AddMatch ( CPtr Subs , CPtr DevType ) ;
     int EnableReceiving (  ) ;

@@ -51,7 +51,7 @@ void TrayIcon :: Activated ( ActivationReason reason ) {
     } else {
       const QString Msg = tr ( "Devices not found." ) ;
       if ( Vis ) { showMessage ( Msg , "" ) ;
-      } else { QMessageBox :: about ( Lstnr , NULL , Msg ) ;
+      } else { QMessageBox :: about ( Lstnr , nullptr , Msg ) ;
       }//fi
     }//fi
   } else if ( reason == Context ) {

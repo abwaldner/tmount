@@ -34,7 +34,7 @@ typedef class  QList < OptPair > OptList ;
 class LOpts : public QDialog { Q_OBJECT
   public slots : int exec ( ) ;
   public :
-    explicit LOpts   ( QWidget * parent = 0 ) ; virtual ~LOpts ( ) ;
+    explicit LOpts   ( QWidget * parent = nullptr ) ; virtual ~LOpts ( ) ;
     int      toInt   ( loKey K ) const ;
     bool     toBool  ( loKey K ) const ;
     QString  toStr   ( loKey K ) const ;

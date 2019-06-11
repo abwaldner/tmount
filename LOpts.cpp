@@ -137,82 +137,94 @@ struct LOpts :: Item {
 } ;
 
 LOpts :: Item LOpts :: ITbl [ ] = {
-  { "" , "" , NULL , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
-  { MountCmdItm   , MDfl   , MountLbl     , MountTtp  , NULL , kMountPix  ,
-    kMountTO      , kMountShow  , 1 } ,
-  { UnmntCmdItm   , UDfl   , UnmntLbl     , UnmntTtp  , NULL , kUnmntPix  ,
-    kUnmntTO      , kUnmntShow  , 1 } ,
-  { EjectCmdItm   , EDfl   , EjectLbl     , EjectTtp  , NULL , kEjectPix  ,
-    kEjectTO      , kEjectShow  , 1 } ,
-  { RemoveCmdItm  , RDfl   , RemoveLbl    , RemoveTtp , NULL , kRemovePix ,
-    kRemoveTO     , kRemoveShow , 1 } ,
-  { UnlockCmdItm  , ""     , UnlockLbl    , UnlockTtp , NULL , kUnlockPix ,
-    kUnlockTO     , kUnlockShow , 1 } ,
-  { LockCmdItm    , ""     , LockLbl      , LockTtp   , NULL , kLockPix   ,
-    kLockTO       , kLockShow   , 1 } ,
-  { AddImgCmdItm  , MDfl   , AddImgLbl    , AddImgTtp , NULL , kAddImgPix ,
-    kAddImgTO     , kAddImgShow , 1 } ,
-  { MountTOItm    , DefTO  , NULL         , TimeTtp   , NULL , kNoKey ,
-    kNoKey        , kNoKey , 0 } ,
-  { UnmntTOItm    , DefTO  , NULL         , TimeTtp   , NULL , kNoKey ,
-    kNoKey        , kNoKey , 0 } ,
-  { EjectTOItm    , DefTO  , NULL         , TimeTtp   , NULL , kNoKey ,
-    kNoKey        , kNoKey , 0 } ,
-  { RemoveTOItm   , DefTO  , NULL         , TimeTtp   , NULL , kNoKey ,
-    kNoKey        , kNoKey , 0 } ,
-  { UnlockTOItm   , 0      , NULL         , TimeTtp   , NULL , kNoKey ,
-    kNoKey        , kNoKey , 0 } ,
-  { LockTOItm     , 0      , NULL         , TimeTtp   , NULL , kNoKey ,
-    kNoKey        , kNoKey , 0 } ,
-  { AddImgTOItm   , DefTO  , NULL         , TimeTtp   , NULL , kNoKey ,
-    kNoKey        , kNoKey , 0 } ,
-  { HideDevsItm   , ""     , HideLbl      , HideTtp   , NULL , kNoKey ,
-    kNoKey        , kNoKey , 3 } ,
-  { ForceDevsItm  , ""     , ForceLbl     , ForceTtp  , NULL , kNoKey ,
-    kNoKey        , kNoKey , 3 } ,
-  { VerboseItm    , false  , VerboseLbl   , NULL      , NULL , kNoKey ,
-    kNoKey        , kNoKey , 4 } ,
-  { MntNewItm     , false  , MntNewLbl    , NULL      , NULL , kNoKey ,
-    kNoKey        , kNewShow    , 2 } ,
-  { MntMediaItm   , false  , MntMediaLbl  , NULL      , NULL , kNoKey ,
-    kNoKey        , kMediaShow  , 2 } ,
-  { AutoEjectItm  , true   , AutoEjectLbl , NULL      , NULL , kNoKey ,
-    kNoKey        , kAutoEjShow , 2 } ,
-  { MntStartItm   , false  , MntStartLbl  , NULL      , NULL , kNoKey ,
-    kNoKey        , kStartShow  , 2 } ,
-  { "" , MountP   , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
-  { "" , UnmntP   , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
-  { "" , EjectP   , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
-  { "" , RemoveP  , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
-  { "" , UnlockP  , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
-  { "" , LockP    , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
-  { "" , UnrecP   , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
-  { "" , AddImgP  , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
-  { "" , ExitP    , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
-  { "" , ConfigP  , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
-  { "" , AboutP   , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
-  { "" , TMntP    , NULL   , NULL , NULL , kNoKey , kNoKey , kNoKey , 0 } ,
-  { MountShowItm  , false  , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
+  { "" , "" , nullptr , nullptr , nullptr , kNoKey , kNoKey , kNoKey , 0 } ,
+  { MountCmdItm  , MDfl , MountLbl  , MountTtp  , nullptr , kMountPix  ,
+    kMountTO     , kMountShow  ,  1 } ,
+  { UnmntCmdItm  , UDfl , UnmntLbl  , UnmntTtp  , nullptr , kUnmntPix  ,
+    kUnmntTO     , kUnmntShow  ,  1 } ,
+  { EjectCmdItm  , EDfl , EjectLbl  , EjectTtp  , nullptr , kEjectPix  ,
+    kEjectTO     , kEjectShow  ,  1 } ,
+  { RemoveCmdItm , RDfl , RemoveLbl , RemoveTtp , nullptr , kRemovePix ,
+    kRemoveTO    , kRemoveShow ,  1 } ,
+  { UnlockCmdItm , ""   , UnlockLbl , UnlockTtp , nullptr , kUnlockPix ,
+    kUnlockTO    , kUnlockShow ,  1 } ,
+  { LockCmdItm   , ""   , LockLbl   , LockTtp   , nullptr , kLockPix   ,
+    kLockTO      , kLockShow   ,  1 } ,
+  { AddImgCmdItm , MDfl , AddImgLbl , AddImgTtp , nullptr , kAddImgPix ,
+    kAddImgTO    , kAddImgShow ,  1 } ,
+  { MountTOItm   , DefTO , nullptr , TimeTtp , nullptr , kNoKey , kNoKey ,
+    kNoKey , 0 } ,
+  { UnmntTOItm   , DefTO , nullptr , TimeTtp , nullptr , kNoKey , kNoKey ,
+    kNoKey , 0 } ,
+  { EjectTOItm   , DefTO , nullptr , TimeTtp , nullptr , kNoKey , kNoKey ,
+    kNoKey , 0 } ,
+  { RemoveTOItm  , DefTO , nullptr , TimeTtp , nullptr , kNoKey , kNoKey ,
+    kNoKey , 0 } ,
+  { UnlockTOItm  , 0     , nullptr , TimeTtp , nullptr , kNoKey , kNoKey ,
+    kNoKey , 0 } ,
+  { LockTOItm    , 0     , nullptr , TimeTtp , nullptr , kNoKey , kNoKey ,
+    kNoKey , 0 } ,
+  { AddImgTOItm  , DefTO , nullptr , TimeTtp , nullptr , kNoKey , kNoKey ,
+    kNoKey , 0 } ,
+  { HideDevsItm  , "" , HideLbl  , HideTtp  , nullptr , kNoKey , kNoKey ,
+    kNoKey , 3 } ,
+  { ForceDevsItm , "" , ForceLbl , ForceTtp , nullptr , kNoKey , kNoKey ,
+    kNoKey , 3 } ,
+  { VerboseItm   , false , VerboseLbl   , nullptr  , nullptr , kNoKey ,
+    kNoKey , kNoKey      , 4 } ,
+  { MntNewItm    , false , MntNewLbl    , nullptr  , nullptr , kNoKey ,
+    kNoKey , kNewShow    , 2 } ,
+  { MntMediaItm  , false , MntMediaLbl  , nullptr  , nullptr , kNoKey ,
+    kNoKey , kMediaShow  , 2 } ,
+  { AutoEjectItm , true  , AutoEjectLbl , nullptr  , nullptr , kNoKey ,
+    kNoKey , kAutoEjShow , 2 } ,
+  { MntStartItm  , false , MntStartLbl  , nullptr  , nullptr , kNoKey ,
+    kNoKey , kStartShow  , 2 } ,
+  { "" , MountP  , nullptr , nullptr , nullptr , kNoKey , kNoKey , kNoKey ,
+    0  } ,
+  { "" , UnmntP  , nullptr , nullptr , nullptr , kNoKey , kNoKey , kNoKey ,
+    0  } ,
+  { "" , EjectP  , nullptr , nullptr , nullptr , kNoKey , kNoKey , kNoKey ,
+    0  } ,
+  { "" , RemoveP , nullptr , nullptr , nullptr , kNoKey , kNoKey , kNoKey ,
+    0  } ,
+  { "" , UnlockP , nullptr , nullptr , nullptr , kNoKey , kNoKey , kNoKey ,
+    0  } ,
+  { "" , LockP   , nullptr , nullptr , nullptr , kNoKey , kNoKey , kNoKey ,
+    0  } ,
+  { "" , UnrecP  , nullptr , nullptr , nullptr , kNoKey , kNoKey , kNoKey ,
+    0  } ,
+  { "" , AddImgP , nullptr , nullptr , nullptr , kNoKey , kNoKey , kNoKey ,
+    0  } ,
+  { "" , ExitP   , nullptr , nullptr , nullptr , kNoKey , kNoKey , kNoKey ,
+    0  } ,
+  { "" , ConfigP , nullptr , nullptr , nullptr , kNoKey , kNoKey , kNoKey ,
+    0  } ,
+  { "" , AboutP  , nullptr , nullptr , nullptr , kNoKey , kNoKey , kNoKey ,
+    0  } ,
+  { "" , TMntP   , nullptr , nullptr , nullptr , kNoKey , kNoKey , kNoKey ,
+    0  } ,
+  { MountShowItm  , false  , nullptr , ShowTtp , nullptr , kNoKey , kNoKey ,
     kNoKey , 0  } ,
-  { UnmntShowItm  , false  , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
+  { UnmntShowItm  , false , nullptr , ShowTtp , nullptr , kNoKey , kNoKey ,
     kNoKey , 0  } ,
-  { EjectShowItm  , false  , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
+  { EjectShowItm  , false , nullptr , ShowTtp , nullptr , kNoKey , kNoKey ,
     kNoKey , 0  } ,
-  { RemoveShowItm , true   , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
+  { RemoveShowItm , true  , nullptr , ShowTtp , nullptr , kNoKey , kNoKey ,
     kNoKey , 0  } ,
-  { UnlockShowItm , false  , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
+  { UnlockShowItm , false , nullptr , ShowTtp , nullptr , kNoKey , kNoKey ,
     kNoKey , 0  } ,
-  { LockShowItm   , false  , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
+  { LockShowItm   , false , nullptr , ShowTtp , nullptr , kNoKey , kNoKey ,
     kNoKey , 0  } ,
-  { AddImgShowItm , false  , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
+  { AddImgShowItm , false , nullptr , ShowTtp , nullptr , kNoKey , kNoKey ,
     kNoKey , 0  } ,
-  { NewShowItm    , false  , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
+  { NewShowItm    , false , nullptr , ShowTtp , nullptr , kNoKey , kNoKey ,
     kNoKey , 0  } ,
-  { MediaShowItm  , false  , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
+  { MediaShowItm  , false , nullptr , ShowTtp , nullptr , kNoKey , kNoKey ,
     kNoKey , 0  } ,
-  { AutoEjShowItm , false  , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
+  { AutoEjShowItm , false , nullptr , ShowTtp , nullptr , kNoKey , kNoKey ,
     kNoKey , 0  } ,
-  { StartShowItm  , false  , NULL , ShowTtp , NULL , kNoKey , kNoKey ,
+  { StartShowItm  , false , nullptr , ShowTtp , nullptr , kNoKey , kNoKey ,
     kNoKey , 0  } ,
 } ;
 
@@ -233,12 +245,12 @@ LOpts :: LOpts ( QWidget * parent ) : QDialog ( parent ) {
         if ( NV . convert ( T ) ) { C . Val = NV ; }//fi
       }//fi
       Conf . setValue ( K , C . Val ) ;
-      if ( T == QVariant :: String ) {
+      if ( T == QVariant :: Type :: String ) {
         C . Editor = new QLineEdit ( C . Val . toString ( ) ) ;
-      } else if ( T == QVariant :: Int ) {
+      } else if ( T == QVariant :: Type :: Int ) {
         QSpinBox * S = new QSpinBox ; S -> setMaximum ( MaxTO ) ;
         C . Editor = S ; S -> setValue ( C . Val . toInt ( ) ) ;
-      } else if ( T == QVariant :: Bool ) {
+      } else if ( T == QVariant :: Type :: Bool ) {
         QCheckBox * B = new QCheckBox ( tr ( C . Label ) ) ;
         C . Editor = B ; B -> setChecked ( C . Val . toBool ( ) ) ;
       }//fi
@@ -333,17 +345,17 @@ int LOpts :: exec ( ) {
     Item & C = ITbl [ I ] ;
     if ( C . Editor ) {
       const QVariant :: Type T = C . Val . type ( ) ;
-      if ( T == QVariant :: String ) {
+      if ( T == QVariant :: Type :: String ) {
         QLineEdit * L = qobject_cast < QLineEdit * > ( C . Editor ) ;
         if ( A ) { C . Val = L -> text ( ) ;
         } else { L -> setText ( C . Val . toString ( ) ) ;
         }//fi
-      } else if ( T == QVariant :: Int ) {
+      } else if ( T == QVariant :: Type :: Int ) {
         QSpinBox * S = qobject_cast < QSpinBox * > ( C . Editor ) ;
         if ( A ) { C . Val = S -> value ( ) ;
         } else { S -> setValue ( C . Val . toInt ( ) ) ;
         }//fi
-      } else if ( T == QVariant :: Bool ) {
+      } else if ( T == QVariant :: Type :: Bool ) {
         QCheckBox * B = qobject_cast < QCheckBox * > ( C . Editor ) ;
         if ( A ) { C . Val = B -> isChecked ( ) ;
         } else { B -> setChecked ( C . Val . toBool ( ) ) ;

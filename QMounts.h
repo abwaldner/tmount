@@ -11,7 +11,7 @@
 
 class Mounts : public QObject { Q_OBJECT
   public :
-    explicit Mounts ( QObject * parent = 0 ) ; virtual ~Mounts ( ) ;
+    explicit Mounts ( QObject * parent = nullptr ) ; virtual ~Mounts ( ) ;
     QStringList MPoints ( const QString & DevNum ) const ; // "maj:min"
       // isEmpty if device not mounted.
     void RefreshMountInfo ( ) ;

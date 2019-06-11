@@ -81,7 +81,7 @@ Listener :: Listener ( QWidget * parent ) :
   const bool TryMount = Opt . toBool ( kMntStart  ) ,
              Show     = Opt . toBool ( kStartShow ) ;
 
-  UMonitor . AddMatch ( Subsys_Block , NULL ) ;
+  UMonitor . AddMatch ( Subsys_Block , nullptr ) ;
   UMonitor . EnableReceiving ( ) ;
 
   connect ( & UMonitor , SIGNAL ( Changed      ( ) ) ,
@@ -409,8 +409,10 @@ void Listener :: SetActions ( const UdevDev & Dev ) {
       if ( ! Dev . Property ( DATA_TR  ) . isEmpty ( ) ) { Lbl += ",data"  ;
       }//fi
     } else if ( DT == PART_PREF ) {
-      CT = PTName ( Dev . Property ( PRT_SCHM ) , // TBL_TYPE may be empty.
-                    Dev . Property ( PRT_TYPE ) ) ;
+      const QString PS = Dev . Property ( PRT_SCHM ) ;
+        // TBL_TYPE may be empty.
+      if ( ! PS . isEmpty ( ) ) { Lbl += "," + PS ; }//fi
+      CT = PTName ( PS , Dev . Property ( PRT_TYPE ) ) ;
       if ( ! CT . isEmpty ( ) ) { Lbl += "," + CT ; }//fi
     }//fi
     Lbl += ")" ;
@@ -448,7 +450,7 @@ void Listener :: SetActions ( const UdevDev & Dev ) {
   while ( AL . size ( ) < Sz ) { AL += addAction ( "" ) ; }//done
     // Add laking items.
 
-  ActPtr Aft = NULL ;
+  ActPtr Aft = nullptr ;
   if ( ! Dev . Property ( DM_NAME ) . isEmpty ( ) && Sz == 1 ) {
     foreach ( const QString S , Slaves ( Dev ) ) {
       foreach ( const ActPtr N , FindActs ( S ) ) { Aft = N ; }//done
@@ -457,7 +459,7 @@ void Listener :: SetActions ( const UdevDev & Dev ) {
   }//fi
 
   foreach ( const QString M , MPts ) {
-    QString P = sect ( M , 0 ) ; ActPtr B = NULL ;
+    QString P = sect ( M , 0 ) ; ActPtr B = nullptr ;
     const ActPtr A = AL . takeFirst ( ) ; A -> setIcon ( * Ico ) ;
     A -> setObjectName ( ( SPth + " " + P ) . trimmed ( ) ) ;
     A -> setCheckable ( true ) ; A -> setChecked ( MoM ) ;
@@ -465,8 +467,7 @@ void Listener :: SetActions ( const UdevDev & Dev ) {
     A -> setText ( Lbl + P ) ; A -> setVisible ( Targ ) ;
     const ActList L = actions ( ) ; int I = L . indexOf ( Aft ) ;
     if ( 0 <= I && I < L . size ( ) - 2 ) { B = L . at ( I + 1 ) ; }//fi
-    if ( B != A && B != NULL ) { removeAction ( A ) ; insertAction ( B , A ) ;
-    }//fi
+    if ( B && B != A ) { removeAction ( A ) ; insertAction ( B , A ) ; }//fi
     Aft = A ;
   }//done
 
@@ -533,7 +534,7 @@ int Listener :: ExecCmd ( const QString & Cmd ,
       if ( Msg . isEmpty ( ) ) {
         Msg << "'" + C + tr ( "' - successful completion." ) ;
       }//fi
-      QMessageBox :: information ( this , NULL , Msg . join ( "\n" ) ) ;
+      QMessageBox :: information ( this , nullptr , Msg . join ( "\n" ) ) ;
 
     }//fi
 
@@ -636,25 +637,25 @@ void Listener :: contextMenuEvent ( QContextMenuEvent * event ) {
                      : ( MoM ? tr ( "Unmount" ) : tr ( "Mount"  ) ) ;
     SA = SMn . addAction ( Act -> icon ( ) , Txt ) ;
     SA -> setCheckable ( true ) ; SA -> setChecked ( Act -> isChecked ( ) ) ;
-    SA -> setData ( ( uint ) reqNoAct ) ; SMn . setActiveAction ( SA ) ;
+    SA -> setData ( reqNoAct ) ; SMn . setActiveAction ( SA ) ;
   }
 
   if ( MPoints ( Dev ) . size ( ) > 1 ) {
     SA = SMn . addAction ( Act -> icon ( ) , tr ( "Unmount all MP's" ) ) ;
     SA -> setCheckable ( true ) ; SA -> setChecked ( true ) ;
-    SA -> setData ( ( uint ) reqUnmtAll ) ; SMn . setActiveAction ( SA ) ;
+    SA -> setData ( reqUnmtAll ) ; SMn . setActiveAction ( SA ) ;
   }//fi
 
   if ( ! Opt . toStr ( kEjectCmd ) . isEmpty ( ) &&
          Ejectable ( WD ) ) {
     SA = SMn . addAction ( EIcon , tr ( "Eject" ) ) ;
-    SA -> setData ( ( uint ) reqEject ) ; SMn . setActiveAction ( SA ) ;
+    SA -> setData ( reqEject ) ; SMn . setActiveAction ( SA ) ;
   }//fi
 
   if ( ! Opt . toStr ( kRemoveCmd ) . isEmpty ( ) &&
          HOTPLUG . exactMatch ( WD . Property ( DEV_BUS ) ) ) {
     SA = SMn . addAction ( RIcon , tr ( "Remove" ) ) ;
-    SA -> setData ( ( uint ) reqRemove ) ; SMn . setActiveAction ( SA ) ;
+    SA -> setData ( reqRemove ) ; SMn . setActiveAction ( SA ) ;
   }//fi
 
   SA = SMn . exec ( event -> globalPos ( ) ) ;
@@ -662,7 +663,7 @@ void Listener :: contextMenuEvent ( QContextMenuEvent * event ) {
   if ( SA && actions ( ) . contains ( Act ) && Act -> isVisible ( ) ) {
     //   Don't reorder.  In case of device already removed or manually
     // ejected, this check is insufficient, but is better than nothing.
-    Suppl  = ( ActReq ) ( SA -> data ( ) . toUInt ( ) ) ;
+    Suppl  = static_cast < ActReq > ( SA -> data ( ) . toUInt ( ) ) ;
     setActiveAction ( Act ) ;
     keyPressEvent ( & EntrPrs ) ; keyPressEvent ( & EntrRls ) ;
   }//fi

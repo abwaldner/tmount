@@ -29,7 +29,7 @@ int main ( int ArgC , char * ArgV [ ] ) {
     Args . append ( WaitP ) ; Args . append ( DefTW ) ;
   }//fi
 
-  int RetCode = 1 , TimeWait ; bool Ok = Args . size ( ) == 3 ;
+  int RetCode = 1 , TimeWait = 0 ; bool Ok = Args . size ( ) == 3 ;
 
   if ( Ok ) {
     TimeWait = Args . at ( 2 ) .  toInt (  & Ok ) ;

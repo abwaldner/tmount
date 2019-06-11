@@ -26,7 +26,7 @@ class Listener : public QMenu { Q_OBJECT
 
   public :
 
-    explicit Listener ( QWidget * parent = 0 ) ; virtual ~Listener ( ) ;
+    explicit Listener ( QWidget * parent = nullptr ) ; virtual ~Listener ( ) ;
     LOpts Opt ;
     void exec ( const QPoint & Loc ) ;
 
