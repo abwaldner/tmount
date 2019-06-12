@@ -494,23 +494,25 @@ int Listener :: ExecCmd ( const QString & Cmd ,
     Proc . setStandardInputFile  ( "/dev/null" ) ;
     if ( ! Show ) { Proc . setStandardOutputFile ( "/dev/null" ) ; }//fi
 
-    const int TO = Timeout ? Timeout * 1000 : NoTimeout ;
+    int STO = Opt . toInt ( kStartTO ) ;
+    STO = STO > 0 ? STO * 1000 : NoTimeout ;
+    const int RTO = Timeout > 0 ? Timeout * 1000 : NoTimeout ;
     const QString C = Cmd + " \"" +
                         QString ( Arg ) . replace ( '"' , "\"\"\"" ) + "\"" ;
 
     Proc . start ( C , QIODevice :: ReadOnly ) ;
 
-    if ( ! Proc . waitForStarted ( StartTO ) ) {
+    if ( ! Proc . waitForStarted ( STO ) ) {
 
+      Proc . kill ( ) ;
       QMessageBox :: critical ( this , TPref + tr ( "Error" ) ,
                                 tr ( "Can't execute '" ) + C + "'" ) ;
 
-    } else if ( ! Proc . waitForFinished ( TO ) ) {
+    } else if ( ! Proc . waitForFinished ( RTO ) ) {
 
       Proc . kill ( ) ;
       QMessageBox :: critical ( this , TPref + tr ( "Error" ) ,
                                 "'" + C + tr ( "' crashed." ) ) ;
-
     } else if ( ( RC = Proc . exitCode ( ) ) ) {
 
       QStringList Msg = QTextCodec :: codecForLocale ( ) ->

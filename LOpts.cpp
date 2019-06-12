@@ -18,7 +18,7 @@ static const QString // ".conf" file items.
   MountTOItm    = "Mount_timeout"   , UnmntTOItm    = "Unmount_timeout"  ,
   EjectTOItm    = "Eject_timeout"   , RemoveTOItm   = "Remove_timeout"   ,
   UnlockTOItm   = "Unlock_timeout"  , LockTOItm     = "Lock_timeout"     ,
-  AddImgTOItm   = "Add_Img_timeout" ,
+  AddImgTOItm   = "Add_Img_timeout" , StartTOItm    = "Start_timeout"    ,
   HideDevsItm   = "Hidden_devices"  , ForceDevsItm  = "Forced_devices"   ,
   VerboseItm    = "Verbose"         ,
   MntNewItm     = "Mount_new"       , MntMediaItm   = "Mount_media"      ,
@@ -33,8 +33,9 @@ static const QString // ".conf" file items.
 // Defaults.
 
 static const int // arbitrary values
-  DefTO =    5 , // 5 s for run the external program.
-  MaxTO = 3600 ; // 1 h
+  StTO  =    2 , // 2 s for start a external program.
+  DefTO =    5 , // 5 s for run a external program.
+  MaxTO = 3600 ; // 1 h (max for spinboxes).
 
 static const QString
   MDfl = "udevil mount" , UDfl = "udevil umount" , EDfl = "eject" ,
@@ -165,6 +166,8 @@ LOpts :: Item LOpts :: ITbl [ ] = {
   { LockTOItm    , 0     , nullptr , TimeTtp , nullptr , kNoKey , kNoKey ,
     kNoKey , 0 } ,
   { AddImgTOItm  , DefTO , nullptr , TimeTtp , nullptr , kNoKey , kNoKey ,
+    kNoKey , 0 } ,
+  { StartTOItm   , StTO  , nullptr , nullptr , nullptr , kNoKey , kNoKey ,
     kNoKey , 0 } ,
   { HideDevsItm  , "" , HideLbl  , HideTtp  , nullptr , kNoKey , kNoKey ,
     kNoKey , 3 } ,

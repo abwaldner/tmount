@@ -14,9 +14,6 @@
 #include "QUdev.h"
 #include "QMounts.h"
 
-//  Arbitrary value.
-static const int StartTO = 2000 ; // 2 s for start of external program.
-
 typedef const char * const CPtr ;
 
 typedef QAction * ActPtr ;

@@ -8,7 +8,9 @@ v. 0.0.9
   4) Added internatialization for all scripts (currently only Russian
      translation present).
   5) Installation is simplified.  ".pro" and ".ebuild" files changed.
-  6) Updated documentation in accordance with paragraphs 1-5.
+  6) Enhanced timeouts processing for external programs execution.
+  7) Minor refactoring.
+  8) Updated documentation in accordance with paragraphs 1-6.
 
 v. 0.0.8 - 2018.09.13
   1) Enhanced config file synchronization.
