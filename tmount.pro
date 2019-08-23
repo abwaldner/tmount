@@ -1,5 +1,5 @@
 
-VERSION = "0.0.9"
+VERSION = "0.0.10"
 
 SOURCES = $$files( *.cpp )
 HEADERS = $$files( *.h )
