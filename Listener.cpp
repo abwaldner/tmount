@@ -16,13 +16,13 @@
 // and "util-linux"(in libblkid) packages.
 
 static CPtr // Property names.
-  FS_USAGE = "ID_FS_USAGE"          , FS_TYPE = "ID_FS_TYPE" ,
-  FS_LABEL = "ID_FS_LABEL"          , DEV_BUS = "ID_BUS"     ,
-  CD_MEDIA = "ID_CDROM_MEDIA"       , CDROM   = "ID_CDROM"   ,
-  TBL_TYPE = "ID_PART_TABLE_TYPE"   , ID_TYPE = "ID_TYPE"    ,
-  PRT_TYPE = "ID_PART_ENTRY_TYPE"   , DM_UUID = "DM_UUID"    ,
-  PRT_SCHM = "ID_PART_ENTRY_SCHEME" , DM_NAME = "DM_NAME"    ,
-  DEV_TYPE = "DEVTYPE"              ,
+  FS_USAGE = "ID_FS_USAGE"          , FS_TYPE  = "ID_FS_TYPE" ,
+  FS_LABEL = "ID_FS_LABEL"          , DEV_BUS  = "ID_BUS"     ,
+  CD_MEDIA = "ID_CDROM_MEDIA"       , CDROM    = "ID_CDROM"   ,
+  TBL_TYPE = "ID_PART_TABLE_TYPE"   , ID_TYPE  = "ID_TYPE"    ,
+  PRT_TYPE = "ID_PART_ENTRY_TYPE"   , DM_UUID  = "DM_UUID"    ,
+  PRT_SCHM = "ID_PART_ENTRY_SCHEME" , DM_NAME  = "DM_NAME"    ,
+  PRT_NAME = "ID_PART_ENTRY_NAME"   , DEV_TYPE = "DEVTYPE"    ,
   AUDIO_TR = "ID_CDROM_MEDIA_TRACK_COUNT_AUDIO" ,
   DATA_TR  = "ID_CDROM_MEDIA_TRACK_COUNT_DATA"  ;
 
@@ -385,7 +385,7 @@ void Listener :: SetActions ( const UdevDev & Dev ) {
   QString DT = Dev . DevType ( ) , CT = "" ;
 
   if ( DT == TYPE_DISK ) {
-    CT = Dev . Property ( ID_TYPE  ) ;
+    CT = Dev . Property ( ID_TYPE ) ;
     if ( CT . isEmpty ( ) ) {
       CT = sect ( Dev . Property ( DM_UUID ) , 0 , '-' ) . toLower ( ) ;
     }//fi
@@ -409,11 +409,12 @@ void Listener :: SetActions ( const UdevDev & Dev ) {
       if ( ! Dev . Property ( DATA_TR  ) . isEmpty ( ) ) { Lbl += ",data"  ;
       }//fi
     } else if ( DT == PART_PREF ) {
-      const QString PS = Dev . Property ( PRT_SCHM ) ;
-        // TBL_TYPE may be empty.
-      if ( ! PS . isEmpty ( ) ) { Lbl += "," + PS ; }//fi
-      CT = PTName ( PS , Dev . Property ( PRT_TYPE ) ) ;
+      CT = Dev . Property ( PRT_SCHM ) ; // TBL_TYPE may be empty.
       if ( ! CT . isEmpty ( ) ) { Lbl += "," + CT ; }//fi
+      CT = PTName ( CT , Dev . Property ( PRT_TYPE ) ) ;
+      if ( ! CT . isEmpty ( ) ) { Lbl += "," + CT ; }//fi
+      CT = Dev . Property ( PRT_NAME ) ; // Mac or GPT.
+      if ( ! CT . isEmpty ( ) ) { Lbl += ",[" + CT + "]" ; }//fi
     }//fi
     Lbl += ")" ;
   }//fi
