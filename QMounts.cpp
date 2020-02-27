@@ -5,6 +5,7 @@
 
 #include <QTextStream>
 #include <QSocketNotifier>
+#include <sys/statvfs.h>
 
 #include "QMounts.h"
 
@@ -52,5 +53,31 @@ QString Mounts :: EncodeIFS ( const QString & S ) {
            replace ( "\\" , "\\134" ) . replace ( " "  , "\\040" ) .
            replace ( "\t" , "\\011" ) . replace ( "\n" , "\\012" ) ;
 }// Mounts :: EncodeIFS
+
+StatVFS Mounts :: GetStatFS ( const QString & F ) {
+  struct statvfs B ;
+  StatVFS S = {
+    0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,
+    false , false , false , false , false , false , false , false , false
+  } ;
+  if ( ! :: statvfs ( QFile :: encodeName ( F ) . constData ( ) , & B ) ) {
+    const qulonglong FrSz = qulonglong ( B . f_frsize ) ;
+    S . BlockSize = B . f_bsize  ; S . NameMax = B . f_namemax ;
+    S . TotalSize = B . f_blocks * FrSz ; S . TotalFiles = B . f_files  ;
+    S . FreeSize  = B . f_bfree  * FrSz ; S . FreeFiles  = B . f_ffree  ;
+    S . AvailSize = B . f_bavail * FrSz ; S . AvailFiles = B . f_favail ;
+    S . MandLock  = ( B . f_flag & ST_MANDLOCK    ) != 0 ;
+    S . NoATime   = ( B . f_flag & ST_NOATIME     ) != 0 ;
+    S . NoDev     = ( B . f_flag & ST_NODEV       ) != 0 ;
+    S . NoDirATm  = ( B . f_flag & ST_NODIRATIME  ) != 0 ;
+    S . NoExec    = ( B . f_flag & ST_NOEXEC      ) != 0 ;
+    S . NoSUId    = ( B . f_flag & ST_NOSUID      ) != 0 ;
+    S . RdOnly    = ( B . f_flag & ST_RDONLY      ) != 0 ;
+    S . RelATm    = ( B . f_flag & ST_RELATIME    ) != 0 ;
+    S . Sync      = ( B . f_flag & ST_SYNCHRONOUS ) != 0 ;
+  } else { S . ErrNo = errno ;
+  }//fi
+  return S ;
+}// Mounts :: GetStatFS
 
 //eof QMounts.cpp

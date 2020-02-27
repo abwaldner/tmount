@@ -9,6 +9,15 @@
 #include <QStringList>
 #include <QFile>
 
+struct StatVFS {
+  qulonglong TotalSize , FreeSize , AvailSize ; // in bytes.
+  ulong BlockSize  , NameMax   ;
+  ulong TotalFiles , FreeFiles , AvailFiles ;
+  int  ErrNo ;
+  bool MandLock , NoATime , NoDev  , NoDirATm , NoExec ,
+       NoSUId   , RdOnly  , RelATm , Sync ;
+} ; // StatVFS
+
 class Mounts : public QObject { Q_OBJECT
   public :
     explicit Mounts ( QObject * parent = nullptr ) ; virtual ~Mounts ( ) ;
@@ -17,6 +26,7 @@ class Mounts : public QObject { Q_OBJECT
     void RefreshMountInfo ( ) ;
     static QString DecodeIFS ( const QString & S ) ; // man getmntent(3)
     static QString EncodeIFS ( const QString & S ) ;
+    static StatVFS GetStatFS ( const QString & F ) ;
   private :
     Q_DISABLE_COPY ( Mounts )
     QStringList MInfoTab ; QFile MInfoFile ;

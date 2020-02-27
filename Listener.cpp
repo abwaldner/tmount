@@ -347,7 +347,7 @@ int Listener :: UnmntAll ( const UdevDev & Dev , bool Show ) {
     const int CS = MP . size ( ) ; NE = CS != PS ; PS = CS ;
     if ( NE ) {
       RC = ExecCmd ( Opt . toStr ( kUnmntCmd ) ,
-                     Mounts :: DecodeIFS ( sect ( MP . first ( ) , 0 ) ) ,
+                     Mounts :: DecodeIFS ( MP . first ( ) ) ,
                      Opt . toInt ( kUnmntTO ) , Show ) ;
     }//fi
   } while ( NE && ! RC && PS != 1 ) ;
@@ -359,67 +359,72 @@ ActList Listener :: FindActs ( const QString & Key ) const {
   return findChildren < ActPtr > ( RE ) ;
 }// Listener :: FindActs
 
-QString Listener :: ToHum ( qulonglong KB ) {
-  const int K = 1024 ; QString S = "" ;
-  uint R = KB % K ; qulonglong Q = KB / K ;
-  if ( R ) { S = QString :: number ( R ) + "K " + S ; }//fi
-  R = Q % K ; Q /= K ;
-  if ( R ) { S = QString :: number ( R ) + "M " + S ; }//fi
-  R = Q % K ; Q /= K ;
-  if ( R ) { S = QString :: number ( R ) + "G " + S ; }//fi
-  if ( Q ) { S = QString :: number ( Q ) + "T " + S ; }//fi
-  return S . trimmed ( ) ;
+QString Listener :: ToHum ( qulonglong KiB ) {
+  const int Ki = 1024 ; QString S = "" ;
+  uint R = KiB % Ki ; qulonglong Q = KiB / Ki ;
+  if ( R ) { S = QString :: number ( R ) + "Ki_" + S ; }//fi
+  R = Q % Ki ; Q /= Ki ;
+  if ( R ) { S = QString :: number ( R ) + "Mi_" + S ; }//fi
+  R = Q % Ki ; Q /= Ki ;
+  if ( R ) { S = QString :: number ( R ) + "Gi_" + S ; }//fi
+  if ( Q ) { S = QString :: number ( Q ) + "Ti_" + S ; }//fi
+  S . chop ( 1 ) ;
+  return S + "B" ;
 }// Listener :: ToHum
 
 void Listener :: SetActions ( const UdevDev & Dev ) {
 
-  const bool
-    Cont = isLUKS ( Dev ) , FSys = hasFS ( Dev ) , Targ = isTarget ( Dev ) ;
+  const bool Cont = isLUKS ( Dev ) , FSys = hasFS ( Dev ) ;
+  QString Lbl = Dev . DevNode ( ) . section ( '/' , 2 ) + " " ;
 
-  qulonglong Cap = Dev . SysAttr ( SA_Size ) . toULongLong ( ) / 2 ;
-    // Capacity in KiB, sysfs uses 512-bytes units.
-  if ( ! Dev . Property ( CDROM    ) . isEmpty ( ) &&
-         Dev . Property ( CD_MEDIA ) . isEmpty ( )    ) { Cap = 0 ;
-  }//fi // workaround for "no media"
-
-  QString DT = Dev . DevType ( ) , CT = "" ;
-
-  if ( DT == TYPE_DISK ) {
-    CT = Dev . Property ( ID_TYPE ) ;
-    if ( CT . isEmpty ( ) ) {
-      CT = sect ( Dev . Property ( DM_UUID ) , 0 , '-' ) . toLower ( ) ;
-    }//fi
-    if ( CT . isEmpty ( ) ) {
-      CT = sect ( Dev . SysAttr ( SA_BackFile ) , -1 , '/' ) ;
-    } else if ( CT . startsWith ( PART_PREF ) ) { DT = PART_PREF ;
-    }//fi
-  } else if ( DT == TYPE_PART ) { DT = PART_PREF ;
-  }//fi
-
-  const QString FST = Dev . Property ( FS_TYPE ) ;
-  QString Lbl = Dev . DevNode ( ) . section ( '/' , 2 ) ;
-
-  if ( ( ! Cont && ! FSys ) || Verb ) {
-    Lbl += " (" + ( CT . isEmpty ( ) ? DT : CT ) ;
+  { QString DT = Dev . DevType ( ) , CT = "" ;
     if ( DT == TYPE_DISK ) {
-      CT = Dev . Property ( TBL_TYPE ) . toUpper ( ) ;
-      if ( ! CT . isEmpty ( ) ) { Lbl += "," + CT + " pt" ; }//fi
-      if ( ! Dev . Property ( AUDIO_TR ) . isEmpty ( ) ) { Lbl += ",audio" ;
+      CT = Dev . Property ( ID_TYPE ) ;
+      if ( CT . isEmpty ( ) ) {
+        CT = sect ( Dev . Property ( DM_UUID ) , 0 , '-' ) . toLower ( ) ;
       }//fi
-      if ( ! Dev . Property ( DATA_TR  ) . isEmpty ( ) ) { Lbl += ",data"  ;
+      if ( CT . isEmpty ( ) ) {
+        CT = sect ( Dev . SysAttr ( SA_BackFile ) , -1 , '/' ) ;
+      } else if ( CT . startsWith ( PART_PREF ) ) { DT = PART_PREF ;
       }//fi
-    } else if ( DT == PART_PREF ) {
-      CT = Dev . Property ( PRT_SCHM ) ; // TBL_TYPE may be empty.
-      if ( ! CT . isEmpty ( ) ) { Lbl += "," + CT ; }//fi
-      CT = PTName ( CT , Dev . Property ( PRT_TYPE ) ) ;
-      if ( ! CT . isEmpty ( ) ) { Lbl += "," + CT ; }//fi
-      CT = Dev . Property ( PRT_NAME ) ; // Mac or GPT.
-      if ( ! CT . isEmpty ( ) ) { Lbl += ",[" + CT + "]" ; }//fi
+    } else if ( DT == TYPE_PART ) { DT = PART_PREF ;
     }//fi
-    Lbl += ")" ;
+    if ( ! ( Cont || FSys ) || Verb ) {
+      Lbl += "(" + ( CT . isEmpty ( ) ? DT : CT ) ;
+      if ( DT == TYPE_DISK ) {
+        CT = Dev . Property ( TBL_TYPE ) . toUpper ( ) ;
+        if ( ! CT . isEmpty ( ) ) { Lbl += "," + CT + " pt" ; }//fi
+        if ( ! Dev . Property ( AUDIO_TR ) . isEmpty ( ) ) { Lbl += ",audio" ;
+        }//fi
+        if ( ! Dev . Property ( DATA_TR  ) . isEmpty ( ) ) { Lbl += ",data"  ;
+        }//fi
+      } else if ( DT == PART_PREF ) {
+        CT = Dev . Property ( PRT_SCHM ) ; // TBL_TYPE may be empty.
+        if ( ! CT . isEmpty ( ) ) { Lbl += "," + CT ; }//fi
+        CT = PTName ( CT , Dev . Property ( PRT_TYPE ) ) ;
+        if ( ! CT . isEmpty ( ) ) { Lbl += "," + CT ; }//fi
+        CT = Dev . Property ( PRT_NAME ) ; // Mac or GPT.
+        if ( ! CT . isEmpty ( ) ) { Lbl += ",[" + CT + "]" ; }//fi
+      }//fi
+      Lbl += ")," ;
+    }//fi
+  }
+
+  QStringList MPts = Cont ? DM_Maps ( Dev ) : MPoints ( Dev ) ;
+  const  bool MoM  = ! MPts . isEmpty ( ) ; // It's mounted or mapped.
+
+  if ( ! FSys || ! MoM || Verb ) {
+    qulonglong Cap = Dev . SysAttr ( SA_Size ) . toULongLong ( ) / 2 ;
+      // Capacity in KiB, sysfs uses 512-bytes units.
+    if ( ! Dev . Property ( CDROM    ) . isEmpty ( ) &&
+           Dev . Property ( CD_MEDIA ) . isEmpty ( )    ) { Cap = 0 ;
+    }//fi // This is a workaround for "no media" on optical disks.
+    Lbl += Cap ? ToHum ( Cap ) : tr ( "(no media)" ) ;
   }//fi
 
-  if ( ! FST . isEmpty ( ) ) { Lbl += " " + FST ; }//fi
+  { const QString FST = Dev . Property ( FS_TYPE ) ;
+    if ( ! FST . isEmpty ( ) ) { Lbl += " " + FST ; }//fi
+  } // fs type, luks, swap, etc...
 
   if ( FSys ) {
     QString L = Dev . Property ( FS_LABEL ) ;
@@ -427,12 +432,11 @@ void Listener :: SetActions ( const UdevDev & Dev ) {
     L = QString :: fromLocal8Bit ( L . toLatin1 ( ) ) ;
 #endif
     Lbl += L . isEmpty ( ) ? tr ( ",(no label)" ) : ",[" + L + "]" ;
+    if ( MoM ) {
+      QString F = Mounts :: DecodeIFS ( MPts . first ( ) ) ;
+      Lbl += "," + ToHum ( Mounts :: GetStatFS ( F ) . TotalSize / 1024 ) ;
+    }//fi
   }//fi
-
-  Lbl += "," + ( Cap ? ToHum ( Cap ) : tr ( "(no media)" ) ) ;
-
-  QStringList MPts = Cont ? DM_Maps ( Dev ) : MPoints ( Dev ) ;
-  const  bool MoM  = ! MPts . isEmpty ( ) ; // It's mounted or mapped.
 
   QIcon * Ico ;
   if ( MoM ) {
@@ -458,6 +462,8 @@ void Listener :: SetActions ( const UdevDev & Dev ) {
     }//done
   } else { Aft = AL . first ( ) ;
   }//fi
+
+  const bool Targ = isTarget ( Dev ) ;
 
   foreach ( const QString M , MPts ) {
     QString P = sect ( M , 0 ) ; ActPtr B = nullptr ;
