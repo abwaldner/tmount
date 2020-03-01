@@ -1,7 +1,7 @@
 
 //   This file is a part of code of "tmount" program.
 // See COPYING file for terms of usage.
-// Alexander B. Waldner, 2016-2019.
+// Alexander B. Waldner, 2016-2020.
 
 #include <QSocketNotifier>
 #include <QMessageBox>
@@ -362,12 +362,12 @@ ActList Listener :: FindActs ( const QString & Key ) const {
 QString Listener :: ToHum ( qulonglong KiB ) {
   const int Ki = 1024 ; QString S = "" ;
   uint R = KiB % Ki ; qulonglong Q = KiB / Ki ;
-  if ( R ) { S = QString :: number ( R ) + "Ki_" + S ; }//fi
+  if ( R ) { S = QString :: number ( R ) + "_Ki_" + S ; }//fi
   R = Q % Ki ; Q /= Ki ;
-  if ( R ) { S = QString :: number ( R ) + "Mi_" + S ; }//fi
+  if ( R ) { S = QString :: number ( R ) + "_Mi_" + S ; }//fi
   R = Q % Ki ; Q /= Ki ;
-  if ( R ) { S = QString :: number ( R ) + "Gi_" + S ; }//fi
-  if ( Q ) { S = QString :: number ( Q ) + "Ti_" + S ; }//fi
+  if ( R ) { S = QString :: number ( R ) + "_Gi_" + S ; }//fi
+  if ( Q ) { S = QString :: number ( Q ) + "_Ti_" + S ; }//fi
   S . chop ( 1 ) ;
   return S + "B" ;
 }// Listener :: ToHum
