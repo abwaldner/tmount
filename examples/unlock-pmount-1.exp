@@ -85,9 +85,9 @@
     set S [ Prop $R SIZE   ] ; set M [ Prop $R MOUNTPOINT ]
     set L [ Prop $R LABEL  ] ; regsub {^$} $L [ mc {(no label)} ] L
     set F [ Prop $R FSTYPE ] ; set P [ mc {mounted on} ]
-    set T [ mc {mapped to} ]
-    set X  "%s %s %s %s\n%s -> %s\n%s (%s, \[%s], %s)\n%s %s\n"
-    puts [ format $X $D $Dev $T $Map $Lnk $R $B $F $L $S $P $M ]
+    set Z [ Prop $R FSSIZE ] ; set T [ mc {mapped to}  ]
+    set X  "%s %s %s %s\n%s -> %s\n%s %s (%s, \[%s]) %s\n%s %s\n"
+    puts [ format $X $D $Dev $T $Map $Lnk $R $B $S $F $L $Z $P $M ]
   };#fi
 
 exit $RetC

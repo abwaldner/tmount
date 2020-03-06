@@ -132,10 +132,10 @@
     set S [ Prop $R SIZE   ] ; set M [ Prop $R MOUNTPOINT ]
     set L [ Prop $R LABEL  ] ; regsub {^$} $L [ mc {(no label)} ] L
     set F [ Prop $R FSTYPE ] ; regsub {^$} $F [ PTT $R ] F
-    regsub {^$} $F {(no FS)} F
+    set Z [ Prop $R FSSIZE ] ; regsub {^$} $F {(no FS)}  F
     set T [ mc {mapped to} ] ; set D [ mc {Device} ]
-    set X  "%s %s %s %s\n%s -> %s\n%s (%s, \[%s], %s)\n"
-    puts [ format $X $D $Dev $T $Map $Lnk $R $B $F $L $S ]
+    set X  "%s %s %s %s\n%s -> %s\n%s %s (%s, \[%s]) %s\n"
+    puts [ format $X $D $Dev $T $Map $Lnk $R $B $S $F $L $Z ]
     if { $M ne {} } { puts "[ mc {mounted on} ] ${M}" };#fi
   };#fi
 

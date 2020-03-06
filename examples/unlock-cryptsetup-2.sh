@@ -81,11 +81,11 @@
     fi &&
     { F=$( GP "${N}" FSTYPE ) L=$( GP "${N}" LABEL ) R=$( realpath "${N}" )
       M=$( GP "${N}" MOUNTPOINT ) S=$( GP "${N}" SIZE )
-      F=${F:-$( PTT "${N}" )} #"
-      printf '%s %s %s %s\n%s -> %s\n%s (%s, [%s], %s)\n' \
+      Z=$( GP "${N}" FSSIZE ) F=${F:-$( PTT "${N}" )} #"
+      printf '%s %s %s %s\n%s -> %s\n%s %s (%s, [%s]) %s\n' \
         "$( gt 'Device' )" "${1}" "$( gt 'mapped to' )" "${P}" \
-        "${N}" "${R}" "${R##*/}" "${F:-$( gt '(no FS)' )}" \
-        "${L:-$( gt '(no label)' )}" "${S}"
+        "${N}" "${R}" "${R##*/}" "${S}" "${F:-$( gt '(no FS)' )}" \
+        "${L:-$( gt '(no label)' )}" "${Z}"
       if [ "${M}" ] ; then echo "$( gt 'mounted on' ) ${M}" ; fi
     }
 

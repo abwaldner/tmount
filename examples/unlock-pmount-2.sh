@@ -54,9 +54,10 @@
     esac &&
     { N=$( lsblk -plno NAME "${1}" | tail -n 1 ) ; P=${N##*/}
       F=$( GP "${N}" FSTYPE ) L=$( GP "${N}" LABEL ) R=$( realpath "${N}" )
-      printf '%s %s %s %s\n%s -> %s\n%s (%s, [%s], %s)\n%s %s\n' \
+      S="$( GP "${N}" SIZE )" Z=$( GP "${N}" FSSIZE )
+      printf '%s %s %s %s\n%s -> %s\n%s %s (%s, [%s]) %s\n%s %s\n' \
         "$( gt 'Device' )" "${1}" "$( gt 'mapped to' )" "${P}" "${N}" "${R}" \
-        "${R##*/}" "${F}" "${L:-$( gt '(no label)' )}" "$( GP "${N}" SIZE )" \
+        "${R##*/}" "${S}" "${F}" "${L:-$( gt '(no label)' )}" "${Z}" \
         "$( gt 'mounted on' )" "$( GP "${N}" MOUNTPOINT )"
     }
 
