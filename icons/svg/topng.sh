@@ -3,9 +3,11 @@
   I="${1}"
   S="${2:-48}"
 
-  inkscape --without-gui --export-width="${S}" --export-height="${S}" \
-    --export-background-opacity=0 --export-png="${I%.svg}-${S}.png" "${I}"
+  #  inkscape -z --vacuum-defs -l "${I}" -f "${I}"
 
-  # rsvg-convert -w "${S}" -h "${S}" -o "${I%.svg}-${S}.png" "${I}"
+  inkscape -z -w "${S}" -h "${S}" -y 0 -e "${I%.svg}-${S}.png" -f "${I}"
+    # for inkscape 0.9x
+
+  #  rsvg-convert -d 96 -w "${S}" -h "${S}" -o "${I%.svg}-${S}.png" "${I}"
 
 #eof

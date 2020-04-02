@@ -11,6 +11,7 @@
     <file>icons/lock.png</file>
     <file>icons/eject.png</file>
     <file>icons/remove.png</file>
-    <file>icons/unrec.png</file>
+    <file>icons/unrecf.png</file>
+    <file>icons/unrecs.png</file>
   </qresource>
 </RCC>

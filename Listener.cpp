@@ -66,7 +66,8 @@ Listener :: Listener ( QWidget * parent ) :
   RIcon = QIcon ( Opt . toStr ( kRemovePix ) ) ;
   DIcon = QIcon ( Opt . toStr ( kUnlockPix ) ) ;
   LIcon = QIcon ( Opt . toStr ( kLockPix   ) ) ;
-  CIcon = QIcon ( Opt . toStr ( kUnrecPix  ) ) ;
+  FIcon = QIcon ( Opt . toStr ( kUnrecFPix ) ) ;
+  SIcon = QIcon ( Opt . toStr ( kUnrecSPix ) ) ;
   TIcon = QIcon ( Opt . toStr ( kTMntPix   ) ) ;
 
   setWindowIcon ( TIcon ) ; TPref = Opt . AppName ( ) + " - " ;
@@ -347,7 +348,7 @@ int Listener :: UnmntAll ( const UdevDev & Dev , bool Show ) {
     const int CS = MP . size ( ) ; NE = CS != PS ; PS = CS ;
     if ( NE ) {
       RC = ExecCmd ( Opt . toStr ( kUnmntCmd ) ,
-                     Mounts :: DecodeIFS ( MP . first ( ) ) ,
+                     Mounts :: DecodeIFS ( sect ( MP . first ( ) , 0 ) ) ,
                      Opt . toInt ( kUnmntTO ) , Show ) ;
     }//fi
   } while ( NE && ! RC && PS != 1 ) ;
@@ -410,7 +411,7 @@ void Listener :: SetActions ( const UdevDev & Dev ) {
     }//fi
   }
 
-  QStringList MPts = Cont ? DM_Maps ( Dev ) : MPoints ( Dev ) ;
+  QStringList MPts = FSys ? MPoints ( Dev ) : DM_Maps ( Dev ) ;
   const  bool MoM  = ! MPts . isEmpty ( ) ; // It's mounted or mapped.
 
   if ( ! FSys || ! MoM || Verb ) {
@@ -433,17 +434,18 @@ void Listener :: SetActions ( const UdevDev & Dev ) {
 #endif
     Lbl += L . isEmpty ( ) ? tr ( ",(no label)" ) : ",[" + L + "]" ;
     if ( MoM ) {
-      QString F = Mounts :: DecodeIFS ( MPts . first ( ) ) ;
+      QString F = Mounts :: DecodeIFS ( sect ( MPts . first ( ) , 0 ) ) ;
       Lbl += "," + ToHum ( Mounts :: GetStatFS ( F ) . TotalSize / 1024 ) ;
     }//fi
   }//fi
 
   QIcon * Ico ;
   if ( MoM ) {
-    Ico = Cont ? & LIcon : & UIcon ; Lbl  += tr ( " on " ) ;
+    Lbl += tr ( " on " ) ;
+    Ico = Cont ? & LIcon : ( FSys ? & UIcon : & SIcon ) ;
   } else {
     MPts << "" ; // see below.
-    Ico = Cont ? & DIcon : ( FSys ? & MIcon : & CIcon ) ;
+    Ico = Cont ? & DIcon : ( FSys ? & MIcon : & FIcon ) ;
   }//fi
 
   const QString SPth = Dev . SysPath ( ) ;
@@ -470,7 +472,7 @@ void Listener :: SetActions ( const UdevDev & Dev ) {
     const ActPtr A = AL . takeFirst ( ) ; A -> setIcon ( * Ico ) ;
     A -> setObjectName ( ( SPth + " " + P ) . trimmed ( ) ) ;
     A -> setCheckable ( true ) ; A -> setChecked ( MoM ) ;
-    P += Cont && MoM ? " (" + sect ( M , 1 ) + ")" : "" ;
+    P += ! FSys && MoM ? " (" + sect ( M , 1 ) + ")" : "" ;
     A -> setText ( Lbl + P ) ; A -> setVisible ( Targ ) ;
     const ActList L = actions ( ) ; int I = L . indexOf ( Aft ) ;
     if ( 0 <= I && I < L . size ( ) - 2 ) { B = L . at ( I + 1 ) ; }//fi

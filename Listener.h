@@ -72,7 +72,8 @@ class Listener : public QMenu { Q_OBJECT
     Mounts  MInfo ;
     QString CurrDev ; ActReq Suppl ;
     QProcessEnvironment Env ;
-    QIcon MIcon , UIcon , EIcon , RIcon , DIcon , LIcon , CIcon , TIcon ;
+    QIcon
+      MIcon , UIcon , EIcon , RIcon , DIcon , LIcon , FIcon , SIcon , TIcon ;
     QString TPref ; // Window title prefix from Opt.
 
 } ; // Listener

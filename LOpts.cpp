@@ -45,9 +45,10 @@ static const QString // Icons.
   MountP  = ":/icons/mount.png"  , UnmntP  = ":/icons/unmount.png" ,
   EjectP  = ":/icons/eject.png"  , RemoveP = ":/icons/remove.png"  ,
   UnlockP = ":/icons/unlock.png" , LockP   = ":/icons/lock.png"    ,
-  UnrecP  = ":/icons/unrec.png"  , AddImgP = ":/icons/fsimg.png"   ,
-  ExitP   = ":/icons/exit.png"   , ConfigP = ":/icons/config.png"  ,
-  AboutP  = ":/icons/info.png"   , TMntP   = ":/icons/tmount.png"  ;
+  UnrecFP = ":/icons/unrecf.png" , UnrecSP = ":/icons/unrecs.png"  ,
+  AddImgP = ":/icons/fsimg.png"  , ExitP   = ":/icons/exit.png"    ,
+  ConfigP = ":/icons/config.png" , AboutP  = ":/icons/info.png"    ,
+  TMntP   = ":/icons/tmount.png" ;
 
 static CPtr // Tooltips.
   TtpStyle  = "<p style='white-space:pre'>" ,
@@ -195,7 +196,9 @@ LOpts :: Item LOpts :: ITbl [ ] = {
     0  } ,
   { "" , LockP   , nullptr , nullptr , nullptr , kNoKey , kNoKey , kNoKey ,
     0  } ,
-  { "" , UnrecP  , nullptr , nullptr , nullptr , kNoKey , kNoKey , kNoKey ,
+  { "" , UnrecFP , nullptr , nullptr , nullptr , kNoKey , kNoKey , kNoKey ,
+    0  } ,
+  { "" , UnrecSP , nullptr , nullptr , nullptr , kNoKey , kNoKey , kNoKey ,
     0  } ,
   { "" , AddImgP , nullptr , nullptr , nullptr , kNoKey , kNoKey , kNoKey ,
     0  } ,

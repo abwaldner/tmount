@@ -21,8 +21,9 @@ enum loKey {
   kHideDevs   , kForceDevs , kVerbose    ,
   kMntNew     , kMntMedia  , kAutoEject  , kMntStart   ,
   kMountPix   , kUnmntPix  , kEjectPix   , kRemovePix  ,
-  kUnlockPix  , kLockPix   , kUnrecPix   , kAddImgPix  ,
-  kExitPix    , kConfPix   , kAboutPix   , kTMntPix    ,
+  kUnlockPix  , kLockPix   , kUnrecFPix  , kUnrecSPix  ,
+  kAddImgPix  , kExitPix   , kConfPix    , kAboutPix   ,
+  kTMntPix    ,
   kMountShow  , kUnmntShow , kEjectShow  , kRemoveShow ,
   kUnlockShow , kLockShow  , kAddImgShow ,
   kNewShow    , kMediaShow , kAutoEjShow , kStartShow
