@@ -1,7 +1,7 @@
 
       tmount - block devices mounter/unmounter for system tray.
 
-  (C) 2016-2020 Alexander B. Waldner.
+  (C) 2016-2021 Alexander B. Waldner.
 
       This code was initially based on the code of "easymount" program
   (C) 2013 by Stanislaw Adaszewski, <http://algoholic.eu>

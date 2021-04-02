@@ -75,7 +75,7 @@
     fi &&
     if HasFS "${N}" ; then
       C=${TMOUNT_Mount_command:-}
-      if [ "$C" ] ; then eval " ${C} $( l "${N}" ) " >/dev/null
+      if [ "${C}" ] ; then eval " ${C} $( l "${N}" ) " >/dev/null
       else ! gt 'Config error: mounting disabled' >&2
       fi
     fi &&

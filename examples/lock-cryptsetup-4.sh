@@ -41,7 +41,7 @@
   ! [ "${M}" ] &&
   if tty >/dev/null ; then
     ! [ -e "${N}" ] ||
-    { echo 'sudo -' ; sudo "$Cmd" close -- "${1}" ; } &&
+    { echo 'sudo -' ; sudo "${Cmd}" close -- "${1}" ; } &&
     echo "${1} $( gt 'released.' )"
     echo ; gt 'Press Enter to continue...' ; read -r M
   else MyTerm "${0}" "${@}"

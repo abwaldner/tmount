@@ -81,7 +81,7 @@
       </window>
     '
     eval "$( D=${D} gtkdialog -c -p D 2>/dev/null )"
-    [ OK = "${EXIT}" ] && echo "${VAL}" || ! echo 'Cancelled.' >&2
+    [ OK = "${EXIT:-}" ] && echo "${VAL:-}" || ! echo 'Cancelled.' >&2
   ) # Dlg  # '(...)' used instead of 'local' for EXIT and VAL, etc.
 
   Mode () {

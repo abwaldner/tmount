@@ -2,7 +2,7 @@
       tmount - block devices mounter/unmounter
                for system tray (and not only) on Linux.
 
-      Alexander B. Waldner, 2016-2020.
+      Alexander B. Waldner, 2016-2021.
   See COPYING file for terms of usage.
 
       "tmount" is an application, that starts in system tray (aka notification
@@ -17,17 +17,18 @@
   the "Eject" and/or "Remove", and/or "Unmount all [M]ount[P]oints" items, if
   applicable to the device.
 
-     By default "tmount" use "udevil" (https://ignorantguru.github.com/udevil)
-  for mounting/unmounting.  You can use any other appropriate program or your
-  own script by editing "Mount" and "Unmount" fields in "Settings" dialog
-  window.  The device node name (b.e. /dev/sdc1 or /dev/sr0) will be appended
-  to the end of given command line for mount and unlock commands and
-  the mountpoint pathname will be appended for unmount command.  For example,
-  for use of the "pmount" program (http://pmount.alioth.debian.org) just type
-  "pmount" and "pumount" in appropriate fields.  The whole disk node name
-  (b.e. /dev/sdc for /dev/sdc[1-9] and /dev/sr0 for /dev/sr0) will be appended
-  for eject and remove commands.  If you leave the "Eject" and "Remove" fields
-  empty, the corresponding menu items will just become unavailable.
+      For mountig/unmounting "tmount" uses "udevil"
+  (https://ignorantguru.github.com/udevil) by default.  You can use any other
+  appropriate program or your own script by editing "Mount" and "Unmount"
+  fields in "Settings" dialog window.  The device node name (b.e. /dev/sdc1 or
+  /dev/sr0) will be appended to the end of given command line for mount and
+  unlock commands and the mountpoint pathname will be appended for unmount
+  command.  For example, for use of the "pmount" program
+  (http://pmount.alioth.debian.org) just type "pmount" and "pumount" in
+  appropriate fields.  The whole disk node name (b.e. /dev/sdc for
+  /dev/sdc[1-9] and /dev/sr0 for /dev/sr0) will be appended for eject and
+  remove commands.  If you leave the "Eject" and "Remove" fields empty,
+  the corresponding menu items will just become unavailable.
       The "Unmount all MP" action applies the "Unmount" command to all
   mountpoints of this device.
       Before running the "Remove" or "Eject" command, the application tries to
@@ -52,8 +53,8 @@
   Since, as a rule, the program is launched, having its current working
   directory the user's home directory, you can use, for example,
   the "./bin/myscrypt" notation.
-      The timeout is specified for each action in the corresponding
-  field.
+      The timeout (in secs) is specified for each action in the corresponding
+  field, 0 means no timeout.
       The switches "Mount New", "Mount media", and "Mount on start" control
   attempts of program to mount the filesystems on the connected devices,
   inserted removable media and detected during the start of the application,

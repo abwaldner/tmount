@@ -1,24 +1,33 @@
 
 //   This file is a part of code of "tmount" program.
 // See COPYING file for terms of usage.
-// Alexander B. Waldner, 2016-2020.
+// Alexander B. Waldner, 2016-2021.
 
 #ifndef PTNAME_H
 #define PTNAME_H
 
 #include <QString>
 
-inline QString PTName ( const QString & TType ,
-                        const QString & PType ) {
+inline QString PTName ( const QString & TType ,   // Table Type.
+                        const QString & PType ) { // Partition Type or GUID.
+
   typedef const char * const CPtr ;
-  typedef struct { CPtr T , P , N ; } PNRc ;
+  typedef struct { CPtr
+    T , // partition Table type.
+    P , // Partition type / GUID.
+    N ; // partition type description.
+  } PNRc ;
+
   //   These constants are hardcoded in "udev" , "util-linux" and
   // "gptfdisk" packages.  See also
   // https://wikipedia.org/wiki/GUID_Partition_Table
+
   static CPtr
     DOS = "dos" , SUN = "sun" , SGI = "sgi" ,
     BSD = "bsd" , GPT = "gpt" , MAC = "mac" ;
+
   static const PNRc PNTbl [ ] = {
+    // Master Boot Record.
     { DOS , "0x0"  , "Empty"                     } ,
     { DOS , "0x1"  , "FAT12"                     } ,
     { DOS , "0x2"  , "XENIX root"                } ,
@@ -119,6 +128,7 @@ inline QString PTName ( const QString & TType ,
     { DOS , "0xfd" , "Linux raid autodetect"     } ,
     { DOS , "0xfe" , "LANstep / SpeedStor"       } ,
     { DOS , "0xff" , "Xenix Bad Block Table"     } ,
+    //
     { SUN , "0x0"  , "Unassigned"                } ,
     { SUN , "0x1"  , "Boot"                      } ,
     { SUN , "0x2"  , "SunOS root"                } ,
@@ -135,6 +145,7 @@ inline QString PTName ( const QString & TType ,
     { SUN , "0x83" , "Linux native"              } ,
     { SUN , "0x8e" , "Linux LVM"                 } ,
     { SUN , "0xfd" , "Linux raid autodetect"     } ,
+    //
     { SGI , "0x0"  , "SGI volhdr"                } ,
     { SGI , "0x1"  , "SGI trkrepl"               } ,
     { SGI , "0x2"  , "SGI secrepl"               } ,
@@ -153,6 +164,7 @@ inline QString PTName ( const QString & TType ,
     { SGI , "0x83" , "Linux native"              } ,
     { SGI , "0x8e" , "Linux LVM"                 } ,
     { SGI , "0xfd" , "Linux RAID"                } ,
+    // BSD Disklabel.
     { BSD , "0x0"  , "unused"                    } ,
     { BSD , "0x1"  , "swap"                      } ,
     { BSD , "0x2"  , "Version 6"                 } ,
@@ -170,6 +182,7 @@ inline QString PTName ( const QString & TType ,
     { BSD , "0xe"  , "ADOS"                      } ,
     { BSD , "0xf"  , "HFS"                       } ,
     { BSD , "0x10" , "AdvFS"                     } ,
+    // GUID Partition Table.
     // N/A
     { GPT , "00000000-0000-0000-0000-000000000000" ,
                      "Unused entry"              } ,
@@ -234,6 +247,43 @@ inline QString PTName ( const QString & TType ,
                      "Linux plain dm-crypt"      } ,
     { GPT , "ca7d7ccb-63ed-4c53-861c-1742536059cc" ,
                      "Linux LUKS"                } ,
+    { GPT , "d13c5d3b-b5d1-422a-b29f-9454fdc89d76" ,
+                     "Linux x86 root verity"     } ,
+    { GPT , "2c7357ed-ebd2-46d9-aec1-23d437ec2bf5" ,
+                     "Linux x86-64 root verity"  } ,
+    { GPT , "7386cdf2-203c-47a9-a498-f2ecce45a2d6" ,
+                     "Linux ARM32 root verity"   } ,
+    { GPT , "df3300ce-d69f-4c92-978c-9bfb0f38d820" ,
+                     "Linux ARM64 root verity"   } ,
+    { GPT , "86ed10d5-b607-45bb-8957-d350f23d0571" ,
+                     "Linux IA-64 root verity"   } ,
+    { GPT , "8f461b0d-14ee-4e81-9aa9-049b6fb97abd" ,
+                     "Linux x86 /usr verity"     } ,
+    { GPT , "77ff5f63-e7b6-4633-acf4-1565b864c0e6" ,
+                     "Linux x86-64 /usr verity"  } ,
+    { GPT , "c215d751-7bcd-4649-be90-6627490a4c05" ,
+                     "Linux ARM32 /usr verity"   } ,
+    { GPT , "6e11a4e7-fbca-4ded-b9e9-e1a512bb664e" ,
+                     "Linux ARM64 /usr verity"   } ,
+    { GPT , "6a491e03-3be7-4545-8e38-83320e0ea880" ,
+                     "Linux IA-64 /usr verity"   } ,
+    // Linux (auto-mounted by systemd)
+    { GPT , "4d21b016-b534-45c2-a9fb-5c16e091fd2d" ,
+                     "Linux /var"                } ,
+    { GPT , "7ec6f557-3bc5-4aca-b293-16ef5df639d1" ,
+                     "Linux /var/tmp"            } ,
+    { GPT , "75250d76-8cc6-458e-bd66-bd47cc81a812" ,
+                     "Linux x86 /usr "           } ,
+    { GPT , "8484680c-9521-48c6-9c11-b0720656f69e" ,
+                     "Linux x86-64 /usr"         } ,
+    { GPT , "7d0359a3-02b3-4f0a-865c-654403e70625" ,
+                     "Linux ARM32 /usr"          } ,
+    { GPT , "b0e01050-ee5f-4390-949a-9101b17104e9" ,
+                     "Linux ARM64 /usr"          } ,
+    { GPT , "4301d2a6-4e3b-4b2a-bb94-9e0b2c4225ea" ,
+                     "Linux IA-64 /usr"          } ,
+    { GPT , "773f91ef-66d4-49b5-bd83-d683bf40ad16" ,
+                     "Linux user's home"         } ,
     // FreeBSD
     { GPT , "516e7cb4-6ecf-11d6-8ff8-00022d09712b" ,
                      "FreeBSD data"              } ,
@@ -308,9 +358,9 @@ inline QString PTName ( const QString & TType ,
                      "NetBSD FFS"                } ,
     { GPT , "49f48d82-b10e-11dc-b99b-0019d1879648" ,
                      "NetBSD LFS"                } ,
-    { GPT , "2db519c4-b10e-11dc-b99b-0019d1879648" ,
+    { GPT , "2db519c4-b10f-11dc-b99b-0019d1879648" ,
                      "NetBSD concatenated"       } ,
-    { GPT , "2db519ec-b10e-11dc-b99b-0019d1879648" ,
+    { GPT , "2db519ec-b10f-11dc-b99b-0019d1879648" ,
                      "NetBSD encrypted"          } ,
     { GPT , "49f48daa-b10e-11dc-b99b-0019d1879648" ,
                      "NetBSD RAID"               } ,
@@ -453,6 +503,100 @@ inline QString PTName ( const QString & TType ,
                      "Android Meta"              } ,
     { GPT , "193d1ea4-b3ca-11e4-b075-10604b889dcf" ,
                      "Android EXT"               } ,
+    { GPT , "dea0ba2c-cbdd-4805-b4f9-f428251c3e98" ,
+                     "Android SBL1"              } ,
+    { GPT , "8c6b52ad-8a9e-4398-ad09-ae916e53ae2d" ,
+                     "Android SBL2"              } ,
+    { GPT , "05e044df-92f1-4325-b69e-374a82e97d6e" ,
+                     "Android SBL3"              } ,
+    { GPT , "400ffdcd-22e0-47e7-9a23-f16ed9382388" ,
+                      "Android APPSBL"           } ,
+    { GPT , "a053aa7f-40b8-4b1c-ba08-2f68ac71a4f4" ,
+                     "Android QSEE/tz"           } ,
+    { GPT , "e1a6a689-0c8d-4cc6-b4e8-55a4320fbd8a" ,
+                     "Android QHEE/hyp"          } ,
+    { GPT , "098df793-d712-413d-9d4e-89d711772228" ,
+                     "Android RPM"               } ,
+    { GPT , "d4e0d938-b7fa-48c1-9d21-bc5ed5c4b203" ,
+                     "Android WDOG debug/sdi"    } ,
+    { GPT , "20a0c19c-286a-42fa-9ce7-f64c3226a794" ,
+                     "Android DDR"               } ,
+    { GPT , "a19f205f-ccd8-4b6d-8f1e-2d9bc24cffb1" ,
+                     "Android CDT"               } ,
+    { GPT , "66c9b323-f7fc-48b6-bf96-6f32e335a428" ,
+                     "Android RAM dump"          } ,
+    { GPT , "303e6ac3-af15-4c54-9e9b-d9a8fbecf401" ,
+                     "Android SEC"               } ,
+    { GPT , "c00eef24-7709-43d6-9799-dd2b411e7a3c" ,
+                     "Android PMIC"              } ,
+    { GPT , "82acc91f-357c-4a68-9c8f-689e1b1a23a1" ,
+                     "Android misc 1"            } ,
+    { GPT , "e2802d54-0545-e8a1-a1e8-c7a3e245acd4" ,
+                     "Android misc 2"            } ,
+    { GPT , "65addcf4-0c5c-4d9a-ac2d-d90b5cbfcd03" ,
+                     "Android device info"       } ,
+    { GPT , "e6e98da2-e22a-4d12-ab33-169e7deaa507" ,
+                     "Android APDP"              } ,
+    { GPT , "ed9e8101-05fa-46b7-82aa-8d58770d200b" ,
+                     "Android MSADP"             } ,
+    { GPT , "11406f35-1173-4869-807b-27df71802812" ,
+                     "Android DPO"               } ,
+    { GPT , "9d72d4e4-9958-42da-ac26-bea7a90b0434" ,
+                     "Android recovery 2"        } ,
+    { GPT , "6c95e238-e343-4ba8-b489-8681ed22ad0b" ,
+                     "Android persist"           } ,
+    { GPT , "ebbeadaf-22c9-e33b-8f5d-0e81686a68cb" ,
+                     "Android modem ST1"         } ,
+    { GPT , "0a288b1f-22c9-e33b-8f5d-0e81686a68cb" ,
+                     "Android modem ST2"         } ,
+    { GPT , "57b90a16-22c9-e33b-8f5d-0e81686a68cb" ,
+                     "Android FSC"               } ,
+    { GPT , "638ff8e2-22c9-e33b-8f5d-0e81686a68cb" ,
+                     "Android FSG 1"             } ,
+    { GPT , "2013373e-1ac4-4131-bfd8-b6a7ac638772" ,
+                     "Android FSG 2"             } ,
+    { GPT , "2c86e742-745e-4fdd-bfd8-b6a7ac638772" ,
+                     "Android SSD"               } ,
+    { GPT , "de7d4029-0f5b-41c8-ae7e-f6c023a02b33" ,
+                     "Android keystore"          } ,
+    { GPT , "323ef595-af7a-4afa-8060-97be72841bb9" ,
+                     "Android encrypt"           } ,
+    { GPT , "45864011-cf89-46e6-a445-85262e065604" ,
+                     "Android EKSST"             } ,
+    { GPT , "8ed8ae95-597f-4c8a-a5bd-a7ff8e4dfaa9" ,
+                     "Android RCT"               } ,
+    { GPT , "df24e5ed-8c96-4b86-b00b-79667dc6de11" ,
+                     "Android spare1"            } ,
+    { GPT , "7c29d3ad-78b9-452e-9deb-d098d542f092" ,
+                     "Android spare2"            } ,
+    { GPT , "379d107e-229e-499d-ad4f-61f5bcf87bd4" ,
+                     "Android spare3"            } ,
+    { GPT , "0dea65e5-a676-4cdf-823c-77568b577ed5" ,
+                     "Android spare4"            } ,
+    { GPT , "4627ae27-cfef-48a1-88fe-99c3509ade26" ,
+                     "Android raw resources"     } ,
+    { GPT , "20117f86-e985-4357-b9ee-374bc1d8487d" ,
+                     "Android boot 2"            } ,
+    { GPT , "86a7cb80-84e1-408c-99ab-694f1a410fc7" ,
+                     "Android FOTA"              } ,
+    { GPT , "97d7b011-54da-4835-b3c4-917ad6e73d74" ,
+                     "Android system 2"          } ,
+    { GPT , "5594c694-c871-4b5f-90b1-690a6f68e0f7" ,
+                     "Android cache"             } ,
+    { GPT , "1b81e7e6-f50d-419b-a739-2aeef8da3335" ,
+                     "Android user data"         } ,
+    { GPT , "98523ec6-90fe-4c67-b50a-0fc59ed6f56d" ,
+                     "Android LG adv. flasher"   } ,
+    { GPT , "2644bcc0-f36a-4792-9533-1738bed53ee3" ,
+                     "Android PG1FS"             } ,
+    { GPT , "dd7c91e9-38c9-45c5-8a12-4a80f7e14057" ,
+                     "Android PG2FS"             } ,
+    { GPT , "7696d5b6-43fd-4664-a228-c563c4a1e8cc" ,
+                     "Android board info"        } ,
+    { GPT , "0d802d54-058d-4a20-ad2d-c7a362ceacd4" ,
+                     "Android MFG"               } ,
+    { GPT , "10a0c19c-516a-5444-5ce3-664c3226a794" ,
+                     "Android limits"            } ,
     // Open Network Install Environment
     { GPT , "7412f7d5-a156-4b13-81dc-867174929325" ,
                      "ONIE boot"                 } ,
@@ -467,6 +611,15 @@ inline QString PTName ( const QString & TType ,
     // Atari TOS
     { GPT , "734e5afe-f61a-11e6-bc64-92361f002671" ,
                      "Atari Basic data"          } ,
+    // VeraCrypt
+    { GPT , "8c8f8eff-ac95-4770-814a-21994f2dbc8f" ,
+                     "Veracrypt data"            } ,
+    // OS/2
+    { GPT , "90b6ff38-b98f-4358-a21f-48f35b4a8ad3" ,
+                     "ArcaOS Type 1"             } ,
+    // Storage Performance Development Kit
+    { GPT , "7c5222bd-8f5d-4087-9c00-bf9843c7b58c" ,
+                     "SPDK block device"         } ,
     // Acronis
     { GPT , "0311fc50-01ca-4725-ad77-9adbb20ace98" ,
                      "Acronis Secure Zone"       } ,
@@ -476,7 +629,9 @@ inline QString PTName ( const QString & TType ,
     { GPT , "5b193300-fc78-40cd-8002-e86c45580b47" ,
                      "HiFive Unleashed FSBL"     } ,
   } ;
+
   QString N ; const QString TT = TType . right ( 3 ) ;
+
   if ( TT != MAC ) {
     static const int PNTSz = sizeof ( PNTbl ) / sizeof ( PNRc ) ;
     for ( int I = 0 ; I < PNTSz && N . isEmpty ( ) ; ++ I ) {
@@ -485,9 +640,12 @@ inline QString PTName ( const QString & TType ,
     }//done
   } else { N = PType ;
   }//fi
+
   if ( N . isEmpty ( ) ) { N = ( TT == GPT ? "" : PType + "-" ) + "unknown" ;
   }//fi
+
   return N ;
+
 }// PTName
 
 #endif // PTNAME_H

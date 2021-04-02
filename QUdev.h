@@ -1,7 +1,7 @@
 
 //   This file is a part of code of "tmount" program.
 // See COPYING file for terms of usage.
-// Alexander B. Waldner, 2016-2020.
+// Alexander B. Waldner, 2016-2021.
 
 //   The minimal wrapper for "objects" of "libudev" library.
 // Implemented only really used in the "tmount" program functions.
