@@ -145,7 +145,7 @@ inline QString PTName ( const QString & TType ,   // Table Type.
     { SUN , "0x83" , "Linux native"              } ,
     { SUN , "0x8e" , "Linux LVM"                 } ,
     { SUN , "0xfd" , "Linux raid autodetect"     } ,
-    //
+    // IRIX.
     { SGI , "0x0"  , "SGI volhdr"                } ,
     { SGI , "0x1"  , "SGI trkrepl"               } ,
     { SGI , "0x2"  , "SGI secrepl"               } ,
@@ -213,6 +213,8 @@ inline QString PTName ( const QString & TType ,   // Table Type.
                      "IBM General Parallel Fs"   } ,
     { GPT , "e75caf8f-f680-4cee-afa3-b001e56efc2d" ,
                      "Microsoft Storage Spaces"  } ,
+    { GPT , "558D43C5-A1AC-43C0-AAC8-D1472B2923D1" ,
+                     "Microsoft Storage Replica" } ,
     // HP-UX
     { GPT , "75894c1e-3aeb-11d3-b7c1-7b03a0000000" ,
                      "HP-UX data"                } ,
