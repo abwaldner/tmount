@@ -18,13 +18,14 @@ inline QString PTName ( const QString & TType ,   // Table Type.
     N ; // partition type description.
   } PNRc ;
 
-  //   These constants are hardcoded in "udev" , "util-linux" and
-  // "gptfdisk" packages.  See also
-  // https://wikipedia.org/wiki/GUID_Partition_Table
+  //   These constants are hardcoded in "util-linux" and "gptfdisk" packages.
+  // "udev" uses this via "libblkid".
+  // See also https://wikipedia.org/wiki/GUID_Partition_Table and
+  // https://github.com/freemint/freemint
 
   static CPtr
     DOS = "dos" , SUN = "sun" , SGI = "sgi" ,
-    BSD = "bsd" , GPT = "gpt" , MAC = "mac" ;
+    BSD = "bsd" , GPT = "gpt" , MAC = "mac" , TOS = "atari" ;
 
   static const PNRc PNTbl [ ] = {
     // Master Boot Record.
@@ -182,6 +183,18 @@ inline QString PTName ( const QString & TType ,   // Table Type.
     { BSD , "0xe"  , "ADOS"                      } ,
     { BSD , "0xf"  , "HFS"                       } ,
     { BSD , "0x10" , "AdvFS"                     } ,
+    // Atari TOS
+    { TOS , "XGM" , "TOS Extended"               } ,
+    { TOS , "GEM" , "GEMDOS FAT16 (<32 MB)"      } ,
+    { TOS , "BGM" , "GEMDOS FAT16 (>=32MB)"      } ,
+    { TOS , "F32" , "TOS FAT32 (Win95)"          } ,
+    { TOS , "LNX" , "Linux native (ext2)"        } ,
+    { TOS , "MAC" , "Mac HFS"                    } ,
+    { TOS , "MIX" , "Minix"                      } ,
+    { TOS , "MNX" , "Minix"                      } ,
+    { TOS , "RAW" , "Unspecified (RAW)"          } ,
+    { TOS , "UNX" , "Atari SysV R4 Unix"         } ,
+    { TOS , "SWP" , "Swap"                       } ,
     // GUID Partition Table.
     // N/A
     { GPT , "00000000-0000-0000-0000-000000000000" ,
@@ -632,18 +645,22 @@ inline QString PTName ( const QString & TType ,   // Table Type.
                      "HiFive Unleashed FSBL"     } ,
   } ;
 
-  QString N ; const QString TT = TType . right ( 3 ) ;
+  QString N ; // Resulting Name.
 
-  if ( TT != MAC ) {
+  //   The "endsWith" is used because the value of "ID_PART_TABLE_TYPE" and
+  // "ID_PART_ENTRY_SCHEME" properties can be prefixed.
+
+  if ( ! TType . endsWith ( MAC ) ) {
     static const int PNTSz = sizeof ( PNTbl ) / sizeof ( PNRc ) ;
     for ( int I = 0 ; I < PNTSz && N . isEmpty ( ) ; ++ I ) {
       const PNRc & R = PNTbl [ I ] ;
-      if ( TT == R . T && PType == R . P ) { N = R . N ; }//fi
+    if ( TType . endsWith ( R . T ) && PType == R . P ) { N = R . N ; }//fi
     }//done
   } else { N = PType ;
   }//fi
 
-  if ( N . isEmpty ( ) ) { N = ( TT == GPT ? "" : PType + "-" ) + "unknown" ;
+  if ( N . isEmpty ( ) ) {
+    N = ( TType . endsWith ( GPT ) ? "" : PType + "-" ) + "unknown" ;
   }//fi
 
   return N ;
