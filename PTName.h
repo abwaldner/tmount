@@ -635,6 +635,9 @@ inline QString PTName ( const QString & TType ,   // Table Type.
     // Storage Performance Development Kit
     { GPT , "7c5222bd-8f5d-4087-9c00-bf9843c7b58c" ,
                      "SPDK block device"         } ,
+    // Barebox
+    { GPT , "4778ED65-BF42-45FA-9C5B-287A1DC4AAB1" ,
+                     "Barebox boot loader"       } ,
     // Acronis
     { GPT , "0311fc50-01ca-4725-ad77-9adbb20ace98" ,
                      "Acronis Secure Zone"       } ,
