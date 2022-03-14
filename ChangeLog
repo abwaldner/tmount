@@ -12,7 +12,7 @@ v. 0.0.9 - 2019.06.13
      option.
   3) The scripting examples are substantially remaked and unified, some errors
      are fixed, added "yad" support.
-  4) Added internatialization for all scripts (currently only Russian
+  4) Added internationalization for all scripts (currently only Russian
      translation present).
   5) Installation is simplified.  ".pro" and ".ebuild" files changed.
   6) Enhanced timeouts processing for external programs execution.
@@ -22,14 +22,14 @@ v. 0.0.9 - 2019.06.13
 v. 0.0.8 - 2018.09.13
   1) Enhanced config file synchronization.
   2) Changed the method of displaying the message "Devices not found."
-  3) Changing the "Hidden devices" and "Show anyway" filds no longer requires
+  3) Changing the "Hidden devices" and "Show anyway" fields no longer requires
      restart the program.
-  4) The "lock-crypsetup- *" scripts try to unmount all mountpoints of
+  4) The "lock-cryptsetup- *" scripts try to unmount all mountpoints of
      the containers FS, if necessary.  The "unlock-cryptsetup- *" scripts call
      the mount command if a FS is found in the container.  In all scripts
      fixed processing filenames and mountpoints containing non-ascii and
      nonprintable characters.
-  5) Enhansed the order of displaying menu items.
+  5) Enhanced the order of displaying menu items.
   6) Changed the behavior of the "Eject" and "Remove" actions.  Added
      "Unmount all mountpoints" action.
   7) Updated the documentation.
@@ -75,7 +75,7 @@ v. 0.0.4 - 2017.06.13
   7) Minor fixes and refactoring.
 
 v. 0.0.3 - 2017.05.13
-  1) Added support for mounting of filesistem images.
+  1) Added support for mounting of filesystem images.
   2) Added show of device capacity.
   3) Added ebuild template for Gentoo users.
   4) Updated documentation in accordance with paragraphs 1-3.

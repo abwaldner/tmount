@@ -21,7 +21,7 @@
   for example, to external USB SDD, ends successfully, but does not render
   necessary action.  The device just reconnects, that when automount mode is
   on or working external automounter creates troubles.  Therefore, the script
-  simply refuses do it.
+  simply refuses to do it.
       You can disable such devices by writing to the corresponding sysfs file,
   as the "udisk" program does (see remove2.sh), however do it is strongly not
   recommended.

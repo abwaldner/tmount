@@ -13,16 +13,16 @@
       Actions are selected (toggled) from menu, which shown on left-button
   click on the tray icon.  Context (right-click activated) menu of that icon
   contains the "Settings", "Quit" and "Add image" items.  When you right-click
-  on the action menu item, an supplementary menu is activated that contains
+  on the action menu item, a supplementary menu is activated that contains
   the "Eject" and/or "Remove", and/or "Unmount all [M]ount[P]oints" items, if
   applicable to the device.
 
-      For mountig/unmounting "tmount" uses "udevil"
+      For mounting/unmounting "tmount" uses "udevil"
   (https://ignorantguru.github.com/udevil) by default.  You can use any other
   appropriate program or your own script by editing "Mount" and "Unmount"
   fields in "Settings" dialog window.  The device node name (b.e. /dev/sdc1 or
-  /dev/sr0) will be appended to the end of given command line for mount and
-  unlock commands and the mountpoint pathname will be appended for unmount
+  /dev/sr0) will be appended to the end of the given command line for mount
+  and unlock commands and the mountpoint pathname will be appended for unmount
   command.  For example, for use of the "pmount" program
   (http://pmount.alioth.debian.org) just type "pmount" and "pumount" in
   appropriate fields.  The whole disk node name (b.e. /dev/sdc for
@@ -33,11 +33,11 @@
   mountpoints of this device.
       Before running the "Remove" or "Eject" command, the application tries to
   unmount all mountpoints on all partitions of the whole disk, then checks if
-  there are mounted filesystems or mapped containers or loopback-maps on
+  there are mounted filesystems or mapped containers or loopback maps on
   the specified device, and if the device or any of its partitions is in use
   by another programs.  However, the application can not detect programs
   launched by another user, such as (g)parted, *fdisk, mkfs.* by root, or
-  cd/dvd-recorder or mediaplayer by another user of the "cdrom" group.  In
+  cd/dvd recorder or mediaplayer by another user of the "cdrom" group.  In
   addition, in general, the program can't lock the device before starting
   the test.
       The context menu "Add image" item allows you to choose the filesystem
@@ -48,7 +48,7 @@
   "luks.txt" file and the script "img-pmount.sh" in the examples.)
       In all the above fields, no shell expansions are made, except for
   grouping strings in double quotes into one parameter.  To specify double
-  quotes literally they must be tripled.  The pathname of the command can be
+  quotes literally, they must be tripled.  The pathname of the command can be
   determined from the PATH environment variable or specified explicitly.
   Since, as a rule, the program is launched, having its current working
   directory the user's home directory, you can use, for example,
@@ -56,12 +56,12 @@
       The timeout (in secs) is specified for each action in the corresponding
   field, 0 means no timeout.
       The switches "Mount New", "Mount media", and "Mount on start" control
-  attempts of program to mount the filesystems on the connected devices,
+  attempts of the program to mount the filesystems on the connected devices,
   inserted removable media and detected during the start of the application,
-  respectively.  By default all set to "off".  The "Autoeject" switch controls
-  the automatic use of the "eject" command, if defined, to the ejection-
-  capable devices after a successfuly unmounting the last mountpoint for this
-  device.  It is set to "on" by default.
+  respectively.  All are set to "off" by default.  The "Autoeject" switch
+  controls the automatic use of the "eject" command, if defined, to
+  the ejection-capable devices after a successfully unmounting the last
+  mountpoint for this device.  It is set to "on" by default.
       The "Show" group of switches determines whether to show the output of
   the command (either explicitly or implicitly) when it successfully
   completes.  Note: error messages can not be disabled.  Both blocks
@@ -70,7 +70,7 @@
   the directory /usr/share/tmount/docs or in the project directory.  Note:
   the unlocking of cryptocontainers never starts automatically.  For
   configuring the "Remove" item, see the "remove.txt" file for details.
-      By default "tmount" shows all block devices and partitions containing
+      By default, "tmount" shows all block devices and partitions containing
   the filesystem or LUKS container.  To hide some of them, for example
   the root filesystem, type an extended regular expression, matches these
   devices (b.e. "/dev/sd([ab].*|c1)") to the "Hidden devices" field.  You can
@@ -110,14 +110,14 @@
   signal is caught (128+SIGALRM=142 - timeout exceeded).
 
       "tmount" use only "udev", "procfs" and "sysfs" functionality and require
-  only libudev and Qt libraries.  This is Linux-specific program.  Current
+  only libudev and Qt libraries.  This is the Linux-specific program.  Current
   version tested on qt-4.8.7, qt-5.11.3 and eudev 3.2.5.
 
       Installation:
       -------------
 
   1)  Make sure that the packages "qtcore", "qtgui" and "qtwidgets" (for Qt5)
-      are installed.  In some distributions you may need "developers
+      are installed.  In some distributions, you may need "developers
       packages" - "-devel", "-tools" or similar.
   2)  Extract project directory from archive and "cd" to it.
   3)  Type "qmake" to configure the program.  If you would like to install
@@ -128,5 +128,5 @@
 
       Users of Gentoo or its derived distributions can place "tmount.ebuild"
   into your local overlay, renaming it according to the latest release (b.e.,
-  in "tmount-0.0.9.ebuild") or to "tmount-9999.ebuild" for install the current
-  version, run "ebuild ... digest" and emerge it.
+  in "tmount-0.0.9.ebuild") or to "tmount-9999.ebuild" for installing
+  the current version, run "ebuild ... digest" and emerge it.

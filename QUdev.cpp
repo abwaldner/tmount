@@ -47,7 +47,7 @@ int UdevMon :: AddMatch ( CPtr Subs , CPtr DevType ) {
 
 int UdevMon :: EnableReceiving ( ) {
   return mMon ? :: udev_monitor_enable_receiving ( mMon ) : -22 ;
-    // this is workaround for udev bug (segmentation fault)
+    // This is a workaround for udev bug (segmentation fault).
 }// UdevMon :: EnableReceiving
 
 UdevDev :: UdevDev ( const Udev & Context , const QString & SysPath ) {

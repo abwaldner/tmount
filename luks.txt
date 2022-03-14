@@ -37,7 +37,7 @@
   dialog.
       To unlock containers that are in regular files, you should ensure that
   the relevant scripts are run through the field "Add image" of the settings
-  dialog (see img-*.sh in examles).   Warning: don't forget to change
+  dialog (see img-*.sh in examples).   Warning: don't forget to change
   the timeout value.  Note: the "pumount" program works incorrectly in this
   case, therefore it is necessary pre-unlock the container and add "/dev/dm-*"
   to the "/etc/pmount.allow" file.
@@ -49,5 +49,5 @@
   (https://wiki.gnome.org/Projects/Zenity), Xdialog (http://xdialog.free.fr),
   gtkdialog (https://github.com/oshazard/gtkdialog), or yad
   (https://sourceforge.net/projects/yad-dialog), the corresponding functions
-  are listed in the files "dialogs.sh" and "dialogs.tcl".  Also you can use
+  are listed in the files "dialogs.sh" and "dialogs.tcl".  Also, you can use
   "Expect+Tk" (*.expk) scripts.
