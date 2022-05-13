@@ -1,7 +1,7 @@
 
 //   This file is a part of code of "tmount" program.
 // See COPYING file for terms of usage.
-// Alexander B. Waldner, 2016-2021.
+// Alexander B. Waldner, 2016-2022.
 
 #ifndef PTNAME_H
 #define PTNAME_H
@@ -587,6 +587,9 @@ inline QString PTName ( const QString & TType ,   // Table Type.
     // Haiku
     { GPT , "42465331-3ba3-10f1-802a-4861696b7521" ,
             "Haiku BFS"                          } ,
+    // Marvell
+    { GPT , "6828311a-ba55-42a4-bcde-a89bb5edecae" ,
+            "Marvell Armada 3700 Boot"           } ,
     // Midnight BSD
     { GPT , "85d5e45a-237c-11e1-b4b3-e89a8f7fc3a7" ,
             "MidnightBSD data"                   } ,

@@ -1,3 +1,5 @@
+# Russian messages for example Expect scripts of "tmount" package.
+# Alexander B. Waldner, 2018-2022
 #
 namespace import -force msgcat::mcset
 mcset ru {Usage} {Использование}

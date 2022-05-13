@@ -1,10 +1,13 @@
 
-v. 0.0.10 -
-   ) For mounted filesystems, is now the FS capacity displayed, instead
+v. 0.0.10 - 2022.05.13
+  1) For mounted filesystems, is now the FS capacity displayed, instead
      of media capacity.  The media capacity for these FS is visible, if
      "Verbose listing" option is set.
-   ) Added show of APT(Mac) and GPT partition labels.  Enhanced show of GPT
-     partition types.
+  2) Added show of APT(Mac) and GPT partition labels.
+  3) Added recognition of Atari TOS partitions.
+  4) Enhanced show of GPT partition types.
+  5) Due to the removal of the Qt4 package from gentoo, this is the last
+     release that can be compiled using it.
 
 v. 0.0.9 - 2019.06.13
   1) Added loopback-mapping checking for "Remove" and "Eject" actions.

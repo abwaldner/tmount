@@ -2,7 +2,7 @@
       tmount - block devices mounter/unmounter
                for system tray (and not only) on Linux.
 
-      Alexander B. Waldner, 2016-2021.
+      Alexander B. Waldner, 2016-2022.
   See COPYING file for terms of usage.
 
       "tmount" is an application, that starts in system tray (aka notification

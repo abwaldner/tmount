@@ -1,7 +1,7 @@
 
 //   This file is a part of code of "tmount" program.
 // See COPYING file for terms of usage.
-// Alexander B. Waldner, 2016-2021.
+// Alexander B. Waldner, 2016-2022.
 
 #include <QTranslator>
 #include <QTextStream>
